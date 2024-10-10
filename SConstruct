@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+import platform
 
 from methods import print_error
 
@@ -51,17 +52,21 @@ compilation_db = env.CompilationDatabase(
 )
 env.Alias("compiledb", compilation_db)
 
-submodule_initialized = False
-dir_name = 'godot-cpp'
-if os.path.isdir(dir_name):
-    if os.listdir(dir_name):
-        submodule_initialized = True
+submodules_initialized = True
+for dir_name in ["godot-cpp", "box2d"]:
+    if os.path.isdir(dir_name):
+        if os.listdir(dir_name):
+            continue
+    submodules_initialized = False
+    break
 
-if not submodule_initialized:
-    print_error("""godot-cpp is not available within this folder, as Git submodules haven't been initialized.
-Run the following command to download godot-cpp:
+if not submodules_initialized:
+    print_error(
+        """godot-cpp and/or box2d are not available within this folder, as Git submodules haven't been initialized.
+Run the following command to download:
 
-    git submodule update --init --recursive""")
+    git submodule update --init --recursive"""
+    )
     sys.exit(1)
 
 env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
@@ -70,18 +75,27 @@ env.Append(CPPPATH=["src/"])
 sources = Glob("src/*.cpp")
 
 # Add box2d as static library
-if env['CC'] == 'cl':
-    env.Append(CFLAGS=['/std:c11', '/experimental:c11atomics'])
+env.Append(CPPDEFINES=["BOX2D_ENABLE_SIMD"])
+
+if env["CC"] == "cl":
+    env.Append(CFLAGS=["/std:c11", "/experimental:c11atomics"])
+
+if env["CC"] == "mingw" or env["CC"] == "clang":
+    env.Append(CFLAGS=["-ffp-contract=off"])
+
+if platform.machine() in ["x86_64", "AMD64"]:
+    env.Append(CPPDEFINES=["BOX2D_AVX2"])
 
 env.Append(CPPPATH=["box2d/include/"])
 box2D_sources = Glob("box2d/src/*.c")
-box2D_lib = env.StaticLibrary("box2d", box2D_sources)
-env.Append(LIBS=[box2D_lib])
-
+box2d_lib = env.StaticLibrary("box2d", box2D_sources)
+env.Append(LIBS=[box2d_lib])
 
 if env["target"] in ["editor", "template_debug"]:
     try:
-        doc_data = env.GodotCPPDocData("src/gen/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))
+        doc_data = env.GodotCPPDocData(
+            "src/gen/doc_data.gen.cpp", source=Glob("doc_classes/*.xml")
+        )
         sources.append(doc_data)
     except AttributeError:
         print("Not including class reference as we're targeting a pre-4.3 baseline.")
@@ -99,7 +113,9 @@ library = env.SharedLibrary(
     source=sources,
 )
 
-copy = env.InstallAs("{}/bin/{}/{}lib{}".format(projectdir, env["platform"], filepath, file), library)
+copy = env.InstallAs(
+    "{}/bin/{}/{}lib{}".format(projectdir, env["platform"], filepath, file), library
+)
 
 default_args = [library, copy]
 if localEnv.get("compiledb", False):
