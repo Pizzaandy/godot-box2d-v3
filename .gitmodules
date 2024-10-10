@@ -2,3 +2,6 @@
 	path = godot-cpp
 	url = https://github.com/godotengine/godot-cpp.git
 	branch = 4.0
+[submodule "box2d"]
+	path = box2d
+	url = https://github.com/erincatto/box2d

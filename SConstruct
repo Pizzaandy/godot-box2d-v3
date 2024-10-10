@@ -14,7 +14,7 @@ def validate_parent_dir(key, val, env):
         raise UserError("'%s' is not a directory: %s" % (key, os.path.dirname(val)))
 
 
-libname = "EXTENSION-NAME"
+libname = "godot-box2c"
 projectdir = "demo"
 
 localEnv = Environment(tools=["default"], PLATFORM="")
@@ -68,6 +68,16 @@ env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
 
 env.Append(CPPPATH=["src/"])
 sources = Glob("src/*.cpp")
+
+# Add box2d as static library
+if env['CC'] == 'cl':
+    env.Append(CFLAGS=['/std:c11', '/experimental:c11atomics'])
+
+env.Append(CPPPATH=["box2d/include/"])
+box2D_sources = Glob("box2d/src/*.c")
+box2D_lib = env.StaticLibrary("box2d", box2D_sources)
+env.Append(LIBS=[box2D_lib])
+
 
 if env["target"] in ["editor", "template_debug"]:
     try:
