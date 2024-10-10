@@ -1,17 +1,36 @@
 #include "register_types.h"
 #include <gdextension_interface.h>
-#include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
+#include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/classes/physics_server2d_manager.hpp>
+#include "servers/box2d_physics_server_2d.h"
 
 using namespace godot;
 
+Box2DPhysicsServer2D* create_box2d_physics_server() {
+	return memnew(Box2DPhysicsServer2D);
+}
+
 void initialize_gdextension_types(ModuleInitializationLevel p_level)
 {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
+	switch (p_level) {
+		case MODULE_INITIALIZATION_LEVEL_SERVERS: {
+            //ClassDB::register_class<Box2DPhysicsDirectBodyState2D>(true);
+			ClassDB::register_class<Box2DPhysicsDirectSpaceState2D>(true);
+			ClassDB::register_class<Box2DPhysicsServer2D>();
+
+			PhysicsServer2DManager::get_singleton()->register_server(
+				"Box2D",
+				callable_mp_static(&create_box2d_physics_server)
+			);
+		} break;
+		case MODULE_INITIALIZATION_LEVEL_SCENE: {
+			// Box2DProjectSettings::register_settings();
+		} break;
+		default: {
+		} break;
 	}
-	//GDREGISTER_CLASS(YourClass);
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {
