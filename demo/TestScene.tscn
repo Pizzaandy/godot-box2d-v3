@@ -1,3 +1,25 @@
-[gd_scene format=3 uid="uid://f2dle7n6bc7o"]
+[gd_scene load_steps=3 format=3 uid="uid://f2dle7n6bc7o"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_c4lvb"]
+radius = 45.1774
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_tbd68"]
+radius = 43.1045
 
 [node name="Node2D" type="Node2D"]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+position = Vector2(373, 348)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+shape = SubResource("CircleShape2D_c4lvb")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(84, 1)
+shape = SubResource("CircleShape2D_c4lvb")
+
+[node name="RigidBody2D" type="RigidBody2D" parent="."]
+position = Vector2(383, 158)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+shape = SubResource("CircleShape2D_tbd68")

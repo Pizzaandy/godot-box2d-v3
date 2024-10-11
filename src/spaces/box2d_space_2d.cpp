@@ -1,10 +1,8 @@
 #include "box2d_space_2d.h"
-#include <godot_cpp/variant/utility_functions.hpp>
 
 Box2DSpace2D::Box2DSpace2D() {
 	b2WorldDef worldDef = b2DefaultWorldDef();
 	world_id = b2CreateWorld(&worldDef);
-	UtilityFunctions::print("Hello from the physics world!");
 }
 
 Box2DSpace2D::~Box2DSpace2D() {

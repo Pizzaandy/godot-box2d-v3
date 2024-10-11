@@ -24,6 +24,8 @@ public:
 
 	Box2DPhysicsDirectSpaceState2D *get_direct_state();
 
+    b2WorldId get_world_id() const { return world_id; }
+
 private:
 	b2WorldId world_id;
 	RID rid;

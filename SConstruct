@@ -72,7 +72,7 @@ Run the following command to download:
 env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
 
 env.Append(CPPPATH=["src/"])
-sources = [Glob("src/*.cpp"), Glob("src/servers/*.cpp"), Glob("src/spaces/*.cpp")]
+sources = [Glob("src/*.cpp"), Glob("src/servers/*.cpp"), Glob("src/spaces/*.cpp"), Glob("src/shapes/*.cpp"), Glob("src/bodies/*.cpp")]
 
 # Add box2d as static library
 env.Append(CPPDEFINES=["BOX2D_ENABLE_SIMD"])
