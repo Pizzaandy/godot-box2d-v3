@@ -2,9 +2,6 @@
 #include "../servers/box2d_physics_server_2d.h"
 #include "../spaces/box2d_physics_direct_space_state_2d.h"
 
-Box2DDirectBodyState2D::Box2DDirectBodyState2D(Box2DBody2D *p_body) :
-		body(p_body) {}
-
 // Vector2 Box2DDirectBodyState2D::_get_total_gravity() const {
 // 	ERR_FAIL_COND_V(body->get_space(), Vector2());
 

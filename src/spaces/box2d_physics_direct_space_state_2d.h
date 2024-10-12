@@ -13,7 +13,7 @@ class Box2DPhysicsDirectSpaceState2D : public PhysicsDirectSpaceState2DExtension
 
 public:
 	Box2DPhysicsDirectSpaceState2D() = default;
-	explicit Box2DPhysicsDirectSpaceState2D(Box2DSpace2D *p_space);
+	Box2DPhysicsDirectSpaceState2D(Box2DSpace2D *p_space) : space(p_space) {}
 
 private:
 	static void _bind_methods();

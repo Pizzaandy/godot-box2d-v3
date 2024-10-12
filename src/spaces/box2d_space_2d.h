@@ -33,4 +33,5 @@ private:
 	RID rid;
 	Box2DPhysicsDirectSpaceState2D *direct_state = nullptr;
 	float last_step;
+	b2BodyEvents body_events;
 };

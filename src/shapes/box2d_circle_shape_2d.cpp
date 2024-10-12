@@ -1,9 +1,8 @@
 #include "box2d_circle_shape_2d.h"
-#include <godot_cpp/variant/utility_functions.hpp>
 
 b2ShapeId Box2DCircleShape2D::build(b2BodyId p_body_id, Transform2D p_transform, bool p_disabled, b2ShapeId p_shape_id) {
 	Variant::Type type = data.get_type();
-	ERR_FAIL_COND_V(type != Variant::Type::FLOAT && type != Variant::Type::INT, b2_nullShapeId);
+	ERR_FAIL_COND_V(type != Variant::FLOAT && type != Variant::INT, b2_nullShapeId);
 
 	float radius = data;
 	Vector2 origin = p_transform.get_origin();

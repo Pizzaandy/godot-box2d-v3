@@ -8,6 +8,9 @@ Box2DSpace2D::Box2DSpace2D() {
 }
 
 Box2DSpace2D::~Box2DSpace2D() {
+	if (direct_state) {
+		memdelete(direct_state);
+	}
 	b2DestroyWorld(world_id);
 }
 
@@ -16,18 +19,25 @@ void Box2DSpace2D::step(float p_step) {
 
 	last_step = p_step;
 
-	b2BodyEvents events = b2World_GetBodyEvents(world_id);
-	for (int i = 0; i < events.moveCount; ++i) {
-		const b2BodyMoveEvent *event = events.moveEvents + i;
+	body_events = b2World_GetBodyEvents(world_id);
+	for (int i = 0; i < body_events.moveCount; ++i) {
+		const b2BodyMoveEvent *event = body_events.moveEvents + i;
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(event->userData);
 		body->update_state(event->transform, event->fellAsleep);
+		//body->call_queries();
 	}
 }
 
-void Box2DSpace2D::call_queries() {}
+void Box2DSpace2D::call_queries() {
+	for (int i = 0; i < body_events.moveCount; ++i) {
+		const b2BodyMoveEvent *event = body_events.moveEvents + i;
+		Box2DBody2D *body = static_cast<Box2DBody2D *>(event->userData);
+		body->call_queries();
+	}
+}
 
 Box2DPhysicsDirectSpaceState2D *Box2DSpace2D::get_direct_state() {
-	if (direct_state == nullptr) {
+	if (!direct_state) {
 		direct_state = memnew(Box2DPhysicsDirectSpaceState2D(this));
 	}
 	return direct_state;

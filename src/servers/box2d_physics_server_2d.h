@@ -16,8 +16,8 @@ public:
 	// RID _separation_ray_shape_create() override;
 	// RID _segment_shape_create() override;
 	RID _circle_shape_create() override;
-	// RID _rectangle_shape_create() override;
-	// RID _capsule_shape_create() override;
+	RID _rectangle_shape_create() override;
+	RID _capsule_shape_create() override;
 	// RID _convex_polygon_shape_create() override;
 	// RID _concave_polygon_shape_create() override;
 	void _shape_set_data(const RID &p_shape, const Variant &p_data) override;

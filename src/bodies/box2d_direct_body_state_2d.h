@@ -5,7 +5,6 @@
 #include <godot_cpp/classes/physics_direct_body_state2d_extension.hpp>
 #include <godot_cpp/classes/physics_server2d.hpp>
 
-
 using namespace godot;
 
 class Box2DBody2D;
@@ -18,7 +17,8 @@ protected:
 
 public:
 	Box2DDirectBodyState2D() = default;
-	explicit Box2DDirectBodyState2D(Box2DBody2D *p_body);
+	Box2DDirectBodyState2D(Box2DBody2D *p_body) :
+			body(p_body) {}
 
 	Box2DBody2D *body = nullptr;
 

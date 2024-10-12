@@ -1,5 +1,7 @@
 #include "box2d_physics_server_2d.h"
+#include "../shapes/box2d_capsule_shape_2d.h"
 #include "../shapes/box2d_circle_shape_2d.h"
+#include "../shapes/box2d_rectangle_shape_2d.h"
 
 #define FLUSH_QUERY_CHECK(m_object) \
 	ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead.");
@@ -8,9 +10,23 @@ void Box2DPhysicsServer2D::_bind_methods() {}
 
 // Shape API
 RID Box2DPhysicsServer2D::_circle_shape_create() {
-	Box2DCircleShape2D *circle_shape = memnew(Box2DCircleShape2D);
-	RID rid = shape_owner.make_rid(circle_shape);
-	circle_shape->set_rid(rid);
+	Box2DCircleShape2D *shape = memnew(Box2DCircleShape2D);
+	RID rid = shape_owner.make_rid(shape);
+	shape->set_rid(rid);
+	return rid;
+}
+
+RID Box2DPhysicsServer2D::_rectangle_shape_create() {
+	Box2DRectangleShape2D *shape = memnew(Box2DRectangleShape2D);
+	RID rid = shape_owner.make_rid(shape);
+	shape->set_rid(rid);
+	return rid;
+}
+
+RID Box2DPhysicsServer2D::_capsule_shape_create() {
+	Box2DCapsuleShape2D *shape = memnew(Box2DCapsuleShape2D);
+	RID rid = shape_owner.make_rid(shape);
+	shape->set_rid(rid);
 	return rid;
 }
 
@@ -218,18 +234,18 @@ void Box2DPhysicsServer2D::_body_set_state(const RID &p_body, PhysicsServer2D::B
 	ERR_FAIL_COND(!body);
 
 	switch (p_state) {
-		case PhysicsServer2D::BodyState::BODY_STATE_TRANSFORM:
-			body->set_transform(p_value);
+		case PhysicsServer2D::BODY_STATE_TRANSFORM:
+			body->set_transform(p_value, true);
 			break;
-		case PhysicsServer2D::BodyState::BODY_STATE_LINEAR_VELOCITY:
+		case PhysicsServer2D::BODY_STATE_LINEAR_VELOCITY:
 			body->set_linear_velocity(p_value);
 			break;
-		case PhysicsServer2D::BodyState::BODY_STATE_ANGULAR_VELOCITY:
+		case PhysicsServer2D::BODY_STATE_ANGULAR_VELOCITY:
 			body->set_angular_velocity(p_value);
 			break;
-		case PhysicsServer2D::BodyState::BODY_STATE_SLEEPING:
+		case PhysicsServer2D::BODY_STATE_SLEEPING:
 			return;
-		case PhysicsServer2D::BodyState::BODY_STATE_CAN_SLEEP:
+		case PhysicsServer2D::BODY_STATE_CAN_SLEEP:
 			return;
 	}
 }
@@ -239,15 +255,15 @@ Variant Box2DPhysicsServer2D::_body_get_state(const RID &p_body, PhysicsServer2D
 	ERR_FAIL_COND_V(!body, Variant());
 
 	switch (p_state) {
-		case PhysicsServer2D::BodyState::BODY_STATE_TRANSFORM:
+		case PhysicsServer2D::BODY_STATE_TRANSFORM:
 			return body->get_transform();
-		case PhysicsServer2D::BodyState::BODY_STATE_LINEAR_VELOCITY:
+		case PhysicsServer2D::BODY_STATE_LINEAR_VELOCITY:
 			return body->get_linear_velocity();
-		case PhysicsServer2D::BodyState::BODY_STATE_ANGULAR_VELOCITY:
+		case PhysicsServer2D::BODY_STATE_ANGULAR_VELOCITY:
 			return body->get_angular_velocity();
-		case PhysicsServer2D::BodyState::BODY_STATE_SLEEPING:
+		case PhysicsServer2D::BODY_STATE_SLEEPING:
 			return body->is_sleeping();
-		case PhysicsServer2D::BodyState::BODY_STATE_CAN_SLEEP:
+		case PhysicsServer2D::BODY_STATE_CAN_SLEEP:
 			return true;
 	}
 
@@ -306,7 +322,7 @@ void Box2DPhysicsServer2D::_set_active(bool p_active) {
 }
 
 void Box2DPhysicsServer2D::_init() {
-	b2SetLengthUnitsPerMeter(100.0);
+	//b2SetLengthUnitsPerMeter(100.0);
 }
 
 void Box2DPhysicsServer2D::_step(double p_step) {

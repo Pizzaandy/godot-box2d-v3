@@ -7,7 +7,6 @@
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
 
-
 class Box2DDirectBodyState2D;
 
 class Box2DBody2D {
@@ -25,7 +24,7 @@ public:
 	void set_mode(PhysicsServer2D::BodyMode p_mode);
 	PhysicsServer2D::BodyMode get_mode();
 
-	void set_transform(Transform2D p_transform);
+	void set_transform(Transform2D p_transform, bool p_move_kinematic = false);
 	Transform2D get_transform();
 
 	void set_linear_velocity(const Vector2 &p_velocity);
@@ -78,5 +77,5 @@ private:
 	Callable body_state_callback;
 	Transform2D current_transform;
 	bool sleeping;
-	Box2DDirectBodyState2D *direct_state;
+	Box2DDirectBodyState2D *direct_state = nullptr;
 };

@@ -1,13 +1,16 @@
-[gd_scene load_steps=4 format=3 uid="uid://f2dle7n6bc7o"]
+[gd_scene load_steps=6 format=3 uid="uid://f2dle7n6bc7o"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_fkl1u"]
-radius = 197.043
+[ext_resource type="Script" path="res://spinner.gd" id="1_hvvkt"]
+[ext_resource type="Script" path="res://capsule_spawner.gd" id="2_53o13"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_lfd7j"]
-radius = 122.57
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_78uxo"]
+size = Vector2(1312.33, 82.8722)
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_tbd68"]
-radius = 43.1045
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
+size = Vector2(71.5197, 842.899)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iebvw"]
+size = Vector2(410, 20)
 
 [node name="Node2D" type="Node2D"]
 
@@ -15,19 +18,35 @@ radius = 43.1045
 position = Vector2(568, 364)
 scale = Vector2(1.305, 1.305)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(-360, -51)
-scale = Vector2(0.675, 0.675)
-shape = SubResource("CircleShape2D_fkl1u")
-
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(-148, 63)
+position = Vector2(12.2605, 219.923)
 scale = Vector2(0.675, 0.675)
-shape = SubResource("CircleShape2D_lfd7j")
+shape = SubResource("RectangleShape2D_78uxo")
 
-[node name="RigidBody2D2" type="RigidBody2D" parent="."]
-position = Vector2(306, 31)
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(-364.751, -42.1456)
+rotation = -0.392699
+scale = Vector2(0.675, 0.675)
+shape = SubResource("RectangleShape2D_hfuel")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D2"]
-position = Vector2(-126, 4)
-shape = SubResource("CircleShape2D_tbd68")
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(375.479, -32.9502)
+rotation = 0.392699
+scale = Vector2(0.675, 0.675)
+shape = SubResource("RectangleShape2D_hfuel")
+
+[node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
+position = Vector2(566, 408)
+script = ExtResource("1_hvvkt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
+position = Vector2(-1, 0)
+shape = SubResource("RectangleShape2D_iebvw")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(619, 226)
+zoom = Vector2(0.54, 0.54)
+
+[node name="Node2D" type="Node2D" parent="."]
+position = Vector2(558, -2)
+script = ExtResource("2_53o13")
