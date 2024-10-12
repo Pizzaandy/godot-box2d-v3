@@ -3,7 +3,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 Box2DBody2D::~Box2DBody2D() {
-	if (B2_IS_NON_NULL(body_id)) {
+	if (space && B2_IS_NON_NULL(body_id)) {
 		b2DestroyBody(body_id);
 		body_id = b2_nullBodyId;
 	}
@@ -42,6 +42,7 @@ void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
 		body_id = b2CreateBody(p_space->get_world_id(), &body_def);
 		b2Body_SetUserData(body_id, this);
 		update_all_shapes();
+		b2Body_EnableHitEvents(body_id, true);
 	}
 
 	space = p_space;
@@ -94,12 +95,12 @@ void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) 
 	float rotation = p_transform.get_rotation();
 	float last_step = space->get_last_step();
 
-	if (last_step < 0.0) {
-		current_transform = p_transform;
-		return;
-	}
-
 	if (p_move_kinematic && mode == PhysicsServer2D::BODY_MODE_KINEMATIC) {
+		if (last_step < 0.0) {
+			current_transform = p_transform;
+			return;
+		}
+
 		Vector2 current_position = to_godot(b2Body_GetPosition(body_id));
 		Vector2 linear = (position - current_position) / last_step;
 
@@ -147,18 +148,24 @@ float Box2DBody2D::get_angular_velocity() const {
 	return angular_velocity;
 }
 
-void Box2DBody2D::update_state(b2Transform p_transform, bool fell_asleep) {
+void Box2DBody2D::sync_state(b2Transform p_transform, bool fell_asleep) {
 	Vector2 origin = to_godot(p_transform.p);
 	float rotation = b2Rot_GetAngle(p_transform.q);
 	current_transform.set_origin(origin);
 	current_transform.set_rotation(rotation);
+	sleeping = fell_asleep;
 
-	if (fell_asleep) {
-		sleeping = true;
-		return;
+	if (body_state_callback.is_valid()) {
+		static thread_local Array arg_array = []() {
+			Array array;
+			array.resize(1);
+			return array;
+		}();
+
+		arg_array[0] = get_direct_state();
+
+		body_state_callback.callv(arg_array);
 	}
-
-	sleeping = false;
 }
 
 RID Box2DBody2D::get_shape_rid(int p_index) {
@@ -239,18 +246,4 @@ Box2DDirectBodyState2D *Box2DBody2D::get_direct_state() {
 
 void Box2DBody2D::set_state_sync_callback(const Callable &p_callable) {
 	body_state_callback = p_callable;
-}
-
-void Box2DBody2D::call_queries() {
-	if (body_state_callback.is_valid()) {
-		static thread_local Array arg_array = []() {
-			Array array;
-			array.resize(1);
-			return array;
-		}();
-
-		arg_array[0] = get_direct_state();
-
-		body_state_callback.callv(arg_array);
-	}
 }

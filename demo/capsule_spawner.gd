@@ -1,6 +1,7 @@
 extends Node2D
 
 @export var max_capsules = 100
+
 var count = 0
 var capsule = preload("res://capsule.tscn")
 var has_stepped = false

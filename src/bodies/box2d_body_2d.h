@@ -31,7 +31,7 @@ public:
 	float get_angular_velocity() const;
 	bool is_sleeping() { return sleeping; }
 
-	void update_state(b2Transform p_transform, bool is_sleeping);
+	void sync_state(b2Transform p_transform, bool is_sleeping);
 
 	void add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled);
 	void set_shape(int p_index, Box2DShape2D *p_shape);
@@ -49,7 +49,6 @@ public:
 
 	Box2DDirectBodyState2D *get_direct_state();
 	void set_state_sync_callback(const Callable &p_callable);
-	void call_queries();
 
 private:
 	struct Shape {

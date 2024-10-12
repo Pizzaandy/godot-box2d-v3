@@ -63,7 +63,7 @@ public:
 	virtual void _set_sleep_state(bool p_enable) override;
 	virtual bool _is_sleeping() const override;
 
-	// virtual int _get_contact_count() const override;
+	virtual int _get_contact_count() const override { return 0; }
 
 	// virtual Vector2 _get_contact_local_position(int p_contact_idx) const override;
 	// virtual Vector2 _get_contact_local_normal(int p_contact_idx) const override;

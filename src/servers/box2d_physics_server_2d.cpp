@@ -70,6 +70,28 @@ PhysicsDirectSpaceState2D *Box2DPhysicsServer2D::_space_get_direct_state(const R
 	return space->get_direct_state();
 }
 
+void Box2DPhysicsServer2D::_space_set_debug_contacts(const RID &p_space, int32_t p_max_contacts) {
+	Box2DSpace2D *space = space_owner.get_or_null(p_space);
+	ERR_FAIL_NULL(space);
+
+	return space->set_max_debug_contacts(p_max_contacts);
+}
+
+PackedVector2Array Box2DPhysicsServer2D::_space_get_contacts(const RID &p_space) const {
+	Box2DSpace2D *space = space_owner.get_or_null(p_space);
+	ERR_FAIL_NULL_V(space, PackedVector2Array());
+
+	return space->get_debug_contacts();
+}
+
+int32_t Box2DPhysicsServer2D::_space_get_contact_count(const RID &p_space) const {
+	Box2DSpace2D *space = space_owner.get_or_null(p_space);
+	ERR_FAIL_NULL_V(space, 0);
+
+	return space->get_debug_contact_count();
+}
+
+// Area API
 void Box2DPhysicsServer2D::_area_set_param(
 		const RID &p_area,
 		AreaParameter p_param,
@@ -342,9 +364,7 @@ void Box2DPhysicsServer2D::_flush_queries() {
 
 	flushing_queries = true;
 
-	for (Box2DSpace2D *space : active_spaces) {
-		space->call_queries();
-	}
+	// do something here (?)
 
 	flushing_queries = false;
 }

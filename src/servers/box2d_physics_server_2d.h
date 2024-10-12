@@ -25,8 +25,12 @@ public:
 	RID _space_create() override;
 	void _space_set_active(const RID &p_space, bool p_active) override;
 	bool _space_is_active(const RID &p_space) const override;
-
-	PhysicsDirectSpaceState2D *_space_get_direct_state(const RID &p_space) override;
+	//virtual void _space_set_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param, double p_value) override;
+	//virtual double _space_get_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param) const override;
+	virtual PhysicsDirectSpaceState2D *_space_get_direct_state(const RID &p_space) override;
+	virtual void _space_set_debug_contacts(const RID &p_space, int32_t p_max_contacts) override;
+	virtual PackedVector2Array _space_get_contacts(const RID &p_space) const override;
+	virtual int32_t _space_get_contact_count(const RID &p_space) const override;
 
 	void _area_set_param(const RID &p_area, AreaParameter p_param, const Variant &p_value);
 
@@ -89,9 +93,9 @@ public:
 	// virtual void _body_set_omit_force_integration(const RID &p_body, bool p_enable) override;
 	// virtual bool _body_is_omitting_force_integration(const RID &p_body) const override;
 	virtual void _body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) override;
-	// virtual void _body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) override;
+	virtual void _body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) override {};
 	// virtual bool _body_collide_shape(const RID &p_body, int32_t p_body_shape, const RID &p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, void *p_results, int32_t p_result_max, int32_t *p_result_count) override;
-	// virtual void _body_set_pickable(const RID &p_body, bool p_pickable) override;
+	virtual void _body_set_pickable(const RID &p_body, bool p_pickable) override {};
 
 	void _free_rid(const RID &p_rid) override;
 	void _set_active(bool p_active) override;
