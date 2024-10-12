@@ -1,8 +1,8 @@
 #pragma once
 
 #include "box2d/box2d.h"
-#include <godot_cpp/variant/rid.hpp>
 #include "box2d_physics_direct_space_state_2d.h"
+#include <godot_cpp/variant/rid.hpp>
 
 using namespace godot;
 
@@ -24,10 +24,13 @@ public:
 
 	Box2DPhysicsDirectSpaceState2D *get_direct_state();
 
-    b2WorldId get_world_id() const { return world_id; }
+	b2WorldId get_world_id() const { return world_id; }
+
+	float get_last_step();
 
 private:
-	b2WorldId world_id;
+	b2WorldId world_id = b2_nullWorldId;
 	RID rid;
 	Box2DPhysicsDirectSpaceState2D *direct_state = nullptr;
+	float last_step;
 };

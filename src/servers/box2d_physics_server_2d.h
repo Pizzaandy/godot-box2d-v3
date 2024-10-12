@@ -48,8 +48,50 @@ public:
 	void _body_clear_shapes(const RID &p_body) override;
 	virtual void _body_attach_object_instance_id(const RID &p_body, uint64_t p_id) override;
 	virtual uint64_t _body_get_object_instance_id(const RID &p_body) const override;
-    virtual void _body_attach_canvas_instance_id(const RID &p_body, uint64_t p_id) override;
+	virtual void _body_attach_canvas_instance_id(const RID &p_body, uint64_t p_id) override;
 	virtual uint64_t _body_get_canvas_instance_id(const RID &p_body) const override;
+
+	// virtual void _body_set_continuous_collision_detection_mode(const RID &p_body, PhysicsServer2D::CCDMode p_mode) override;
+	// virtual PhysicsServer2D::CCDMode _body_get_continuous_collision_detection_mode(const RID &p_body) const override;
+	// virtual void _body_set_collision_layer(const RID &p_body, uint32_t p_layer) override;
+	// virtual uint32_t _body_get_collision_layer(const RID &p_body) const override;
+	// virtual void _body_set_collision_mask(const RID &p_body, uint32_t p_mask) override;
+	// virtual uint32_t _body_get_collision_mask(const RID &p_body) const override;
+	// virtual void _body_set_collision_priority(const RID &p_body, double p_priority) override;
+	// virtual double _body_get_collision_priority(const RID &p_body) const override;
+	// virtual void _body_set_param(const RID &p_body, PhysicsServer2D::BodyParameter p_param, const Variant &p_value) override;
+	// virtual Variant _body_get_param(const RID &p_body, PhysicsServer2D::BodyParameter p_param) const override;
+	// virtual void _body_reset_mass_properties(const RID &p_body) override;
+	virtual void _body_set_state(const RID &p_body, PhysicsServer2D::BodyState p_state, const Variant &p_value) override;
+	virtual Variant _body_get_state(const RID &p_body, PhysicsServer2D::BodyState p_state) const override;
+
+	// virtual void _body_apply_central_impulse(const RID &p_body, const Vector2 &p_impulse) override;
+	// virtual void _body_apply_torque_impulse(const RID &p_body, double p_impulse) override;
+	// virtual void _body_apply_impulse(const RID &p_body, const Vector2 &p_impulse, const Vector2 &p_position) override;
+	// virtual void _body_apply_central_force(const RID &p_body, const Vector2 &p_force) override;
+	// virtual void _body_apply_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
+	// virtual void _body_apply_torque(const RID &p_body, double p_torque) override;
+	// virtual void _body_add_constant_central_force(const RID &p_body, const Vector2 &p_force) override;
+	// virtual void _body_add_constant_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
+	// virtual void _body_add_constant_torque(const RID &p_body, double p_torque) override;
+	// virtual void _body_set_constant_force(const RID &p_body, const Vector2 &p_force) override;
+	// virtual Vector2 _body_get_constant_force(const RID &p_body) const override;
+	// virtual void _body_set_constant_torque(const RID &p_body, double p_torque) override;
+	// virtual double _body_get_constant_torque(const RID &p_body) const override;
+	// virtual void _body_set_axis_velocity(const RID &p_body, const Vector2 &p_axis_velocity) override;
+	// virtual void _body_add_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
+	// virtual void _body_remove_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
+	// virtual TypedArray<RID> _body_get_collision_exceptions(const RID &p_body) const override;
+	// virtual void _body_set_max_contacts_reported(const RID &p_body, int32_t p_amount) override;
+	// virtual int32_t _body_get_max_contacts_reported(const RID &p_body) const;
+	// virtual void _body_set_contacts_reported_depth_threshold(const RID &p_body, double p_threshold) override;
+	// virtual double _body_get_contacts_reported_depth_threshold(const RID &p_body) const override;
+	// virtual void _body_set_omit_force_integration(const RID &p_body, bool p_enable) override;
+	// virtual bool _body_is_omitting_force_integration(const RID &p_body) const override;
+	virtual void _body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) override;
+	// virtual void _body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) override;
+	// virtual bool _body_collide_shape(const RID &p_body, int32_t p_body_shape, const RID &p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, void *p_results, int32_t p_result_max, int32_t *p_result_count) override;
+	// virtual void _body_set_pickable(const RID &p_body, bool p_pickable) override;
 
 	void _free_rid(const RID &p_rid) override;
 	void _set_active(bool p_active) override;
@@ -58,7 +100,7 @@ public:
 	void _sync() override {};
 	void _flush_queries() override;
 	void _end_sync() override {};
-	void _finish() override {};
+	void _finish() override;
 	bool _is_flushing_queries() const override;
 	int32_t _get_process_info(PhysicsServer2D::ProcessInfo p_process_info) override;
 
