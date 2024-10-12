@@ -16,8 +16,6 @@ Box2DPhysicsServer2D *create_box2d_physics_server() {
 void initialize_gdextension_types(ModuleInitializationLevel p_level) {
 	switch (p_level) {
 		case MODULE_INITIALIZATION_LEVEL_SERVERS: {
-			b2SetLengthUnitsPerMeter(100.0);
-
 			ClassDB::register_class<Box2DDirectBodyState2D>(true);
 			ClassDB::register_class<Box2DPhysicsDirectSpaceState2D>(true);
 			ClassDB::register_class<Box2DPhysicsServer2D>();

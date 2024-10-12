@@ -32,6 +32,6 @@ private:
 	b2WorldId world_id = b2_nullWorldId;
 	RID rid;
 	Box2DPhysicsDirectSpaceState2D *direct_state = nullptr;
-	float last_step;
+	float last_step = -1.0;
 	b2BodyEvents body_events;
 };

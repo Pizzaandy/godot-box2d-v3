@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://f2dle7n6bc7o"]
 
-[ext_resource type="Script" path="res://spinner.gd" id="1_hvvkt"]
-[ext_resource type="Script" path="res://capsule_spawner.gd" id="2_53o13"]
+[ext_resource type="Script" path="res://capsule_spawner.gd" id="1_rxu5s"]
+[ext_resource type="Script" path="res://spinner.gd" id="2_p7yir"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_78uxo"]
 size = Vector2(1312.33, 82.8722)
@@ -9,14 +9,14 @@ size = Vector2(1312.33, 82.8722)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
 size = Vector2(71.5197, 842.899)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_iebvw"]
-size = Vector2(410, 20)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_05h0f"]
+size = Vector2(518, 72)
 
 [node name="Node2D" type="Node2D"]
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 position = Vector2(568, 364)
-scale = Vector2(1.305, 1.305)
+scale = Vector2(1.22, 1.22)
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D"]
 position = Vector2(12.2605, 219.923)
@@ -35,18 +35,19 @@ rotation = 0.392699
 scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
 
-[node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
-position = Vector2(566, 408)
-script = ExtResource("1_hvvkt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
-position = Vector2(-1, 0)
-shape = SubResource("RectangleShape2D_iebvw")
-
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(619, 226)
 zoom = Vector2(0.54, 0.54)
 
 [node name="Node2D" type="Node2D" parent="."]
 position = Vector2(558, -2)
-script = ExtResource("2_53o13")
+script = ExtResource("1_rxu5s")
+
+[node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
+position = Vector2(585, 410)
+sync_to_physics = false
+script = ExtResource("2_p7yir")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
+position = Vector2(-1, 3)
+shape = SubResource("RectangleShape2D_05h0f")

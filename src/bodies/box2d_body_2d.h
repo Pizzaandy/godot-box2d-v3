@@ -13,8 +13,6 @@ class Box2DBody2D {
 public:
 	~Box2DBody2D();
 
-	b2BodyId get_body_id();
-
 	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }
 

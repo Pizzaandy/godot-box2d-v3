@@ -10,5 +10,5 @@ func _physics_process(delta: float) -> void:
 		return
 	var inst = capsule.instantiate()
 	get_parent().add_child(inst)
-	inst.global_position = global_position
+	inst.global_position = global_position + Vector2.from_angle(randf() * 2 * PI) * randf_range(0, 30)
 	count += 1

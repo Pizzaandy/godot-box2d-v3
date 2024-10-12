@@ -322,7 +322,7 @@ void Box2DPhysicsServer2D::_set_active(bool p_active) {
 }
 
 void Box2DPhysicsServer2D::_init() {
-	//b2SetLengthUnitsPerMeter(100.0);
+	b2SetLengthUnitsPerMeter(100.0);
 }
 
 void Box2DPhysicsServer2D::_step(double p_step) {
