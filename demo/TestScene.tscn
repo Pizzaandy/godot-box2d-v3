@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://f2dle7n6bc7o"]
+[gd_scene load_steps=6 format=3 uid="uid://f2dle7n6bc7o"]
 
-[ext_resource type="Script" path="res://capsule_spawner.gd" id="1_rxu5s"]
+[ext_resource type="Script" path="res://grid_spawner.gd" id="2_7tl6x"]
 [ext_resource type="Script" path="res://spinner.gd" id="2_p7yir"]
+[ext_resource type="PackedScene" uid="uid://cunci2twkihny" path="res://robot.tscn" id="3_q4rsu"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
 size = Vector2(71.5197, 1592.37)
@@ -29,16 +30,11 @@ scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
-polygon = PackedVector2Array(-209.316, 58.9662, -84.3806, 109.647, 100.397, 51.883, 303.184, -19.5072, 359.573, 182.641, 174.405, 263.799, 97.3499, 169.028, -40.4909, 268.024, -158.491, 201.312)
+polygon = PackedVector2Array(-209.316, 58.9662, -84.3806, 109.647, -19.3288, 72.5872, 91.7655, 115.975, 292.395, 64.0508, 402.532, -27.3221, 359.573, 182.641, 174.405, 263.799, 197.2, 160.85, 97.3499, 169.028, -11.0126, 187.031, -40.4909, 268.024, -87.6231, 186.068, -158.491, 201.312, -250.438, 159.852, -214.358, 112.352)
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1284, 289)
-zoom = Vector2(0.195, 0.195)
-
-[node name="Node2D" type="Node2D" parent="."]
-position = Vector2(405, -1050)
-script = ExtResource("1_rxu5s")
-max_capsules = 3000
+position = Vector2(1352, 529)
+zoom = Vector2(0.37, 0.37)
 
 [node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
 position = Vector2(1366, 919)
@@ -48,3 +44,9 @@ script = ExtResource("2_p7yir")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
 position = Vector2(4, 3)
 shape = SubResource("RectangleShape2D_05h0f")
+
+[node name="Node2D" type="Node2D" parent="."]
+position = Vector2(352, -1129)
+script = ExtResource("2_7tl6x")
+cell_length = 200.0
+body = ExtResource("3_q4rsu")
