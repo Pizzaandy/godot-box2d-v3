@@ -60,8 +60,8 @@ private:
 		real_t one_way_collision_margin = 0.0;
 	};
 
-	void update_shape(Shape &p_shape);
-	void update_all_shapes();
+	void build_shape(Shape &p_shape);
+	void update_shape(Shape p_shape);
 
 	RID rid;
 	b2BodyDef body_def = b2DefaultBodyDef();
@@ -74,5 +74,6 @@ private:
 	Callable body_state_callback;
 	Transform2D current_transform;
 	bool sleeping;
+	bool is_area = false;
 	Box2DDirectBodyState2D *direct_state = nullptr;
 };

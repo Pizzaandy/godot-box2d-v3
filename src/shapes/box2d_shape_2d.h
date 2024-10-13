@@ -10,7 +10,8 @@ class Box2DShape2D {
 public:
 	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }
-	virtual b2ShapeId build(b2BodyId p_body_id, Transform2D p_transform, bool p_disabled, b2ShapeId p_shape_id = b2_nullShapeId) = 0;
+	virtual b2ShapeId build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) = 0;
+	virtual void update(b2ShapeId p_shape, Transform2D p_transform) = 0;
 	void set_data(const Variant &p_data) { data = p_data; }
 	Variant get_data() const { return data; }
 

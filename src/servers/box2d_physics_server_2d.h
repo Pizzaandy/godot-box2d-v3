@@ -32,7 +32,34 @@ public:
 	virtual PackedVector2Array _space_get_contacts(const RID &p_space) const override;
 	virtual int32_t _space_get_contact_count(const RID &p_space) const override;
 
-	void _area_set_param(const RID &p_area, AreaParameter p_param, const Variant &p_value);
+	// RID _area_create() override;
+	// void _area_set_space(const RID &p_area, const RID &p_space) override;
+	// RID _area_get_space(const RID &p_area) const override;
+	// void _area_add_shape(const RID &p_area, const RID &p_shape, const Transform2D &p_transform, bool p_disabled) override;
+	// void _area_set_shape(const RID &p_area, int32_t p_shape_idx, const RID &p_shape) override;
+	// void _area_set_shape_transform(const RID &p_area, int32_t p_shape_idx, const Transform2D &p_transform) override;
+	// void _area_set_shape_disabled(const RID &p_area, int32_t p_shape_idx, bool p_disabled) override;
+	// int32_t _area_get_shape_count(const RID &p_area) const override;
+	// RID _area_get_shape(const RID &p_area, int32_t p_shape_idx) const override;
+	// Transform2D _area_get_shape_transform(const RID &p_area, int32_t p_shape_idx) const override;
+	// void _area_remove_shape(const RID &p_area, int32_t p_shape_idx) override;
+	// void _area_clear_shapes(const RID &p_area) override;
+	// void _area_attach_object_instance_id(const RID &p_area, uint64_t p_id) override;
+	// uint64_t _area_get_object_instance_id(const RID &p_area) const override;
+	// void _area_attach_canvas_instance_id(const RID &p_area, uint64_t p_id) override;
+	// uint64_t _area_get_canvas_instance_id(const RID &p_area) const override;
+	void _area_set_param(const RID &p_area, PhysicsServer2D::AreaParameter p_param, const Variant &p_value) override;
+	// void _area_set_transform(const RID &p_area, const Transform2D &p_transform) override;
+	// Variant _area_get_param(const RID &p_area, PhysicsServer2D::AreaParameter p_param) const override;
+	// Transform2D _area_get_transform(const RID &p_area) const override;
+	// void _area_set_collision_layer(const RID &p_area, uint32_t p_layer) override;
+	// uint32_t _area_get_collision_layer(const RID &p_area) const override;
+	// void _area_set_collision_mask(const RID &p_area, uint32_t p_mask) override;
+	// uint32_t _area_get_collision_mask(const RID &p_area) const override;
+	// void _area_set_monitorable(const RID &p_area, bool p_monitorable) override;
+	// void _area_set_pickable(const RID &p_area, bool p_pickable) override;
+	// void _area_set_monitor_callback(const RID &p_area, const Callable &p_callback) override;
+	// void _area_set_area_monitor_callback(const RID &p_area, const Callable &p_callback) override;
 
 	RID _body_create() override;
 	void _body_set_space(const RID &p_body, const RID &p_space) override;

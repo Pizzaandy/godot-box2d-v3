@@ -3,7 +3,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 Box2DBody2D::~Box2DBody2D() {
-	if (space && B2_IS_NON_NULL(body_id)) {
+	if (B2_IS_NON_NULL(body_id)) {
 		b2DestroyBody(body_id);
 		body_id = b2_nullBodyId;
 	}
@@ -41,8 +41,9 @@ void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
 
 		body_id = b2CreateBody(p_space->get_world_id(), &body_def);
 		b2Body_SetUserData(body_id, this);
-		update_all_shapes();
-		b2Body_EnableHitEvents(body_id, true);
+		for (Shape &shape : shapes) {
+			build_shape(shape);
+		}
 	}
 
 	space = p_space;
@@ -116,7 +117,9 @@ void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) 
 	}
 
 	if (current_transform.get_scale() != p_transform.get_scale()) {
-		update_all_shapes();
+		for (Shape &shape : shapes) {
+			update_shape(shape);
+		}
 	}
 
 	current_transform = p_transform;
@@ -149,10 +152,8 @@ float Box2DBody2D::get_angular_velocity() const {
 }
 
 void Box2DBody2D::sync_state(b2Transform p_transform, bool fell_asleep) {
-	Vector2 origin = to_godot(p_transform.p);
-	float rotation = b2Rot_GetAngle(p_transform.q);
-	current_transform.set_origin(origin);
-	current_transform.set_rotation(rotation);
+	current_transform.set_origin(to_godot(p_transform.p));
+	current_transform.set_rotation(b2Rot_GetAngle(p_transform.q));
 	sleeping = fell_asleep;
 
 	if (body_state_callback.is_valid()) {
@@ -174,22 +175,37 @@ RID Box2DBody2D::get_shape_rid(int p_index) {
 	return shape.shape->get_rid();
 }
 
-void Box2DBody2D::update_shape(Shape &p_shape) {
+void Box2DBody2D::build_shape(Shape &p_shape) {
 	if (B2_IS_NULL(body_id)) {
 		return;
 	}
 
-	p_shape.shape_id = p_shape.shape->build(body_id, p_shape.transform.scaled(current_transform.get_scale()), p_shape.disabled, p_shape.shape_id);
+	if (B2_IS_NON_NULL(p_shape.shape_id)) {
+		b2DestroyShape(p_shape.shape_id, false);
+		p_shape.shape_id = b2_nullShapeId;
+	}
+
+	if (p_shape.disabled) {
+		return;
+	}
+
+	b2ShapeDef shape_def = b2DefaultShapeDef();
+
+	if (is_area) {
+		shape_def.isSensor = true;
+	}
+
+	Transform2D shape_transform = p_shape.transform.scaled(current_transform.get_scale());
+	p_shape.shape_id = p_shape.shape->build(body_id, shape_transform, shape_def);
 }
 
-void Box2DBody2D::update_all_shapes() {
-	if (B2_IS_NULL(body_id)) {
+void Box2DBody2D::update_shape(Shape p_shape) {
+	if (B2_IS_NULL(p_shape.shape_id)) {
 		return;
 	}
 
-	for (Shape &shape : shapes) {
-		update_shape(shape);
-	}
+	Transform2D shape_transform = p_shape.transform.scaled(current_transform.get_scale());
+	p_shape.shape->update(p_shape.shape_id, shape_transform);
 }
 
 void Box2DBody2D::add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled) {
@@ -198,7 +214,7 @@ void Box2DBody2D::add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool
 	shape.transform = p_transform;
 	shape.disabled = p_disabled;
 
-	update_shape(shape);
+	build_shape(shape);
 	shapes.push_back(shape);
 }
 
@@ -206,7 +222,7 @@ void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Shape &shape = shapes[p_index];
 	shape.shape = p_shape;
-	update_shape(shape);
+	build_shape(shape);
 }
 
 void Box2DBody2D::remove_shape(int p_index) {
@@ -224,6 +240,7 @@ void Box2DBody2D::set_shape_transform(int p_index, Transform2D p_transform) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Shape &shape = shapes[p_index];
 	shape.transform = p_transform;
+
 	update_shape(shape);
 }
 
