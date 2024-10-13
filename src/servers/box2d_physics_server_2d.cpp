@@ -1,8 +1,10 @@
 #include "box2d_physics_server_2d.h"
 #include "../shapes/box2d_capsule_shape_2d.h"
 #include "../shapes/box2d_circle_shape_2d.h"
+#include "../shapes/box2d_concave_polygon_shape_2d.h"
 #include "../shapes/box2d_convex_polygon_shape_2d.h"
 #include "../shapes/box2d_rectangle_shape_2d.h"
+
 
 #define FLUSH_QUERY_CHECK(m_object) \
 	ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead.");
@@ -33,6 +35,13 @@ RID Box2DPhysicsServer2D::_capsule_shape_create() {
 
 RID Box2DPhysicsServer2D::_convex_polygon_shape_create() {
 	Box2DConvexPolygonShape2D *shape = memnew(Box2DConvexPolygonShape2D);
+	RID rid = shape_owner.make_rid(shape);
+	shape->set_rid(rid);
+	return rid;
+}
+
+RID Box2DPhysicsServer2D::_concave_polygon_shape_create() {
+	Box2DConcavePolygonShape2D *shape = memnew(Box2DConcavePolygonShape2D);
 	RID rid = shape_owner.make_rid(shape);
 	shape->set_rid(rid);
 	return rid;

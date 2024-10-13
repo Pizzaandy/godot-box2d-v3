@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://dcxotvc8jebfx"]
+
+[ext_resource type="Texture2D" uid="uid://bbnlau37ph2py" path="res://robot.svg" id="1_e2dup"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5f1s5"]
+radius = 40.0
+height = 180.0
+
+[node name="Robot" type="RigidBody2D"]
+scale = Vector2(0.5, 0.5)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(1.5, -40.9972)
+scale = Vector2(0.0966797, 0.203131)
+texture = ExtResource("1_e2dup")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1, -41)
+shape = SubResource("CapsuleShape2D_5f1s5")

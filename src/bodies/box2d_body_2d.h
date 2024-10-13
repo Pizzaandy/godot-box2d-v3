@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../shapes/box2d_concave_polygon_shape_2d.h"
 #include "../shapes/box2d_shape_2d.h"
 #include "../spaces/box2d_space_2d.h"
 #include "box2d/box2d.h"
@@ -53,11 +54,30 @@ public:
 private:
 	struct Shape {
 		Box2DShape2D *shape = nullptr;
-		b2ShapeId shape_id = b2_nullShapeId;
+		Box2DShape2D::ShapeID shape_id;
 		Transform2D transform;
 		bool disabled = false;
 		bool one_way_collision = false;
 		real_t one_way_collision_margin = 0.0;
+
+		void build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
+			destroy();
+			if (disabled) {
+				shape_id = {};
+				return;
+			}
+			shape_id = shape->build(p_body, p_transform, p_shape_def);
+		}
+
+		void destroy() {
+			if (B2_IS_NON_NULL(shape_id.chain_id)) {
+				b2DestroyChain(shape_id.chain_id);
+			}
+			if (B2_IS_NON_NULL(shape_id.shape_id)) {
+				b2DestroyShape(shape_id.shape_id, false);
+			}
+			shape_id = {};
+		}
 	};
 
 	void build_shape(Shape &p_shape);

@@ -1,6 +1,6 @@
 #include "box2d_capsule_shape_2d.h"
 
-b2ShapeId Box2DCapsuleShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
+Box2DShape2D::ShapeID Box2DCapsuleShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
 	Variant::Type type = data.get_type();
 	ERR_FAIL_COND_V(type != Variant::VECTOR2 && type != Variant::ARRAY, b2_nullShapeId);
 

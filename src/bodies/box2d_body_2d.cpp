@@ -180,23 +180,9 @@ void Box2DBody2D::build_shape(Shape &p_shape) {
 		return;
 	}
 
-	if (B2_IS_NON_NULL(p_shape.shape_id)) {
-		b2DestroyShape(p_shape.shape_id, false);
-		p_shape.shape_id = b2_nullShapeId;
-	}
-
-	if (p_shape.disabled) {
-		return;
-	}
-
 	b2ShapeDef shape_def = b2DefaultShapeDef();
-
-	if (is_area) {
-		shape_def.isSensor = true;
-	}
-
 	Transform2D shape_transform = p_shape.transform.scaled(current_transform.get_scale());
-	p_shape.shape_id = p_shape.shape->build(body_id, shape_transform, shape_def);
+	p_shape.build(body_id, shape_transform, shape_def);
 }
 
 void Box2DBody2D::add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled) {
@@ -219,11 +205,7 @@ void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 void Box2DBody2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Shape &shape = shapes[p_index];
-
-	if (B2_IS_NON_NULL(shape.shape_id)) {
-		b2DestroyShape(shape.shape_id, false);
-		shape.shape_id = b2_nullShapeId;
-	}
+	shape.destroy();
 
 	shapes.remove_at(p_index);
 }

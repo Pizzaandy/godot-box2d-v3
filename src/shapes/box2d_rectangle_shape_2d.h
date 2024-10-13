@@ -5,5 +5,5 @@
 
 class Box2DRectangleShape2D : public Box2DShape2D {
 public:
-	b2ShapeId build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) override;
+	ShapeID build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) override;
 };

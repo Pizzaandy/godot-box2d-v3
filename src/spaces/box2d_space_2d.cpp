@@ -17,7 +17,7 @@ Box2DSpace2D::~Box2DSpace2D() {
 }
 
 void Box2DSpace2D::step(float p_step) {
-	b2World_Step(world_id, p_step, 4);
+	b2World_Step(world_id, p_step, 8);
 
 	last_step = p_step;
 

@@ -21,11 +21,12 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if Engine.is_editor_hint():
-		queue_redraw()
+	queue_redraw()
 
 
 func _draw() -> void:
+	if not Engine.is_editor_hint():
+		return
 	for i in rows:
 		for j in columns:
 			var pos = global_position + Vector2(i * cell_length, j * cell_length)
