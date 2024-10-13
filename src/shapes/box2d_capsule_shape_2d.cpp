@@ -1,18 +1,8 @@
 #include "box2d_capsule_shape_2d.h"
 
 b2ShapeId Box2DCapsuleShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
-	b2Capsule capsule = make_capsule(p_transform);
-	return b2CreateCapsuleShape(p_body, &p_shape_def, &capsule);
-}
-
-void Box2DCapsuleShape2D::update(b2ShapeId p_shape, Transform2D p_transform) {
-	b2Capsule capsule = make_capsule(p_transform);
-	return b2Shape_SetCapsule(p_shape, &capsule);
-}
-
-b2Capsule Box2DCapsuleShape2D::make_capsule(Transform2D p_transform) {
 	Variant::Type type = data.get_type();
-	ERR_FAIL_COND_V(type != Variant::VECTOR2 && type != Variant::ARRAY, {});
+	ERR_FAIL_COND_V(type != Variant::VECTOR2 && type != Variant::ARRAY, b2_nullShapeId);
 
 	float radius, height;
 
@@ -43,5 +33,5 @@ b2Capsule Box2DCapsuleShape2D::make_capsule(Transform2D p_transform) {
 	capsule.center2 = b2Vec2{ center2.x, center2.y };
 	capsule.radius = radius;
 
-	return capsule;
+	return b2CreateCapsuleShape(p_body, &p_shape_def, &capsule);
 }

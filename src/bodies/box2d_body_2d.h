@@ -61,7 +61,6 @@ private:
 	};
 
 	void build_shape(Shape &p_shape);
-	void update_shape(Shape p_shape);
 
 	RID rid;
 	b2BodyDef body_def = b2DefaultBodyDef();

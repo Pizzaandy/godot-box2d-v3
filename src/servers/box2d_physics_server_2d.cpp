@@ -1,6 +1,7 @@
 #include "box2d_physics_server_2d.h"
 #include "../shapes/box2d_capsule_shape_2d.h"
 #include "../shapes/box2d_circle_shape_2d.h"
+#include "../shapes/box2d_convex_polygon_shape_2d.h"
 #include "../shapes/box2d_rectangle_shape_2d.h"
 
 #define FLUSH_QUERY_CHECK(m_object) \
@@ -25,6 +26,13 @@ RID Box2DPhysicsServer2D::_rectangle_shape_create() {
 
 RID Box2DPhysicsServer2D::_capsule_shape_create() {
 	Box2DCapsuleShape2D *shape = memnew(Box2DCapsuleShape2D);
+	RID rid = shape_owner.make_rid(shape);
+	shape->set_rid(rid);
+	return rid;
+}
+
+RID Box2DPhysicsServer2D::_convex_polygon_shape_create() {
+	Box2DConvexPolygonShape2D *shape = memnew(Box2DConvexPolygonShape2D);
 	RID rid = shape_owner.make_rid(shape);
 	shape->set_rid(rid);
 	return rid;

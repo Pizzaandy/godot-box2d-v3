@@ -3,7 +3,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 Box2DBody2D::~Box2DBody2D() {
-	if (B2_IS_NON_NULL(body_id)) {
+	if (b2Body_IsValid(body_id)) {
 		b2DestroyBody(body_id);
 		body_id = b2_nullBodyId;
 	}
@@ -118,7 +118,7 @@ void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) 
 
 	if (current_transform.get_scale() != p_transform.get_scale()) {
 		for (Shape &shape : shapes) {
-			update_shape(shape);
+			build_shape(shape);
 		}
 	}
 
@@ -199,15 +199,6 @@ void Box2DBody2D::build_shape(Shape &p_shape) {
 	p_shape.shape_id = p_shape.shape->build(body_id, shape_transform, shape_def);
 }
 
-void Box2DBody2D::update_shape(Shape p_shape) {
-	if (B2_IS_NULL(p_shape.shape_id)) {
-		return;
-	}
-
-	Transform2D shape_transform = p_shape.transform.scaled(current_transform.get_scale());
-	p_shape.shape->update(p_shape.shape_id, shape_transform);
-}
-
 void Box2DBody2D::add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled) {
 	Box2DBody2D::Shape shape;
 	shape.shape = p_shape;
@@ -227,10 +218,11 @@ void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 
 void Box2DBody2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
-	Shape shape = shapes[p_index];
+	Shape &shape = shapes[p_index];
 
 	if (B2_IS_NON_NULL(shape.shape_id)) {
 		b2DestroyShape(shape.shape_id, false);
+		shape.shape_id = b2_nullShapeId;
 	}
 
 	shapes.remove_at(p_index);
@@ -240,8 +232,7 @@ void Box2DBody2D::set_shape_transform(int p_index, Transform2D p_transform) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Shape &shape = shapes[p_index];
 	shape.transform = p_transform;
-
-	update_shape(shape);
+	build_shape(shape);
 }
 
 Transform2D Box2DBody2D::get_shape_transform(int p_index) {
