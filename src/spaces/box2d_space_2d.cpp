@@ -22,6 +22,9 @@ void Box2DSpace2D::step(float p_step) {
 	last_step = p_step;
 
 	body_events = b2World_GetBodyEvents(world_id);
+}
+
+void Box2DSpace2D::sync_state() {
 	for (int i = 0; i < body_events.moveCount; ++i) {
 		const b2BodyMoveEvent *event = body_events.moveEvents + i;
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(event->userData);

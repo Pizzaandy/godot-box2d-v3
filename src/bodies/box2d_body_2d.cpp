@@ -20,6 +20,8 @@ void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
 
 	if (p_space != nullptr) {
 		// Create body
+		b2BodyDef body_def = b2DefaultBodyDef();
+
 		body_def.position = to_box2d(current_transform.get_origin());
 		body_def.rotation = b2MakeRot(current_transform.get_rotation());
 
@@ -129,6 +131,23 @@ Transform2D Box2DBody2D::get_transform() {
 	return current_transform;
 }
 
+void Box2DBody2D::apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position) {
+	ERR_FAIL_COND(B2_IS_NULL(body_id));
+
+	Vector2 point = current_transform.get_origin() + p_position;
+	b2Body_ApplyLinearImpulse(body_id, to_box2d(p_impulse), to_box2d(point), true);
+}
+
+void Box2DBody2D::apply_impulse_center(const Vector2 &p_impulse) {
+	ERR_FAIL_COND(B2_IS_NULL(body_id));
+	b2Body_ApplyLinearImpulseToCenter(body_id, to_box2d(p_impulse), true);
+}
+
+void Box2DBody2D::apply_torque_impulse(float p_impulse) {
+	ERR_FAIL_COND(B2_IS_NULL(body_id));
+	b2Body_ApplyAngularImpulse(body_id, p_impulse, true);
+}
+
 void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
 	ERR_FAIL_COND(B2_IS_NULL(body_id));
 	b2Body_SetLinearVelocity(body_id, to_box2d(p_velocity));
@@ -208,6 +227,10 @@ void Box2DBody2D::remove_shape(int p_index) {
 	shape.destroy();
 
 	shapes.remove_at(p_index);
+}
+
+int Box2DBody2D::find_shape_index(Shape &p_shape) {
+	return shapes.find(p_shape);
 }
 
 void Box2DBody2D::set_shape_transform(int p_index, Transform2D p_transform) {

@@ -47,11 +47,11 @@ Vector2 Box2DDirectBodyState2D::_get_linear_velocity() const {
 	return body->get_linear_velocity();
 }
 
-void Box2DDirectBodyState2D::_set_angular_velocity(double p_velocity) {
+void Box2DDirectBodyState2D::_set_angular_velocity(float p_velocity) {
 	body->set_angular_velocity(p_velocity);
 }
 
-double Box2DDirectBodyState2D::_get_angular_velocity() const {
+float Box2DDirectBodyState2D::_get_angular_velocity() const {
 	return body->get_angular_velocity();
 }
 
@@ -179,6 +179,6 @@ bool Box2DDirectBodyState2D::_is_sleeping() const {
 // 	return body->get_space()->get_direct_state();
 // }
 
-double Box2DDirectBodyState2D::_get_step() const {
+float Box2DDirectBodyState2D::_get_step() const {
 	return body->get_space()->get_last_step();
 }

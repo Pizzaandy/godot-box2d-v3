@@ -16,6 +16,8 @@ public:
 
 	void step(float p_step);
 
+	void sync_state();
+
 	RID get_rid() const { return rid; }
 
 	void set_rid(const RID &p_rid) { rid = p_rid; }

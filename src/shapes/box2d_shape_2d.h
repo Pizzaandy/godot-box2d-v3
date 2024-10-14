@@ -23,6 +23,14 @@ public:
 			is_chain = true;
 			chain_id = p_chain_id;
 		}
+
+		bool is_equal(const ShapeID p_other) const {
+			if (p_other.is_chain) {
+				return is_chain && B2_ID_EQUALS(p_other.chain_id, chain_id);
+			} else {
+				return !is_chain && B2_ID_EQUALS(p_other.shape_id, shape_id);
+			}
+		}
 	};
 
 	RID get_rid() const { return rid; }

@@ -34,8 +34,8 @@ public:
 	virtual void _set_linear_velocity(const Vector2 &p_velocity) override;
 	virtual Vector2 _get_linear_velocity() const override;
 
-	virtual void _set_angular_velocity(double p_velocity) override;
-	virtual double _get_angular_velocity() const override;
+	virtual void _set_angular_velocity(float p_velocity) override;
+	virtual float _get_angular_velocity() const override;
 
 	virtual void _set_transform(const Transform2D &p_transform) override;
 	virtual Transform2D _get_transform() const override;
@@ -79,5 +79,5 @@ public:
 
 	// virtual PhysicsDirectSpaceState2D *_get_space_state() override;
 
-	virtual double _get_step() const override;
+	virtual float _get_step() const override;
 };

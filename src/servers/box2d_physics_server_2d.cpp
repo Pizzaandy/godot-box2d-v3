@@ -5,7 +5,6 @@
 #include "../shapes/box2d_convex_polygon_shape_2d.h"
 #include "../shapes/box2d_rectangle_shape_2d.h"
 
-
 #define FLUSH_QUERY_CHECK(m_object) \
 	ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead.");
 
@@ -222,7 +221,7 @@ Transform2D Box2DPhysicsServer2D::_body_get_shape_transform(const RID &p_body, i
 
 void Box2DPhysicsServer2D::_body_set_shape_disabled(const RID &p_body, int32_t p_shape_idx, bool p_disabled) {}
 
-void Box2DPhysicsServer2D::_body_set_shape_as_one_way_collision(const RID &p_body, int32_t p_shape_idx, bool p_enable, double p_margin) {}
+void Box2DPhysicsServer2D::_body_set_shape_as_one_way_collision(const RID &p_body, int32_t p_shape_idx, bool p_enable, float p_margin) {}
 
 void Box2DPhysicsServer2D::_body_remove_shape(const RID &p_body, int32_t p_shape_idx) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
@@ -309,6 +308,27 @@ Variant Box2DPhysicsServer2D::_body_get_state(const RID &p_body, PhysicsServer2D
 	return Variant();
 }
 
+void Box2DPhysicsServer2D::_body_apply_central_impulse(const RID &p_body, const Vector2 &p_impulse) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	body->apply_impulse_center(p_impulse);
+}
+
+void Box2DPhysicsServer2D::_body_apply_torque_impulse(const RID &p_body, float p_impulse) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	body->apply_torque_impulse(p_impulse);
+}
+
+void Box2DPhysicsServer2D::_body_apply_impulse(const RID &p_body, const Vector2 &p_impulse, const Vector2 &p_position) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	body->apply_impulse(p_impulse, p_position);
+}
+
 void Box2DPhysicsServer2D::_body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_COND(!body);
@@ -364,7 +384,7 @@ void Box2DPhysicsServer2D::_init() {
 	b2SetLengthUnitsPerMeter(100.0);
 }
 
-void Box2DPhysicsServer2D::_step(double p_step) {
+void Box2DPhysicsServer2D::_step(float p_step) {
 	if (!active) {
 		return;
 	}
@@ -381,7 +401,9 @@ void Box2DPhysicsServer2D::_flush_queries() {
 
 	flushing_queries = true;
 
-	// do something here (?)
+	for (Box2DSpace2D *space : active_spaces) {
+		space->sync_state();
+	}
 
 	flushing_queries = false;
 }

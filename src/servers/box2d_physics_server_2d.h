@@ -74,7 +74,7 @@ public:
 	RID _body_get_shape(const RID &p_body, int32_t p_shape_idx) const override;
 	Transform2D _body_get_shape_transform(const RID &p_body, int32_t p_shape_idx) const override;
 	void _body_set_shape_disabled(const RID &p_body, int32_t p_shape_idx, bool p_disabled) override;
-	void _body_set_shape_as_one_way_collision(const RID &p_body, int32_t p_shape_idx, bool p_enable, double p_margin) override;
+	void _body_set_shape_as_one_way_collision(const RID &p_body, int32_t p_shape_idx, bool p_enable, float p_margin) override;
 	void _body_remove_shape(const RID &p_body, int32_t p_shape_idx) override;
 	void _body_clear_shapes(const RID &p_body) override;
 	virtual void _body_attach_object_instance_id(const RID &p_body, uint64_t p_id) override;
@@ -96,9 +96,9 @@ public:
 	virtual void _body_set_state(const RID &p_body, PhysicsServer2D::BodyState p_state, const Variant &p_value) override;
 	virtual Variant _body_get_state(const RID &p_body, PhysicsServer2D::BodyState p_state) const override;
 
-	// virtual void _body_apply_central_impulse(const RID &p_body, const Vector2 &p_impulse) override;
-	// virtual void _body_apply_torque_impulse(const RID &p_body, double p_impulse) override;
-	// virtual void _body_apply_impulse(const RID &p_body, const Vector2 &p_impulse, const Vector2 &p_position) override;
+	virtual void _body_apply_central_impulse(const RID &p_body, const Vector2 &p_impulse) override;
+	virtual void _body_apply_torque_impulse(const RID &p_body, float p_impulse) override;
+	virtual void _body_apply_impulse(const RID &p_body, const Vector2 &p_impulse, const Vector2 &p_position) override;
 	// virtual void _body_apply_central_force(const RID &p_body, const Vector2 &p_force) override;
 	// virtual void _body_apply_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
 	// virtual void _body_apply_torque(const RID &p_body, double p_torque) override;
@@ -127,7 +127,7 @@ public:
 	void _free_rid(const RID &p_rid) override;
 	void _set_active(bool p_active) override;
 	void _init() override;
-	void _step(double p_step) override;
+	void _step(float p_step) override;
 	void _sync() override {};
 	void _flush_queries() override;
 	void _end_sync() override {};

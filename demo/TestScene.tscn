@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://f2dle7n6bc7o"]
+[gd_scene load_steps=7 format=3 uid="uid://f2dle7n6bc7o"]
 
 [ext_resource type="Script" path="res://spinner.gd" id="2_p7yir"]
 [ext_resource type="Script" path="res://rain_spawner.gd" id="2_t56be"]
 [ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://robot_long.tscn" id="3_0l2sm"]
+[ext_resource type="Script" path="res://query_tester.gd" id="4_1xs0o"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
 size = Vector2(71.5197, 1592.37)
@@ -20,12 +21,6 @@ scale = Vector2(3.605, 3.605)
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D"]
 position = Vector2(-455.207, -181.336)
 rotation = -0.392699
-scale = Vector2(0.675, 0.675)
-shape = SubResource("RectangleShape2D_hfuel")
-
-[node name="CollisionShape2D5" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(103.648, 257.381)
-rotation = 1.48613
 scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
 
@@ -52,6 +47,17 @@ shape = SubResource("RectangleShape2D_05h0f")
 [node name="Spawner" type="Node2D" parent="."]
 position = Vector2(1349, -860)
 script = ExtResource("2_t56be")
-max_bodies = 3000
 body = ExtResource("3_0l2sm")
 range = Vector2(-1000, 1000)
+
+[node name="QueryTester" type="Node2D" parent="."]
+script = ExtResource("4_1xs0o")
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="."]
+position = Vector2(-71, 138)
+
+[node name="CollisionShape2D5" type="CollisionShape2D" parent="StaticBody2D2"]
+position = Vector2(1395, 1426)
+rotation = 1.64823
+scale = Vector2(2.43338, 2.43338)
+shape = SubResource("RectangleShape2D_hfuel")
