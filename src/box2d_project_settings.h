@@ -10,5 +10,7 @@ public:
 
 	static Vector2 get_default_gravity();
 
+	static int get_substeps();
+
 	static int32_t get_max_threads();
 };

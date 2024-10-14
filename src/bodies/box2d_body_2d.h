@@ -13,6 +13,7 @@ class Box2DDirectBodyState2D;
 class Box2DBody2D {
 public:
 	struct Shape {
+		int index = -1;
 		Box2DShape2D *shape = nullptr;
 		Box2DShape2D::ShapeID shape_id;
 		Transform2D transform;
@@ -29,7 +30,7 @@ public:
 			ERR_FAIL_COND(shape == nullptr);
 			shape_id = shape->build(p_body, p_transform, p_shape_def);
 
-			if (shape_id.is_chain) {
+			if (shape_id.type == Box2DShape2D::ShapeID::CHAIN) {
 				// b2Chain_SetUserData(p_body, this);
 			} else {
 				b2Shape_SetUserData(shape_id.shape_id, this);
@@ -44,10 +45,6 @@ public:
 				b2DestroyShape(shape_id.shape_id, false);
 			}
 			shape_id = {};
-		}
-
-		bool operator==(const Shape &other) const {
-			return shape_id.is_equal(other.shape_id);
 		}
 	};
 
@@ -79,7 +76,6 @@ public:
 	void add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled);
 	void set_shape(int p_index, Box2DShape2D *p_shape);
 	void remove_shape(int p_index);
-	int find_shape_index(Shape &p_shape);
 	int32_t get_shape_count();
 	void set_shape_transform(int p_index, Transform2D p_transform);
 	Transform2D get_shape_transform(int p_index);

@@ -1,6 +1,7 @@
 #include "box2d_project_settings.h"
 
 constexpr char DEFAULT_GRAVITY[] = "physics/box_2d/default_gravity";
+constexpr char SUBSTEPS[] = "physics/box_2d/substeps";
 constexpr char MAX_THREADS[] = "threading/worker_pool/max_threads";
 
 template <typename TType>
@@ -82,10 +83,16 @@ void register_setting_enum(
 
 void Box2DProjectSettings::register_settings() {
 	register_setting_plain(DEFAULT_GRAVITY, Vector2(0, 980));
+	register_setting_plain(SUBSTEPS, 4);
 }
 
 Vector2 Box2DProjectSettings::get_default_gravity() {
 	static const auto value = get_setting<Vector2>(DEFAULT_GRAVITY);
+	return value;
+}
+
+int Box2DProjectSettings::get_substeps() {
+	static const auto value = get_setting<int>(SUBSTEPS);
 	return value;
 }
 

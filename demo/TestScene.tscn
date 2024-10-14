@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://spinner.gd" id="2_p7yir"]
 [ext_resource type="Script" path="res://rain_spawner.gd" id="2_t56be"]
 [ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://robot_long.tscn" id="3_0l2sm"]
-[ext_resource type="Script" path="res://query_tester.gd" id="4_1xs0o"]
+[ext_resource type="Script" path="res://query_tester.gd" id="4_locw4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
 size = Vector2(71.5197, 1592.37)
@@ -51,7 +51,7 @@ body = ExtResource("3_0l2sm")
 range = Vector2(-1000, 1000)
 
 [node name="QueryTester" type="Node2D" parent="."]
-script = ExtResource("4_1xs0o")
+script = ExtResource("4_locw4")
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 position = Vector2(-71, 138)

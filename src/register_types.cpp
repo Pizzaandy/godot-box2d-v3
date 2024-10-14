@@ -1,7 +1,7 @@
 #include "register_types.h"
 #include "bodies/box2d_direct_body_state_2d.h"
+#include "box2d_project_settings.h"
 #include "servers/box2d_physics_server_2d.h"
-#include "servers/box2d_project_settings.h"
 #include <gdextension_interface.h>
 #include <godot_cpp/classes/physics_server2d_manager.hpp>
 #include <godot_cpp/core/class_db.hpp>

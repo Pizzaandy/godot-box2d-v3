@@ -9,7 +9,12 @@ using namespace godot;
 class Box2DShape2D {
 public:
 	struct ShapeID {
-		bool is_chain = false;
+		enum Type {
+			DEFAULT,
+			CHAIN,
+		};
+
+		Type type = Type::DEFAULT;
 		b2ChainId chain_id = b2_nullChainId;
 		b2ShapeId shape_id = b2_nullShapeId;
 
@@ -20,16 +25,8 @@ public:
 		}
 
 		ShapeID(b2ChainId p_chain_id) {
-			is_chain = true;
+			type = Type::CHAIN;
 			chain_id = p_chain_id;
-		}
-
-		bool is_equal(const ShapeID p_other) const {
-			if (p_other.is_chain) {
-				return is_chain && B2_ID_EQUALS(p_other.chain_id, chain_id);
-			} else {
-				return !is_chain && B2_ID_EQUALS(p_other.shape_id, shape_id);
-			}
 		}
 	};
 

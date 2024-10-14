@@ -205,13 +205,19 @@ void Box2DBody2D::build_shape(Shape &p_shape) {
 }
 
 void Box2DBody2D::add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled) {
-	Box2DBody2D::Shape shape;
+	Shape shape;
 	shape.shape = p_shape;
 	shape.transform = p_transform;
 	shape.disabled = p_disabled;
 
 	build_shape(shape);
 	shapes.push_back(shape);
+
+	int index = 0;
+	for (Shape &shape : shapes) {
+		shape.index = index;
+		index++;
+	}
 }
 
 void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
@@ -224,13 +230,15 @@ void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 void Box2DBody2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Shape &shape = shapes[p_index];
+
 	shape.destroy();
-
 	shapes.remove_at(p_index);
-}
 
-int Box2DBody2D::find_shape_index(Shape &p_shape) {
-	return shapes.find(p_shape);
+	int index = 0;
+	for (Shape &shape : shapes) {
+		shape.index = index;
+		index++;
+	}
 }
 
 void Box2DBody2D::set_shape_transform(int p_index, Transform2D p_transform) {

@@ -26,6 +26,7 @@ private:
 	static void _bind_methods();
 
 	static Object *get_instance_hack(uint64_t p_object_id) {
+		// ????
 		return reinterpret_cast<Object *>((GodotObject *)(internal::gdextension_interface_object_get_instance_from_id(p_object_id)));
 	}
 

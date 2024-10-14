@@ -21,11 +21,11 @@ int32_t Box2DPhysicsDirectSpaceState2D::_intersect_point(
 		uint64_t p_canvas_instance_id,
 		uint32_t p_collision_mask,
 		bool p_collide_with_bodies,
-		bool p_collide_with_areas, PhysicsServer2DExtensionShapeResult *p_results,
+		bool p_collide_with_areas,
+		PhysicsServer2DExtensionShapeResult *p_results,
 		int32_t p_max_results) {
 	ERR_FAIL_COND_V(!space, 0);
 	b2WorldId world = space->get_world_id();
-	ERR_FAIL_COND_V(B2_IS_NULL(world), 0);
 
 	if (p_max_results <= 0) {
 		return 0;
@@ -42,21 +42,17 @@ int32_t Box2DPhysicsDirectSpaceState2D::_intersect_point(
 	int result_count = collector.shapes.size();
 
 	for (int i = 0; i < result_count; i++) {
-		ERR_FAIL_COND_V(!b2Shape_IsValid(collector.shapes[i]), 0);
-
 		b2BodyId body_id = b2Shape_GetBody(collector.shapes[i]);
-
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(b2Body_GetUserData(body_id));
-
 		ERR_FAIL_COND_V(!body, 0);
 
 		Box2DBody2D::Shape *shape = static_cast<Box2DBody2D::Shape *>(b2Shape_GetUserData(collector.shapes[i]));
-
 		ERR_FAIL_COND_V(!shape, 0);
+		ERR_FAIL_COND_V(shape->index < 0, 0);
 
 		PhysicsServer2DExtensionShapeResult &result = *p_results++;
 
-		result.shape = body->find_shape_index(*shape);
+		result.shape = shape->index;
 		result.rid = body->get_rid();
 		result.collider_id = body->get_instance_id();
 		if (result.collider_id.is_valid()) {
