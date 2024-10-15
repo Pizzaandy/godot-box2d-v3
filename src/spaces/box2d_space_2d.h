@@ -38,6 +38,7 @@ public:
 	}
 
 	int max_tasks = -1;
+	bool locked = false;
 
 private:
 	b2WorldId world_id = b2_nullWorldId;

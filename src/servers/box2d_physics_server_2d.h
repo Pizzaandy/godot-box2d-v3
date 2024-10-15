@@ -7,7 +7,6 @@
 #include <godot_cpp/templates/hash_set.hpp>
 #include <godot_cpp/templates/rid_owner.hpp>
 
-
 using namespace godot;
 
 class Box2DPhysicsServer2D : public PhysicsServer2DExtension {
@@ -84,8 +83,8 @@ public:
 	virtual void _body_attach_canvas_instance_id(const RID &p_body, uint64_t p_id) override;
 	virtual uint64_t _body_get_canvas_instance_id(const RID &p_body) const override;
 
-	// virtual void _body_set_continuous_collision_detection_mode(const RID &p_body, PhysicsServer2D::CCDMode p_mode) override;
-	// virtual PhysicsServer2D::CCDMode _body_get_continuous_collision_detection_mode(const RID &p_body) const override;
+	virtual void _body_set_continuous_collision_detection_mode(const RID &p_body, PhysicsServer2D::CCDMode p_mode) override;
+	virtual PhysicsServer2D::CCDMode _body_get_continuous_collision_detection_mode(const RID &p_body) const override;
 	// virtual void _body_set_collision_layer(const RID &p_body, uint32_t p_layer) override;
 	// virtual uint32_t _body_get_collision_layer(const RID &p_body) const override;
 	// virtual void _body_set_collision_mask(const RID &p_body, uint32_t p_mask) override;
@@ -108,9 +107,9 @@ public:
 	// virtual void _body_add_constant_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
 	// virtual void _body_add_constant_torque(const RID &p_body, double p_torque) override;
 	// virtual void _body_set_constant_force(const RID &p_body, const Vector2 &p_force) override;
-	// virtual Vector2 _body_get_constant_force(const RID &p_body) const override;
+	virtual Vector2 _body_get_constant_force(const RID &p_body) const override { return Vector2(); }
 	// virtual void _body_set_constant_torque(const RID &p_body, double p_torque) override;
-	// virtual double _body_get_constant_torque(const RID &p_body) const override;
+	virtual float _body_get_constant_torque(const RID &p_body) const override { return 0.0; }
 	// virtual void _body_set_axis_velocity(const RID &p_body, const Vector2 &p_axis_velocity) override;
 	// virtual void _body_add_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
 	// virtual void _body_remove_collision_exception(const RID &p_body, const RID &p_excepted_body) override;

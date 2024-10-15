@@ -268,6 +268,25 @@ uint64_t Box2DPhysicsServer2D::_body_get_canvas_instance_id(const RID &p_body) c
 	return body->get_canvas_instance_id();
 }
 
+void Box2DPhysicsServer2D::_body_set_continuous_collision_detection_mode(const RID &p_body, PhysicsServer2D::CCDMode p_mode) {
+	if (p_mode == CCDMode::CCD_MODE_CAST_RAY) {
+		WARN_PRINT_ONCE("Box2D: 'Cast Ray' CCD mode is unsupported.");
+		return;
+	}
+
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	body->set_bullet(p_mode == CCDMode::CCD_MODE_CAST_SHAPE);
+}
+
+PhysicsServer2D::CCDMode Box2DPhysicsServer2D::_body_get_continuous_collision_detection_mode(const RID &p_body) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND_V(!body, CCDMode::CCD_MODE_DISABLED);
+
+	return body->get_bullet() ? CCDMode::CCD_MODE_DISABLED : CCDMode::CCD_MODE_CAST_SHAPE;
+}
+
 void Box2DPhysicsServer2D::_body_set_state(const RID &p_body, PhysicsServer2D::BodyState p_state, const Variant &p_value) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_COND(!body);

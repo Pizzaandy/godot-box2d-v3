@@ -80,10 +80,10 @@ env.Append(CPPDEFINES=["BOX2D_ENABLE_SIMD"])
 if env["CC"] == "cl":
     env.Append(CFLAGS=["/std:c11", "/experimental:c11atomics"])
 
-if env["CC"] == "mingw" or env["CC"] == "clang":
+if env["CC"] in ["mingw", "clang"]:
     env.Append(CFLAGS=["-ffp-contract=off"])
 
-if platform.machine() in ["x86_64", "AMD64"]:
+if platform.machine() == "x86_64":
     env.Append(CPPDEFINES=["BOX2D_AVX2"])
 
 env.Append(CPPPATH=["box2d/include/"])

@@ -20,7 +20,7 @@ rotation = 0.162104
 scale = Vector2(3.605, 3.605)
 
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(-455.207, -181.336)
+position = Vector2(-474.518, -189.421)
 rotation = -0.392699
 scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
@@ -36,8 +36,7 @@ position = Vector2(1416, 843)
 zoom = Vector2(0.385, 0.385)
 
 [node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
-position = Vector2(1366, 919)
-sync_to_physics = false
+position = Vector2(-1132, 724)
 script = ExtResource("2_p7yir")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]

@@ -20,6 +20,7 @@ func _physics_process(delta: float) -> void:
 		get_parent().add_child(inst)
 		inst.global_position = global_position + Vector2.RIGHT * randf_range(range.x, range.y)
 		inst.global_scale *= randf_range(0.5, 1)
+		inst.reset_physics_interpolation()
 		count += 1
 
 

@@ -1,54 +1,63 @@
 #include "box2d_body_2d.h"
 #include "../type_conversions.h"
+#include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 Box2DBody2D::~Box2DBody2D() {
-	if (b2Body_IsValid(body_id)) {
-		b2DestroyBody(body_id);
-		body_id = b2_nullBodyId;
-	}
 	if (direct_state) {
 		memdelete(direct_state);
+	}
+
+	if (body_exists()) {
+		ERR_FAIL_COND(space->locked);
+		b2DestroyBody(body_id);
+		body_id = b2_nullBodyId;
 	}
 }
 
 void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
-	if (B2_IS_NON_NULL(body_id)) {
+	if (body_exists()) {
+		ERR_FAIL_COND(space->locked);
 		b2DestroyBody(body_id);
 		body_id = b2_nullBodyId;
 	}
 
-	if (p_space) {
-		// Create body
-		b2BodyDef body_def = b2DefaultBodyDef();
+	space = p_space;
 
-		body_def.position = to_box2d(current_transform.get_origin());
-		body_def.rotation = b2MakeRot(current_transform.get_rotation());
-
-		switch (mode) {
-			case PhysicsServer2D::BODY_MODE_STATIC:
-				body_def.type = b2BodyType::b2_staticBody;
-				break;
-			case PhysicsServer2D::BODY_MODE_KINEMATIC:
-				body_def.type = b2BodyType::b2_kinematicBody;
-				break;
-			case PhysicsServer2D::BODY_MODE_RIGID:
-				body_def.type = b2BodyType::b2_dynamicBody;
-				break;
-			case PhysicsServer2D::BODY_MODE_RIGID_LINEAR:
-				body_def.type = b2BodyType::b2_dynamicBody;
-				body_def.fixedRotation = true;
-				break;
-		}
-
-		body_id = b2CreateBody(p_space->get_world_id(), &body_def);
-		b2Body_SetUserData(body_id, this);
-		for (Shape &shape : shapes) {
-			build_shape(shape);
-		}
+	if (!space) {
+		return;
 	}
 
-	space = p_space;
+	ERR_FAIL_COND(space->locked);
+
+	// Create body
+	b2BodyDef body_def = b2DefaultBodyDef();
+
+	body_def.position = to_box2d(current_transform.get_origin());
+	body_def.rotation = b2MakeRot(current_transform.get_rotation());
+	body_def.isBullet = is_bullet;
+
+	switch (mode) {
+		case PhysicsServer2D::BODY_MODE_STATIC:
+			body_def.type = b2BodyType::b2_staticBody;
+			break;
+		case PhysicsServer2D::BODY_MODE_KINEMATIC:
+			body_def.type = b2BodyType::b2_kinematicBody;
+			break;
+		case PhysicsServer2D::BODY_MODE_RIGID:
+			body_def.type = b2BodyType::b2_dynamicBody;
+			break;
+		case PhysicsServer2D::BODY_MODE_RIGID_LINEAR:
+			body_def.type = b2BodyType::b2_dynamicBody;
+			body_def.fixedRotation = true;
+			break;
+	}
+
+	body_id = b2CreateBody(space->get_world_id(), &body_def);
+	b2Body_SetUserData(body_id, this);
+	for (Shape &shape : shapes) {
+		build_shape(shape);
+	}
 }
 
 Box2DSpace2D *Box2DBody2D::get_space() {
@@ -56,7 +65,7 @@ Box2DSpace2D *Box2DBody2D::get_space() {
 }
 
 void Box2DBody2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
-	if (B2_IS_NULL(body_id)) {
+	if (!body_exists()) {
 		mode = p_mode;
 		return;
 	}
@@ -84,12 +93,18 @@ void Box2DBody2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 	mode = p_mode;
 }
 
-PhysicsServer2D::BodyMode Box2DBody2D::get_mode() {
-	return mode;
+void Box2DBody2D::set_bullet(bool p_bullet) {
+	if (!body_exists()) {
+		is_bullet = p_bullet;
+		return;
+	}
+
+	b2Body_SetBullet(body_id, p_bullet);
+	is_bullet = p_bullet;
 }
 
 void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) {
-	if (B2_IS_NULL(body_id)) {
+	if (!body_exists()) {
 		current_transform = p_transform;
 		return;
 	}
@@ -133,40 +148,46 @@ Transform2D Box2DBody2D::get_transform() {
 }
 
 void Box2DBody2D::apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position) {
-	ERR_FAIL_COND(B2_IS_NULL(body_id));
+	ERR_FAIL_COND(is_locked());
 
 	Vector2 point = current_transform.get_origin() + p_position;
 	b2Body_ApplyLinearImpulse(body_id, to_box2d(p_impulse), to_box2d(point), true);
 }
 
 void Box2DBody2D::apply_impulse_center(const Vector2 &p_impulse) {
-	ERR_FAIL_COND(B2_IS_NULL(body_id));
+	ERR_FAIL_COND(is_locked());
+
 	b2Body_ApplyLinearImpulseToCenter(body_id, to_box2d(p_impulse), true);
 }
 
 void Box2DBody2D::apply_torque_impulse(float p_impulse) {
-	ERR_FAIL_COND(B2_IS_NULL(body_id));
+	ERR_FAIL_COND(is_locked());
+
 	b2Body_ApplyAngularImpulse(body_id, p_impulse, true);
 }
 
 void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
-	ERR_FAIL_COND(B2_IS_NULL(body_id));
+	ERR_FAIL_COND(is_locked());
+
 	b2Body_SetLinearVelocity(body_id, to_box2d(p_velocity));
 }
 
 Vector2 Box2DBody2D::get_linear_velocity() const {
-	ERR_FAIL_COND_V(B2_IS_NULL(body_id), Vector2());
+	ERR_FAIL_COND_V(is_locked(), Vector2());
+
 	b2Vec2 velocity = b2Body_GetLinearVelocity(body_id);
 	return to_godot(velocity);
 }
 
 void Box2DBody2D::set_angular_velocity(float p_velocity) {
-	ERR_FAIL_COND(B2_IS_NULL(body_id));
+	ERR_FAIL_COND(is_locked());
+
 	b2Body_SetAngularVelocity(body_id, (float)p_velocity);
 }
 
 float Box2DBody2D::get_angular_velocity() const {
-	ERR_FAIL_COND_V(B2_IS_NULL(body_id), 0.0);
+	ERR_FAIL_COND_V(is_locked(), 0.0);
+
 	float angular_velocity = b2Body_GetAngularVelocity(body_id);
 	return angular_velocity;
 }
@@ -196,9 +217,11 @@ RID Box2DBody2D::get_shape_rid(int p_index) {
 }
 
 void Box2DBody2D::build_shape(Shape &p_shape) {
-	if (B2_IS_NULL(body_id)) {
+	if (!body_exists()) {
 		return;
 	}
+
+	ERR_FAIL_COND(space->locked);
 
 	b2ShapeDef shape_def = b2DefaultShapeDef();
 	Transform2D shape_transform = p_shape.transform.scaled(current_transform.get_scale());
@@ -230,9 +253,14 @@ void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 
 void Box2DBody2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
+
 	Shape &shape = shapes[p_index];
 
-	shape.destroy();
+	if (body_exists()) {
+		ERR_FAIL_COND(space->locked);
+		shape.destroy();
+	}
+
 	shapes.remove_at(p_index);
 
 	int index = 0;
