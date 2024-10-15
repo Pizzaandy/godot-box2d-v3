@@ -7,4 +7,4 @@ func _physics_process(delta: float) -> void:
 	var parameters = PhysicsPointQueryParameters2D.new()
 	parameters.position = global_position
 	var results = get_world_2d().direct_space_state.intersect_point(parameters)
-	print(results.size())
+	# print(results.size())

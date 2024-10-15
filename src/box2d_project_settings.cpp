@@ -2,6 +2,7 @@
 
 constexpr char DEFAULT_GRAVITY[] = "physics/box_2d/default_gravity";
 constexpr char SUBSTEPS[] = "physics/box_2d/substeps";
+constexpr char PIXELS_PER_METER[] = "physics/box_2d/pixels_per_meter";
 constexpr char MAX_THREADS[] = "threading/worker_pool/max_threads";
 
 template <typename TType>
@@ -82,8 +83,9 @@ void register_setting_enum(
 }
 
 void Box2DProjectSettings::register_settings() {
-	register_setting_plain(DEFAULT_GRAVITY, Vector2(0, 980));
-	register_setting_plain(SUBSTEPS, 4);
+	register_setting_hinted(DEFAULT_GRAVITY, Vector2(0, 980), U"suffix:px/s^2");
+	register_setting_ranged(SUBSTEPS, 4, U"1,8,or_greater");
+	register_setting_ranged(PIXELS_PER_METER, 100, U"1,500,or_greater", true);
 }
 
 Vector2 Box2DProjectSettings::get_default_gravity() {
@@ -93,6 +95,11 @@ Vector2 Box2DProjectSettings::get_default_gravity() {
 
 int Box2DProjectSettings::get_substeps() {
 	static const auto value = get_setting<int>(SUBSTEPS);
+	return value;
+}
+
+int Box2DProjectSettings::get_pixels_per_meter() {
+	static const auto value = get_setting<int>(PIXELS_PER_METER);
 	return value;
 }
 

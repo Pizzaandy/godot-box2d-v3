@@ -1,4 +1,5 @@
 #include "box2d_physics_server_2d.h"
+
 #include "../shapes/box2d_capsule_shape_2d.h"
 #include "../shapes/box2d_circle_shape_2d.h"
 #include "../shapes/box2d_concave_polygon_shape_2d.h"
@@ -381,7 +382,7 @@ void Box2DPhysicsServer2D::_set_active(bool p_active) {
 }
 
 void Box2DPhysicsServer2D::_init() {
-	b2SetLengthUnitsPerMeter(100.0);
+	b2SetLengthUnitsPerMeter(Box2DProjectSettings::get_pixels_per_meter());
 }
 
 void Box2DPhysicsServer2D::_step(float p_step) {

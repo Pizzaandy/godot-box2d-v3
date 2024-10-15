@@ -18,7 +18,7 @@ void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
 		body_id = b2_nullBodyId;
 	}
 
-	if (p_space != nullptr) {
+	if (p_space) {
 		// Create body
 		b2BodyDef body_def = b2DefaultBodyDef();
 
@@ -119,6 +119,7 @@ void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) 
 	}
 
 	if (current_transform.get_scale() != p_transform.get_scale()) {
+		current_transform = p_transform;
 		for (Shape &shape : shapes) {
 			build_shape(shape);
 		}

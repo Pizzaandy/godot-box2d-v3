@@ -23,11 +23,13 @@ public:
 
 		void build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
 			destroy();
+
 			if (disabled) {
 				shape_id = {};
 				return;
 			}
-			ERR_FAIL_COND(shape == nullptr);
+
+			ERR_FAIL_COND(!shape);
 			shape_id = shape->build(p_body, p_transform, p_shape_def);
 
 			if (shape_id.type == Box2DShape2D::ShapeID::CHAIN) {

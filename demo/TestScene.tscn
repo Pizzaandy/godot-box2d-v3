@@ -8,8 +8,9 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
 size = Vector2(71.5197, 1592.37)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_05h0f"]
-size = Vector2(932, 72)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ndips"]
+radius = 83.3262
+height = 1090.01
 
 [node name="Node2D" type="Node2D"]
 
@@ -25,14 +26,14 @@ scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
 
 [node name="CollisionShape2D4" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(490.093, -188.646)
+position = Vector2(573.006, -359.889)
 rotation = 0.137409
 scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1352, 529)
-zoom = Vector2(0.37, 0.37)
+position = Vector2(1416, 843)
+zoom = Vector2(0.385, 0.385)
 
 [node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
 position = Vector2(1366, 919)
@@ -41,15 +42,15 @@ script = ExtResource("2_p7yir")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
 position = Vector2(-28, 200)
-rotation = 0.244061
-shape = SubResource("RectangleShape2D_05h0f")
+rotation = 1.72299
+shape = SubResource("CapsuleShape2D_ndips")
 
 [node name="Spawner" type="Node2D" parent="."]
-position = Vector2(1274, -1645)
+position = Vector2(1481, -1802)
 script = ExtResource("2_t56be")
 max_bodies = 5000
 body = ExtResource("3_0l2sm")
-range = Vector2(-1000, 1000)
+range = Vector2(-1500, 1500)
 
 [node name="QueryTester" type="Node2D" parent="."]
 script = ExtResource("4_rkqms")
@@ -58,7 +59,7 @@ script = ExtResource("4_rkqms")
 position = Vector2(-71, 138)
 
 [node name="CollisionShape2D5" type="CollisionShape2D" parent="StaticBody2D2"]
-position = Vector2(1395, 1426)
+position = Vector2(1491, 1581)
 rotation = 1.64823
 scale = Vector2(2.43338, 2.43338)
 shape = SubResource("RectangleShape2D_hfuel")

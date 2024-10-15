@@ -42,7 +42,7 @@ void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t min
 }
 
 void finish_task_callback(void *taskPtr, void *userContext) {
-	if (taskPtr != nullptr) {
+	if (taskPtr) {
 		Box2DTaskData *taskData = static_cast<Box2DTaskData *>(taskPtr);
 		WorkerThreadPool::get_singleton()->wait_for_group_task_completion(taskData->group_id);
 		delete taskData;

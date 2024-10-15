@@ -1,6 +1,7 @@
 @tool
 extends Node2D
 
+@export var enabled = true
 @export var max_bodies = 1000
 @export var body: PackedScene
 @export var range: Vector2 = Vector2(-400, 400)
@@ -11,13 +12,14 @@ func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 
-	if count >= max_bodies:
+	if count >= max_bodies or not enabled:
 		return
 
-	for i in 5:
-		var inst = body.instantiate()
+	for i in 8:
+		var inst: Node2D = body.instantiate()
 		get_parent().add_child(inst)
 		inst.global_position = global_position + Vector2.RIGHT * randf_range(range.x, range.y)
+		inst.global_scale *= randf_range(0.5, 1)
 		count += 1
 
 
