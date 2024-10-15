@@ -3,6 +3,10 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+Box2DBody2D::Box2DBody2D() {
+	// read project settings here
+}
+
 Box2DBody2D::~Box2DBody2D() {
 	if (direct_state) {
 		memdelete(direct_state);
@@ -31,8 +35,6 @@ void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
 	ERR_FAIL_COND(space->locked);
 
 	// Create body
-	b2BodyDef body_def = b2DefaultBodyDef();
-
 	body_def.position = to_box2d(current_transform.get_origin());
 	body_def.rotation = b2MakeRot(current_transform.get_rotation());
 	body_def.isBullet = is_bullet;

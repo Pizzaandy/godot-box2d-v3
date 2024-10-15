@@ -10,7 +10,7 @@ Box2DShape2D::ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, Transfor
 	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY && type != Variant::PACKED_FLOAT32_ARRAY, {});
 #endif
 	int point_count;
-	b2Vec2 *points;
+	b2Vec2 *points = nullptr;
 
 	if (type == Variant::PACKED_VECTOR2_ARRAY) {
 		PackedVector2Array arr = data;
@@ -45,6 +45,8 @@ Box2DShape2D::ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, Transfor
 			"Box2D: Convex polygons cannot have more than " + UtilityFunctions::str(b2_maxPolygonVertices) + "vertices");
 
 	b2Hull hull = b2ComputeHull(points, point_count);
+
+	delete[] points;
 
 	ERR_FAIL_COND_V_MSG(hull.count == 0, {}, "Box2D: Failed to compute convex hull for polygon");
 

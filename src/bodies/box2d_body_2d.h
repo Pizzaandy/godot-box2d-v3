@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../box2d_project_settings.h"
 #include "../shapes/box2d_concave_polygon_shape_2d.h"
 #include "../shapes/box2d_shape_2d.h"
 #include "../spaces/box2d_space_2d.h"
@@ -33,7 +34,13 @@ public:
 			shape_id = shape->build(p_body, p_transform, p_shape_def);
 
 			if (shape_id.type == Box2DShape2D::ShapeID::CHAIN) {
-				// b2Chain_SetUserData(p_body, this);
+				int segment_count = b2Chain_GetSegmentCount(shape_id.chain_id);
+				b2ShapeId *shape_ids = new b2ShapeId[segment_count];
+				b2Chain_GetSegments(shape_id.chain_id, shape_ids, segment_count);
+				for (int i = 0; i < segment_count; i++) {
+					b2Shape_SetUserData(shape_ids[i], this);
+				}
+				delete[] shape_ids;
 			} else {
 				b2Shape_SetUserData(shape_id.shape_id, this);
 			}
@@ -50,6 +57,7 @@ public:
 		}
 	};
 
+	Box2DBody2D();
 	~Box2DBody2D();
 
 	RID get_rid() const { return rid; }
@@ -107,12 +115,13 @@ private:
 	Callable body_state_callback;
 	Transform2D current_transform;
 	PhysicsServer2D::BodyMode mode;
+	LocalVector<Shape> shapes;
 
 	Box2DDirectBodyState2D *direct_state = nullptr;
 	Box2DSpace2D *space = nullptr;
 
+	b2BodyDef body_def = b2DefaultBodyDef();
 	b2BodyId body_id = b2_nullBodyId;
-	LocalVector<Shape> shapes;
 
 	bool sleeping = false;
 	bool is_area = false;

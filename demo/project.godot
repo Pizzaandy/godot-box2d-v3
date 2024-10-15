@@ -31,5 +31,3 @@ enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg")
 
 2d/physics_engine="Box2D"
 common/physics_interpolation=true
-box_2d/substeps=5
-box_2d/pixels_per_meter=99
