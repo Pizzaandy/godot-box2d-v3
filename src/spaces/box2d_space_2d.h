@@ -37,6 +37,8 @@ public:
 		}
 	}
 
+	int max_tasks = -1;
+
 private:
 	b2WorldId world_id = b2_nullWorldId;
 	RID rid;
@@ -46,4 +48,5 @@ private:
 	b2ContactEvents contact_events;
 	PackedVector2Array debug_contacts;
 	int debug_contact_count = 0;
+	int substeps = 4;
 };

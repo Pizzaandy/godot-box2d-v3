@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://spinner.gd" id="2_p7yir"]
 [ext_resource type="Script" path="res://rain_spawner.gd" id="2_t56be"]
 [ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://robot_long.tscn" id="3_0l2sm"]
-[ext_resource type="Script" path="res://query_tester.gd" id="4_locw4"]
+[ext_resource type="Script" path="res://query_tester.gd" id="4_rkqms"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
 size = Vector2(71.5197, 1592.37)
@@ -45,13 +45,14 @@ rotation = 0.244061
 shape = SubResource("RectangleShape2D_05h0f")
 
 [node name="Spawner" type="Node2D" parent="."]
-position = Vector2(1349, -860)
+position = Vector2(1274, -1645)
 script = ExtResource("2_t56be")
+max_bodies = 5000
 body = ExtResource("3_0l2sm")
 range = Vector2(-1000, 1000)
 
 [node name="QueryTester" type="Node2D" parent="."]
-script = ExtResource("4_locw4")
+script = ExtResource("4_rkqms")
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 position = Vector2(-71, 138)
