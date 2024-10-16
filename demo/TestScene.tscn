@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://query_tester.gd" id="4_rkqms"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
-size = Vector2(71.5197, 1592.37)
+size = Vector2(101.108, 1592.37)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ndips"]
 radius = 83.3262
@@ -20,7 +20,7 @@ rotation = 0.162104
 scale = Vector2(3.605, 3.605)
 
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(-474.518, -189.421)
+position = Vector2(-465.292, -193.242)
 rotation = -0.392699
 scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
@@ -47,7 +47,7 @@ shape = SubResource("CapsuleShape2D_ndips")
 [node name="Spawner" type="Node2D" parent="."]
 position = Vector2(1481, -1802)
 script = ExtResource("2_t56be")
-max_bodies = 5000
+max_bodies = 7000
 body = ExtResource("3_0l2sm")
 range = Vector2(-1500, 1500)
 

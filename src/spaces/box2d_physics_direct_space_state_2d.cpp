@@ -139,6 +139,8 @@ bool Box2DPhysicsDirectSpaceState2D::_intersect_ray(
 	if (result.collider_id.is_valid()) {
 		result.collider = get_instance_hack(result.collider_id);
 	}
+
+	return true;
 }
 
 // struct RaycastHitCollector {

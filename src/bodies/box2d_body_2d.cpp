@@ -177,8 +177,7 @@ void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
 Vector2 Box2DBody2D::get_linear_velocity() const {
 	ERR_FAIL_COND_V(is_locked(), Vector2());
 
-	b2Vec2 velocity = b2Body_GetLinearVelocity(body_id);
-	return to_godot(velocity);
+	return to_godot(b2Body_GetLinearVelocity(body_id));
 }
 
 void Box2DBody2D::set_angular_velocity(float p_velocity) {
