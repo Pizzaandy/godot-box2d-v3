@@ -35,7 +35,7 @@ void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t min
 
 	Box2DTaskData *taskData = new Box2DTaskData{ task, itemCount, taskCount, taskContext };
 
-	taskData->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, taskData, taskCount, space->max_tasks);
+	taskData->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, taskData, taskCount, space->max_tasks, false, "Box2D Task");
 
 	return taskData;
 }
