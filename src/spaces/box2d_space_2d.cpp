@@ -35,7 +35,7 @@ void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t min
 
 	Box2DTaskData *taskData = new Box2DTaskData{ task, itemCount, taskCount, taskContext };
 
-	taskData->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, taskData, taskCount, space->max_tasks, false, "Box2D Task");
+	taskData->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, taskData, taskCount, taskCount, false, "Box2D Task");
 
 	return taskData;
 }
@@ -57,11 +57,13 @@ Box2DSpace2D::Box2DSpace2D() {
 	int hardware_thread_count = OS::get_singleton()->get_processor_count();
 	int max_thread_count = Box2DProjectSettings::get_max_threads();
 
-	if (max_thread_count < 0) {
+	if (max_thread_count < 1) {
 		max_tasks = hardware_thread_count;
 	} else {
 		max_tasks = (max_thread_count < hardware_thread_count) ? max_thread_count : hardware_thread_count;
 	}
+
+	max_tasks = Math::clamp(max_tasks, 1, 8);
 
 	world_def.workerCount = max_tasks;
 	world_def.userTaskContext = this;
@@ -76,7 +78,7 @@ Box2DSpace2D::~Box2DSpace2D() {
 		memdelete(direct_state);
 	}
 
-	ERR_FAIL_COND(b2World_IsValid(world_id));
+	ERR_FAIL_COND(!b2World_IsValid(world_id));
 
 	b2DestroyWorld(world_id);
 	world_id = b2_nullWorldId;

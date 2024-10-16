@@ -1,12 +1,12 @@
 [gd_scene load_steps=2 format=3 uid="uid://dcxotvc8jebfx"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5f1s5"]
-radius = 40.0
-height = 180.0
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_7b7iu"]
+radius = 35.0
+height = 130.0
 
 [node name="Robot" type="RigidBody2D"]
 scale = Vector2(0.6, 0.6)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(1, -41)
-shape = SubResource("CapsuleShape2D_5f1s5")
+position = Vector2(0, 1.66667)
+shape = SubResource("CapsuleShape2D_7b7iu")
