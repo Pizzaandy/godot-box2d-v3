@@ -145,10 +145,4 @@ private:
 	mutable RID_PtrOwner<Box2DBody2D> body_owner;
 	mutable RID_PtrOwner<Box2DShape2D> shape_owner;
 	HashSet<Box2DSpace2D *> active_spaces;
-
-	// soon:tm:
-	//enki::TaskScheduler scheduler;
-	//SampleTask tasks[maxTasks];
-	//int32_t taskCount;
-	//int threadCount;
 };

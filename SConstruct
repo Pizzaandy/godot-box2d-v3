@@ -77,14 +77,19 @@ sources = [Glob("src/*.cpp"), Glob("src/servers/*.cpp"), Glob("src/spaces/*.cpp"
 # Add box2d as static library
 env.Append(CPPDEFINES=["BOX2D_ENABLE_SIMD"])
 
+# don't use avx2 for compatibility
+# if platform.machine() in ["x86_64", "AMD64"]:
+#     env.Append(CPPDEFINES=["BOX2D_AVX2"])
+#     use_avx2 = True
+
 if env["CC"] == "cl":
     env.Append(CFLAGS=["/std:c11", "/experimental:c11atomics"])
 
 if env["CC"] in ["mingw", "clang"]:
     env.Append(CFLAGS=["-ffp-contract=off"])
 
-if platform.machine() == "x86_64":
-    env.Append(CPPDEFINES=["BOX2D_AVX2"])
+if env["CC"] == "emcc":
+    env.Append(CFLAGS=["-msimd128", "-msse2"])
 
 env.Append(CPPPATH=["box2d/include/"])
 box2d_lib = env.StaticLibrary("box2d", Glob("box2d/src/*.c"))
