@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" path="res://spinner.gd" id="2_p7yir"]
 [ext_resource type="Script" path="res://rain_spawner.gd" id="2_t56be"]
-[ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://robot_long.tscn" id="3_0l2sm"]
+[ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://circle_body.tscn" id="3_0l2sm"]
 [ext_resource type="Script" path="res://query_tester.gd" id="4_rkqms"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
-size = Vector2(101.108, 1592.37)
+size = Vector2(101.108, 2782.56)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ndips"]
 radius = 83.3262
@@ -20,7 +20,7 @@ rotation = 0.162104
 scale = Vector2(3.605, 3.605)
 
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(-465.292, -193.242)
+position = Vector2(-681.649, -548.494)
 rotation = -0.392699
 scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
@@ -36,20 +36,20 @@ position = Vector2(1416, 843)
 zoom = Vector2(0.385, 0.385)
 
 [node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
-position = Vector2(-1132, 724)
+position = Vector2(1526, 768)
 script = ExtResource("2_p7yir")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
-position = Vector2(-28, 200)
+position = Vector2(-45, 166)
 rotation = 1.72299
 shape = SubResource("CapsuleShape2D_ndips")
 
 [node name="Spawner" type="Node2D" parent="."]
 position = Vector2(1481, -1802)
 script = ExtResource("2_t56be")
-max_bodies = 7000
+max_bodies = 8000
 body = ExtResource("3_0l2sm")
-range = Vector2(-1500, 1500)
+spawn_range = null
 
 [node name="QueryTester" type="Node2D" parent="."]
 script = ExtResource("4_rkqms")

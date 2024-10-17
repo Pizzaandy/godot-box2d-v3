@@ -51,9 +51,6 @@ void finish_task_callback(void *taskPtr, void *userContext) {
 Box2DSpace2D::Box2DSpace2D() {
 	substeps = Box2DProjectSettings::get_substeps();
 
-	b2WorldDef world_def = b2DefaultWorldDef();
-	world_def.gravity = to_box2d(Box2DProjectSettings::get_default_gravity());
-
 	int hardware_thread_count = OS::get_singleton()->get_processor_count();
 	int max_thread_count = Box2DProjectSettings::get_max_threads();
 
@@ -64,6 +61,9 @@ Box2DSpace2D::Box2DSpace2D() {
 	}
 
 	max_tasks = Math::clamp(max_tasks, 1, 8);
+
+	b2WorldDef world_def = b2DefaultWorldDef();
+	world_def.gravity = to_box2d(Box2DProjectSettings::get_default_gravity());
 
 	world_def.workerCount = max_tasks;
 	world_def.userTaskContext = this;

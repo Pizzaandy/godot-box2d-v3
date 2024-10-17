@@ -12,18 +12,26 @@ Box2DBody2D::~Box2DBody2D() {
 		memdelete(direct_state);
 	}
 
-	if (body_exists()) {
-		ERR_FAIL_COND(space->locked);
-		b2DestroyBody(body_id);
-		body_id = b2_nullBodyId;
+	if (!space) {
+		return;
 	}
+
+	destroy_body();
+}
+
+void Box2DBody2D::destroy_body() {
+	is_body_active = false;
+
+	if (b2Body_IsValid(body_id)) {
+		b2DestroyBody(body_id);
+	}
+
+	body_id = b2_nullBodyId;
 }
 
 void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
-	if (body_exists()) {
-		ERR_FAIL_COND(space->locked);
-		b2DestroyBody(body_id);
-		body_id = b2_nullBodyId;
+	if (space) {
+		destroy_body();
 	}
 
 	space = p_space;
@@ -56,6 +64,8 @@ void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
 	}
 
 	body_id = b2CreateBody(space->get_world_id(), &body_def);
+	is_body_active = true;
+
 	b2Body_SetUserData(body_id, this);
 	for (Shape &shape : shapes) {
 		build_shape(shape);
@@ -102,7 +112,6 @@ void Box2DBody2D::set_bullet(bool p_bullet) {
 	}
 
 	b2Body_SetBullet(body_id, p_bullet);
-	is_bullet = p_bullet;
 }
 
 void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) {
@@ -254,13 +263,10 @@ void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 
 void Box2DBody2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
+	ERR_FAIL_COND(!body_exists());
 
 	Shape &shape = shapes[p_index];
-
-	if (body_exists()) {
-		ERR_FAIL_COND(space->locked);
-		shape.destroy();
-	}
+	shape.destroy();
 
 	shapes.remove_at(p_index);
 

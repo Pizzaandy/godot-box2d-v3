@@ -26,7 +26,6 @@ public:
 			destroy();
 
 			if (disabled) {
-				shape_id = {};
 				return;
 			}
 
@@ -59,14 +58,13 @@ public:
 	Box2DBody2D();
 	~Box2DBody2D();
 
+	void destroy_body();
+
 	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }
 
 	void set_space(Box2DSpace2D *p_space);
 	Box2DSpace2D *get_space();
-
-	bool body_exists() const { return b2Body_IsValid(body_id) && space; }
-	bool is_locked() const { return !b2Body_IsValid(body_id) || !space || space->locked; }
 
 	void set_mode(PhysicsServer2D::BodyMode p_mode);
 	PhysicsServer2D::BodyMode get_mode() { return mode; }
@@ -108,6 +106,9 @@ public:
 private:
 	void build_shape(Shape &p_shape);
 
+	bool body_exists() const { return is_body_active && space; }
+	bool is_locked() const { return !body_exists() || space->locked; }
+
 	RID rid;
 	ObjectID instance_id;
 	ObjectID canvas_instance_id;
@@ -125,4 +126,5 @@ private:
 	bool sleeping = false;
 	bool is_area = false;
 	bool is_bullet = false;
+	bool is_body_active = false;
 };
