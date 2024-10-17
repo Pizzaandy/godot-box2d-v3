@@ -65,8 +65,8 @@ public:
 	void set_space(Box2DSpace2D *p_space);
 	Box2DSpace2D *get_space();
 
-	bool body_exists() const { return B2_IS_NON_NULL(body_id) && space; }
-	bool is_locked() const { return B2_IS_NULL(body_id) || !space || space->locked; }
+	bool body_exists() const { return b2Body_IsValid(body_id) && space; }
+	bool is_locked() const { return !b2Body_IsValid(body_id) || !space || space->locked; }
 
 	void set_mode(PhysicsServer2D::BodyMode p_mode);
 	PhysicsServer2D::BodyMode get_mode() { return mode; }
