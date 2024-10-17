@@ -47,11 +47,10 @@ public:
 		}
 
 		void destroy() {
-			if (B2_IS_NON_NULL(shape_id.chain_id)) {
-				b2DestroyChain(shape_id.chain_id);
-			}
-			if (B2_IS_NON_NULL(shape_id.shape_id)) {
+			if (b2Shape_IsValid(shape_id.shape_id)) {
 				b2DestroyShape(shape_id.shape_id, false);
+			} else if (b2Chain_IsValid(shape_id.chain_id)) {
+				b2DestroyChain(shape_id.chain_id);
 			}
 			shape_id = {};
 		}

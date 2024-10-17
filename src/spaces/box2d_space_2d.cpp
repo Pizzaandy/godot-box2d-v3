@@ -82,13 +82,13 @@ Box2DSpace2D::~Box2DSpace2D() {
 
 	b2DestroyWorld(world_id);
 	world_id = b2_nullWorldId;
-	locked = false;
 }
 
 void Box2DSpace2D::step(float p_step) {
 	locked = true;
 	b2World_Step(world_id, p_step, substeps);
 	locked = false;
+
 	last_step = p_step;
 }
 
