@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cunci2twkihny"]
 
-[ext_resource type="Texture2D" uid="uid://bbnlau37ph2py" path="res://robot.svg" id="1_w75v5"]
+[ext_resource type="Texture2D" uid="uid://bbnlau37ph2py" path="res://sprites/robot.svg" id="1_w75v5"]
 
 [node name="Robot" type="RigidBody2D"]
 

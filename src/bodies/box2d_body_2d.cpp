@@ -219,15 +219,15 @@ void Box2DBody2D::sync_state(b2Transform p_transform, bool fell_asleep) {
 	sleeping = fell_asleep;
 
 	if (body_state_callback.is_valid()) {
-		static thread_local Array arg_array = []() {
+		static thread_local Array arguments = []() {
 			Array array;
 			array.resize(1);
 			return array;
 		}();
 
-		arg_array[0] = get_direct_state();
+		arguments[0] = get_direct_state();
 
-		body_state_callback.callv(arg_array);
+		body_state_callback.callv(arguments);
 	}
 }
 

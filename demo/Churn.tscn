@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://f2dle7n6bc7o"]
 
-[ext_resource type="Script" path="res://spinner.gd" id="2_p7yir"]
-[ext_resource type="Script" path="res://rain_spawner.gd" id="2_t56be"]
-[ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://circle_body.tscn" id="3_0l2sm"]
+[ext_resource type="Script" path="res://scripts/spinner.gd" id="1_o1u2r"]
+[ext_resource type="Script" path="res://scripts/rain_spawner.gd" id="2_whm8o"]
+[ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://circle_body.tscn" id="3_ip53t"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
 size = Vector2(101.108, 2782.56)
@@ -31,13 +31,12 @@ scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1523, -780)
-zoom = Vector2(0.1, 0.1)
+position = Vector2(1563, -287)
+zoom = Vector2(0.17, 0.17)
 
 [node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
-position = Vector2(1526, 768)
-collision_layer = 0
-script = ExtResource("2_p7yir")
+position = Vector2(1567, 74)
+script = ExtResource("1_o1u2r")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
 position = Vector2(-45, 166)
@@ -46,18 +45,13 @@ shape = SubResource("CapsuleShape2D_ndips")
 
 [node name="Spawner" type="Node2D" parent="."]
 position = Vector2(1505, -3612)
-script = ExtResource("2_t56be")
-max_bodies = 8000
-body = ExtResource("3_0l2sm")
+script = ExtResource("2_whm8o")
+body = ExtResource("3_ip53t")
 spawn_range = Vector2(-2000, 2000)
-
-[node name="QueryTester" type="Node2D" parent="."]
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 position = Vector2(-71, 138)
 
-[node name="CollisionShape2D5" type="CollisionShape2D" parent="StaticBody2D2"]
-position = Vector2(1491, 1581)
-rotation = 1.64823
-scale = Vector2(2.43338, 2.43338)
-shape = SubResource("RectangleShape2D_hfuel")
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D2"]
+build_mode = 1
+polygon = PackedVector2Array(345, 1051, 697, 911, 1697, 1351, 2846, 1123, 3363, 1360, 2303, 1487, 957, 1585, 892, 1275, 641, 1363, -167, 1190)

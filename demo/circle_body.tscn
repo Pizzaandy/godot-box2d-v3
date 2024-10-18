@@ -1,17 +1,15 @@
 [gd_scene load_steps=3 format=3 uid="uid://dcxotvc8jebfx"]
 
-[ext_resource type="Texture2D" uid="uid://bkyhaupky0h52" path="res://circle.png" id="1_cqxn3"]
+[ext_resource type="Texture2D" uid="uid://bkyhaupky0h52" path="res://sprites/circle.png" id="1_cqxn3"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_c7k4d"]
-radius = 50.0711
+[sub_resource type="CircleShape2D" id="CircleShape2D_26sbn"]
+radius = 50.0
 
-[node name="Robot" type="RigidBody2D"]
+[node name="CircleBody" type="RigidBody2D"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 1.66667)
-shape = SubResource("CircleShape2D_c7k4d")
+shape = SubResource("CircleShape2D_26sbn")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, 1)
 scale = Vector2(0.379883, 0.379883)
 texture = ExtResource("1_cqxn3")

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbnlau37ph2py"
-path="res://.godot/imported/robot.svg-9c50b4c812f31b67fa60b81716fddc54.ctex"
+uid="uid://bkyhaupky0h52"
+path="res://.godot/imported/circle.png-44b524053929f94dd1566f087585a590.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://robot.svg"
-dest_files=["res://.godot/imported/robot.svg-9c50b4c812f31b67fa60b81716fddc54.ctex"]
+source_file="res://sprites/circle.png"
+dest_files=["res://.godot/imported/circle.png-44b524053929f94dd1566f087585a590.ctex"]
 
 [params]
 
@@ -32,6 +32,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

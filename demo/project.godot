@@ -11,9 +11,9 @@ config_version=5
 [application]
 
 config/name="Box2D Demo Project"
-run/main_scene="res://TestScene.tscn"
+run/main_scene="res://Churn.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="res://sprites/icon.svg"
 
 [autoload]
 
@@ -31,3 +31,4 @@ enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg")
 
 2d/physics_engine="Box2D"
 common/physics_interpolation=true
+box_2d/default_gravity=Vector2(0, 2940)

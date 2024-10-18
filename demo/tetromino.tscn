@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://bte10iydevrpw"]
+
+[ext_resource type="Texture2D" uid="uid://bxcx763jjxxox" path="res://sprites/L_Tetromino.webp" id="1_o27cr"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w6kpp"]
+size = Vector2(97.5, 287.5)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0n21b"]
+size = Vector2(190.5, 97)
+
+[node name="Tetromino" type="RigidBody2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_o27cr")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-48.75, 1.25)
+shape = SubResource("RectangleShape2D_w6kpp")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="."]
+position = Vector2(-2.25, 96.5)
+shape = SubResource("RectangleShape2D_0n21b")
