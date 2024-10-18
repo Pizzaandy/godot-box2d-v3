@@ -12,15 +12,15 @@ Box2DBody2D::~Box2DBody2D() {
 		memdelete(direct_state);
 	}
 
-	if (!space) {
-		return;
-	}
-
 	destroy_body();
 }
 
 void Box2DBody2D::destroy_body() {
-	is_body_active = false;
+	if (!body_exists) {
+		return;
+	}
+
+	body_exists = false;
 
 	if (b2Body_IsValid(body_id)) {
 		b2DestroyBody(body_id);
@@ -30,9 +30,7 @@ void Box2DBody2D::destroy_body() {
 }
 
 void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
-	if (space) {
-		destroy_body();
-	}
+	destroy_body();
 
 	space = p_space;
 
@@ -64,20 +62,16 @@ void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
 	}
 
 	body_id = b2CreateBody(space->get_world_id(), &body_def);
-	is_body_active = true;
-
 	b2Body_SetUserData(body_id, this);
+
+	body_exists = true;
 	for (Shape &shape : shapes) {
 		build_shape(shape);
 	}
 }
 
-Box2DSpace2D *Box2DBody2D::get_space() {
-	return space;
-}
-
 void Box2DBody2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
-	if (!body_exists()) {
+	if (!body_exists) {
 		mode = p_mode;
 		return;
 	}
@@ -106,7 +100,7 @@ void Box2DBody2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 }
 
 void Box2DBody2D::set_bullet(bool p_bullet) {
-	if (!body_exists()) {
+	if (!body_exists) {
 		is_bullet = p_bullet;
 		return;
 	}
@@ -114,8 +108,30 @@ void Box2DBody2D::set_bullet(bool p_bullet) {
 	b2Body_SetBullet(body_id, p_bullet);
 }
 
+void Box2DBody2D::set_collision_layer(uint32_t p_layer) {
+	shape_def.filter.categoryBits = p_layer;
+	layer = p_layer;
+
+	if (body_exists) {
+		for (Shape &shape : shapes) {
+			build_shape(shape);
+		}
+	}
+}
+
+void Box2DBody2D::set_collision_mask(uint32_t p_mask) {
+	shape_def.filter.maskBits = p_mask;
+	mask = p_mask;
+
+	if (body_exists) {
+		for (Shape &shape : shapes) {
+			build_shape(shape);
+		}
+	}
+}
+
 void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) {
-	if (!body_exists()) {
+	if (!body_exists) {
 		current_transform = p_transform;
 		return;
 	}
@@ -152,10 +168,6 @@ void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) 
 	}
 
 	current_transform = p_transform;
-}
-
-Transform2D Box2DBody2D::get_transform() {
-	return current_transform;
 }
 
 void Box2DBody2D::apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position) {
@@ -227,13 +239,12 @@ RID Box2DBody2D::get_shape_rid(int p_index) {
 }
 
 void Box2DBody2D::build_shape(Shape &p_shape) {
-	if (!body_exists()) {
+	if (!body_exists) {
 		return;
 	}
 
 	ERR_FAIL_COND(space->locked);
 
-	b2ShapeDef shape_def = b2DefaultShapeDef();
 	Transform2D shape_transform = p_shape.transform.scaled(current_transform.get_scale());
 	p_shape.build(body_id, shape_transform, shape_def);
 }
@@ -263,10 +274,12 @@ void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 
 void Box2DBody2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
-	ERR_FAIL_COND(!body_exists());
 
 	Shape &shape = shapes[p_index];
-	shape.destroy();
+
+	if (body_exists) {
+		shape.destroy();
+	}
 
 	shapes.remove_at(p_index);
 
@@ -290,17 +303,9 @@ Transform2D Box2DBody2D::get_shape_transform(int p_index) {
 	return shape.transform;
 }
 
-int32_t Box2DBody2D::get_shape_count() {
-	return shapes.size();
-}
-
 Box2DDirectBodyState2D *Box2DBody2D::get_direct_state() {
 	if (!direct_state) {
 		direct_state = memnew(Box2DDirectBodyState2D(this));
 	}
 	return direct_state;
-}
-
-void Box2DBody2D::set_state_sync_callback(const Callable &p_callable) {
-	body_state_callback = p_callable;
 }

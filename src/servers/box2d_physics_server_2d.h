@@ -85,10 +85,10 @@ public:
 
 	virtual void _body_set_continuous_collision_detection_mode(const RID &p_body, PhysicsServer2D::CCDMode p_mode) override;
 	virtual PhysicsServer2D::CCDMode _body_get_continuous_collision_detection_mode(const RID &p_body) const override;
-	// virtual void _body_set_collision_layer(const RID &p_body, uint32_t p_layer) override;
-	// virtual uint32_t _body_get_collision_layer(const RID &p_body) const override;
-	// virtual void _body_set_collision_mask(const RID &p_body, uint32_t p_mask) override;
-	// virtual uint32_t _body_get_collision_mask(const RID &p_body) const override;
+	virtual void _body_set_collision_layer(const RID &p_body, uint32_t p_layer) override;
+	virtual uint32_t _body_get_collision_layer(const RID &p_body) const override;
+	virtual void _body_set_collision_mask(const RID &p_body, uint32_t p_mask) override;
+	virtual uint32_t _body_get_collision_mask(const RID &p_body) const override;
 	// virtual void _body_set_collision_priority(const RID &p_body, double p_priority) override;
 	// virtual double _body_get_collision_priority(const RID &p_body) const override;
 	// virtual void _body_set_param(const RID &p_body, PhysicsServer2D::BodyParameter p_param, const Variant &p_value) override;

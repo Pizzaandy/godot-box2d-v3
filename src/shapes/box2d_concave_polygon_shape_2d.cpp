@@ -20,6 +20,7 @@ Box2DShape2D::ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, Transfo
 	chain_def.points = points;
 	chain_def.count = point_count;
 	chain_def.isLoop = true;
+	chain_def.filter = p_shape_def.filter;
 
 	Box2DShape2D::ShapeID id = b2CreateChain(p_body, &chain_def);
 

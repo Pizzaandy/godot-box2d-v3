@@ -287,6 +287,34 @@ PhysicsServer2D::CCDMode Box2DPhysicsServer2D::_body_get_continuous_collision_de
 	return body->get_bullet() ? CCDMode::CCD_MODE_DISABLED : CCDMode::CCD_MODE_CAST_SHAPE;
 }
 
+void Box2DPhysicsServer2D::_body_set_collision_layer(const RID &p_body, uint32_t p_layer) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	body->set_collision_layer(p_layer);
+}
+
+uint32_t Box2DPhysicsServer2D::_body_get_collision_layer(const RID &p_body) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND_V(!body, 0);
+
+	return body->get_collision_layer();
+}
+
+void Box2DPhysicsServer2D::_body_set_collision_mask(const RID &p_body, uint32_t p_mask) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	body->set_collision_mask(p_mask);
+}
+
+uint32_t Box2DPhysicsServer2D::_body_get_collision_mask(const RID &p_body) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND_V(!body, 0);
+
+	body->get_collision_mask();
+}
+
 void Box2DPhysicsServer2D::_body_set_state(const RID &p_body, PhysicsServer2D::BodyState p_state, const Variant &p_value) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_COND(!body);

@@ -37,6 +37,7 @@ zoom = Vector2(0.385, 0.385)
 
 [node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
 position = Vector2(1526, 768)
+collision_layer = 0
 script = ExtResource("2_p7yir")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
@@ -49,7 +50,6 @@ position = Vector2(1481, -1802)
 script = ExtResource("2_t56be")
 max_bodies = 8000
 body = ExtResource("3_0l2sm")
-spawn_range = null
 
 [node name="QueryTester" type="Node2D" parent="."]
 script = ExtResource("4_rkqms")

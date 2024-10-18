@@ -28,6 +28,14 @@ public:
 			type = Type::CHAIN;
 			chain_id = p_chain_id;
 		}
+
+		bool is_valid() {
+			if (type == Type::DEFAULT) {
+				return B2_IS_NON_NULL(shape_id);
+			} else {
+				return B2_IS_NON_NULL(chain_id);
+			}
+		}
 	};
 
 	RID get_rid() const { return rid; }

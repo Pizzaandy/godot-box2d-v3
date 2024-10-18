@@ -83,7 +83,7 @@ void register_setting_enum(
 }
 
 void Box2DProjectSettings::register_settings() {
-	register_setting_hinted(DEFAULT_GRAVITY, Vector2(0, 980), U"suffix:px/s^2");
+	register_setting_plain(DEFAULT_GRAVITY, Vector2(0, 980));
 	register_setting_ranged(SUBSTEPS, 4, U"1,8,or_greater");
 	register_setting_ranged(PIXELS_PER_METER, 100, U"1,500,or_greater", true);
 }
