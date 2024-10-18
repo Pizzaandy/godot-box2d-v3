@@ -1,6 +1,6 @@
 #pragma once
 
-#include "box2d_space_2d.h"
+#include "../box2d_globals.h"
 #include <godot_cpp/classes/physics_direct_space_state2d_extension.hpp>
 
 using namespace godot;

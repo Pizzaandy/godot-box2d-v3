@@ -10,8 +10,8 @@ Box2DShape2D::ShapeID Box2DCircleShape2D::build(b2BodyId p_body, Transform2D p_t
 	radius *= size.x;
 
 	b2Circle circle;
-	circle.center = b2Vec2{ origin.x, origin.y };
-	circle.radius = radius;
+	circle.center = to_box2d(origin);
+	circle.radius = to_box2d(radius);
 
 	return b2CreateCircleShape(p_body, &p_shape_def, &circle);
 }

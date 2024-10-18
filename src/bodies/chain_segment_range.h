@@ -1,4 +1,4 @@
-#include "box2d/box2d.h"
+#include "../box2d_globals.h"
 
 class ChainSegmentRange {
 public:

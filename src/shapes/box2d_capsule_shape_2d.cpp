@@ -29,9 +29,9 @@ Box2DShape2D::ShapeID Box2DCapsuleShape2D::build(b2BodyId p_body, Transform2D p_
 	Vector2 center2 = origin - capsule_up * (0.5 * height - radius);
 
 	b2Capsule capsule;
-	capsule.center1 = b2Vec2{ center1.x, center1.y };
-	capsule.center2 = b2Vec2{ center2.x, center2.y };
-	capsule.radius = radius;
+	capsule.center1 = to_box2d(center1);
+	capsule.center2 = to_box2d(center2);
+	capsule.radius = to_box2d(radius);
 
 	return b2CreateCapsuleShape(p_body, &p_shape_def, &capsule);
 }

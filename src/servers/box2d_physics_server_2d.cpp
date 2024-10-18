@@ -312,7 +312,7 @@ uint32_t Box2DPhysicsServer2D::_body_get_collision_mask(const RID &p_body) const
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_COND_V(!body, 0);
 
-	body->get_collision_mask();
+	return body->get_collision_mask();
 }
 
 void Box2DPhysicsServer2D::_body_set_state(const RID &p_body, PhysicsServer2D::BodyState p_state, const Variant &p_value) {
@@ -429,7 +429,7 @@ void Box2DPhysicsServer2D::_set_active(bool p_active) {
 }
 
 void Box2DPhysicsServer2D::_init() {
-	b2SetLengthUnitsPerMeter(Box2DProjectSettings::get_pixels_per_meter());
+	box2d_set_pixels_per_meter(Box2DProjectSettings::get_pixels_per_meter());
 }
 
 void Box2DPhysicsServer2D::_step(float p_step) {

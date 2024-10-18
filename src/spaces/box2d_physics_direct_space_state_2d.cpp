@@ -1,7 +1,6 @@
 
 #include "box2d_physics_direct_space_state_2d.h"
 #include "../bodies/box2d_body_2d.h"
-#include "../type_conversions.h"
 
 void Box2DPhysicsDirectSpaceState2D::_bind_methods() {}
 
@@ -132,7 +131,7 @@ bool Box2DPhysicsDirectSpaceState2D::_intersect_ray(
 	PhysicsServer2DExtensionRayResult &result = *p_result;
 
 	result.position = to_godot(raycast_result.point);
-	result.normal = to_godot(raycast_result.normal);
+	result.normal = to_godot(raycast_result.normal).normalized();
 	result.shape = shape->index;
 	result.rid = body->get_rid();
 	result.collider_id = body->get_instance_id();

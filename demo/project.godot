@@ -29,7 +29,5 @@ enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg")
 
 [physics]
 
-common/max_physics_steps_per_frame=4
 2d/physics_engine="Box2D"
 common/physics_interpolation=true
-box_2d/substeps=1

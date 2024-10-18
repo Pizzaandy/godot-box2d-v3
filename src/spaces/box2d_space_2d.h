@@ -1,6 +1,6 @@
 #pragma once
 
-#include "box2d/box2d.h"
+#include "../box2d_globals.h"
 #include "box2d_physics_direct_space_state_2d.h"
 #include <godot_cpp/variant/packed_vector2_array.hpp>
 #include <godot_cpp/variant/rid.hpp>

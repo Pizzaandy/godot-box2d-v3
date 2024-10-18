@@ -1,6 +1,6 @@
 #pragma once
 
-#include "box2d/box2d.h"
+#include "../box2d_globals.h"
 #include "box2d_shape_2d.h"
 
 class Box2DCapsuleShape2D : public Box2DShape2D {

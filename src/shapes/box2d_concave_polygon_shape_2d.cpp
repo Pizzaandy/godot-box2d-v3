@@ -1,6 +1,6 @@
 
 #include "box2d_concave_polygon_shape_2d.h"
-#include "../type_conversions.h"
+
 #include <godot_cpp/variant/utility_functions.hpp>
 
 Box2DShape2D::ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {

@@ -10,7 +10,7 @@ Box2DShape2D::ShapeID Box2DRectangleShape2D::build(b2BodyId p_body, Transform2D 
 	float angle = p_transform.get_rotation();
 	half_extents *= p_transform.get_scale().x;
 
-	b2Polygon box = b2MakeOffsetBox(half_extents.x, half_extents.y, b2Vec2{ origin.x, origin.y }, b2MakeRot(angle));
+	b2Polygon box = b2MakeOffsetBox(to_box2d(half_extents.x), to_box2d(half_extents.y), to_box2d(origin), b2MakeRot(angle));
 
 	return b2CreatePolygonShape(p_body, &p_shape_def, &box);
 }

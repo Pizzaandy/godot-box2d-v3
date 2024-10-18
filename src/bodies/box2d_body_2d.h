@@ -1,10 +1,10 @@
 #pragma once
 
+#include "../box2d_globals.h"
 #include "../box2d_project_settings.h"
 #include "../shapes/box2d_concave_polygon_shape_2d.h"
 #include "../shapes/box2d_shape_2d.h"
 #include "../spaces/box2d_space_2d.h"
-#include "box2d/box2d.h"
 #include "box2d_direct_body_state_2d.h"
 #include "chain_segment_range.h"
 #include <godot_cpp/classes/physics_server2d.hpp>

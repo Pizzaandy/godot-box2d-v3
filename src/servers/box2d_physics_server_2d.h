@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../bodies/box2d_body_2d.h"
+#include "../box2d_globals.h"
 #include "../box2d_project_settings.h"
 #include "../spaces/box2d_space_2d.h"
 #include <godot_cpp/classes/physics_server2d_extension.hpp>

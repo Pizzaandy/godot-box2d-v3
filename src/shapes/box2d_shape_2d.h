@@ -1,6 +1,6 @@
 #pragma once
 
-#include "box2d/box2d.h"
+#include "../box2d_globals.h"
 #include <godot_cpp/classes/physics_server2d.hpp>
 
 using namespace godot;
