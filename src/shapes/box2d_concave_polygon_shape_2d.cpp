@@ -3,7 +3,7 @@
 
 #include <godot_cpp/variant/utility_functions.hpp>
 
-Box2DShape2D::ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
+ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
 	Variant::Type type = data.get_type();
 	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY, {});
 
@@ -22,7 +22,7 @@ Box2DShape2D::ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, Transfo
 	chain_def.isLoop = true;
 	chain_def.filter = p_shape_def.filter;
 
-	Box2DShape2D::ShapeID id = b2CreateChain(p_body, &chain_def);
+	ShapeID id = b2CreateChain(p_body, &chain_def);
 
 	delete[] points;
 

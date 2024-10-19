@@ -1,7 +1,7 @@
 #include "box2d_convex_polygon_shape_2d.h"
 #include <godot_cpp/variant/utility_functions.hpp>
 
-Box2DShape2D::ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
+ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
 	Variant::Type type = data.get_type();
 #ifdef REAL_T_IS_DOUBLE
 	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY && type != Variant::PACKED_FLOAT64_ARRAY, {});

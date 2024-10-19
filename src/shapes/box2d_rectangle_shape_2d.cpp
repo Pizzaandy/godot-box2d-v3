@@ -1,6 +1,6 @@
 #include "box2d_rectangle_shape_2d.h"
 
-Box2DShape2D::ShapeID Box2DRectangleShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
+ShapeID Box2DRectangleShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
 	Variant::Type type = data.get_type();
 	ERR_FAIL_COND_V(type != Variant::VECTOR2, {});
 

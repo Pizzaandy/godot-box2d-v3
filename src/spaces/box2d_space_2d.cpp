@@ -1,4 +1,5 @@
 #include "box2d_space_2d.h"
+
 #include "../bodies/box2d_body_2d.h"
 #include "../box2d_project_settings.h"
 #include <godot_cpp/classes/os.hpp>
@@ -92,15 +93,19 @@ void Box2DSpace2D::step(float p_step) {
 }
 
 void Box2DSpace2D::sync_state() {
-	ERR_FAIL_COND(locked);
-
-	body_events = b2World_GetBodyEvents(world_id);
+	b2BodyEvents body_events = b2World_GetBodyEvents(world_id);
 
 	for (int i = 0; i < body_events.moveCount; ++i) {
 		const b2BodyMoveEvent *event = body_events.moveEvents + i;
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(event->userData);
 		body->sync_state(event->transform, event->fellAsleep);
 	}
+
+	for (void *body : delete_after_sync) {
+		memdelete(body);
+	}
+
+	delete_after_sync.clear();
 }
 
 Box2DPhysicsDirectSpaceState2D *Box2DSpace2D::get_direct_state() {

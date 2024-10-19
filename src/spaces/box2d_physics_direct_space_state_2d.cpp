@@ -1,6 +1,7 @@
 
 #include "box2d_physics_direct_space_state_2d.h"
 #include "../bodies/box2d_body_2d.h"
+//#include "../shapes/box2d_shape_instance.h"
 
 void Box2DPhysicsDirectSpaceState2D::_bind_methods() {}
 
@@ -44,7 +45,7 @@ int32_t Box2DPhysicsDirectSpaceState2D::_intersect_point(
 	for (int i = 0; i < result_count; i++) {
 		b2BodyId body_id = b2Shape_GetBody(collector.shapes[i]);
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(b2Body_GetUserData(body_id));
-		Box2DBody2D::Shape *shape = static_cast<Box2DBody2D::Shape *>(b2Shape_GetUserData(collector.shapes[i]));
+		Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(collector.shapes[i]));
 		ERR_FAIL_COND_V(shape->index < 0, 0);
 
 		PhysicsServer2DExtensionShapeResult &result = *p_results++;
@@ -101,7 +102,7 @@ bool Box2DPhysicsDirectSpaceState2D::_intersect_ray(
 			b2ShapeId shape_id = collector.shapes[0];
 			b2BodyId body_id = b2Shape_GetBody(shape_id);
 			Box2DBody2D *body = static_cast<Box2DBody2D *>(b2Body_GetUserData(body_id));
-			Box2DBody2D::Shape *shape = static_cast<Box2DBody2D::Shape *>(b2Shape_GetUserData(shape_id));
+			Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shape_id));
 			ERR_FAIL_COND_V(shape->index < 0, 0);
 
 			p_result->position = p_from;
@@ -125,7 +126,7 @@ bool Box2DPhysicsDirectSpaceState2D::_intersect_ray(
 
 	b2BodyId body_id = b2Shape_GetBody(raycast_result.shapeId);
 	Box2DBody2D *body = static_cast<Box2DBody2D *>(b2Body_GetUserData(body_id));
-	Box2DBody2D::Shape *shape = static_cast<Box2DBody2D::Shape *>(b2Shape_GetUserData(raycast_result.shapeId));
+	Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(raycast_result.shapeId));
 	ERR_FAIL_COND_V(shape->index < 0, 0);
 
 	PhysicsServer2DExtensionRayResult &result = *p_result;

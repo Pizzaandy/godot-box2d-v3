@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../box2d_globals.h"
 
 class ChainSegmentRange {

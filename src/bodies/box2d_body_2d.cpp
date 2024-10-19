@@ -10,21 +10,22 @@ Box2DBody2D::~Box2DBody2D() {
 	if (direct_state) {
 		memdelete(direct_state);
 	}
+}
 
+void Box2DBody2D::queue_free() {
 	destroy_body();
+	if (!space) {
+		return;
+	}
+	space->delete_after_sync.push_back(this);
 }
 
 void Box2DBody2D::destroy_body() {
-	if (!body_exists) {
-		return;
-	}
-
-	body_exists = false;
-
-	if (b2Body_IsValid(body_id)) {
+	if (body_exists && b2Body_IsValid(body_id)) {
 		b2DestroyBody(body_id);
 	}
 
+	body_exists = false;
 	body_id = b2_nullBodyId;
 }
 
@@ -330,6 +331,10 @@ float Box2DBody2D::get_angular_velocity() const {
 }
 
 void Box2DBody2D::sync_state(b2Transform p_transform, bool fell_asleep) {
+	if (!body_exists) {
+		return;
+	}
+
 	current_transform.set_origin(to_godot(p_transform.p));
 	current_transform.set_rotation(b2Rot_GetAngle(p_transform.q));
 	sleeping = fell_asleep;
@@ -349,19 +354,21 @@ void Box2DBody2D::sync_state(b2Transform p_transform, bool fell_asleep) {
 
 RID Box2DBody2D::get_shape_rid(int p_index) {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), RID());
-	Shape shape = shapes[p_index];
-	return shape.shape->get_rid();
+	Box2DShapeInstance *shape = shapes[p_index];
+	Box2DShape2D *inst = shape->get_shape_or_null();
+	ERR_FAIL_COND_V(!inst, RID());
+	return inst->get_rid();
 }
 
-void Box2DBody2D::build_shape(Shape &p_shape, bool p_update_mass) {
+void Box2DBody2D::build_shape(Box2DShapeInstance *p_shape, bool p_update_mass) {
 	if (!body_exists) {
 		return;
 	}
 
 	ERR_FAIL_COND(space->locked);
 
-	Transform2D shape_transform = p_shape.transform.scaled(current_transform.get_scale());
-	p_shape.build(body_id, shape_transform, shape_def);
+	Transform2D shape_transform = p_shape->transform.scaled(current_transform.get_scale());
+	p_shape->build(body_id, shape_transform, shape_def);
 
 	if (p_update_mass) {
 		update_mass(false);
@@ -369,7 +376,7 @@ void Box2DBody2D::build_shape(Shape &p_shape, bool p_update_mass) {
 }
 
 void Box2DBody2D::rebuild_all_shapes() {
-	for (Shape &shape : shapes) {
+	for (Box2DShapeInstance *shape : shapes) {
 		build_shape(shape, false);
 	}
 
@@ -377,7 +384,7 @@ void Box2DBody2D::rebuild_all_shapes() {
 }
 
 void Box2DBody2D::update_mass(bool p_recompute_from_shapes) {
-	if (mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
+	if (!body_exists || mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
 		return;
 	}
 
@@ -399,60 +406,55 @@ void Box2DBody2D::update_mass(bool p_recompute_from_shapes) {
 }
 
 void Box2DBody2D::add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled) {
-	Shape shape;
-	shape.shape = p_shape;
-	shape.transform = p_transform;
-	shape.disabled = p_disabled;
+	Box2DShapeInstance *shape = memnew(Box2DShapeInstance);
+	shape->assign_shape(p_shape);
+	shape->transform = p_transform;
+	shape->disabled = p_disabled;
 
 	build_shape(shape, true);
 	shapes.push_back(shape);
 
 	int index = 0;
-	for (Shape &shape : shapes) {
-		shape.index = index;
+	for (Box2DShapeInstance *shape : shapes) {
+		shape->index = index;
 		index++;
 	}
 }
 
 void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
-	Shape &shape = shapes[p_index];
-	shape.shape = p_shape;
+	Box2DShapeInstance *shape = shapes[p_index];
+	shape->assign_shape(p_shape);
 	build_shape(shape, true);
 }
 
 void Box2DBody2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 
-	Shape &shape = shapes[p_index];
-
-	if (body_exists) {
-		shape.destroy();
-	}
-
+	Box2DShapeInstance *shape = shapes[p_index];
 	shapes.remove_at(p_index);
 
 	int index = 0;
-	for (Shape &shape : shapes) {
-		shape.index = index;
+	for (Box2DShapeInstance *shape : shapes) {
+		shape->index = index;
 		index++;
 	}
 }
 
 void Box2DBody2D::set_shape_transform(int p_index, Transform2D p_transform) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
-	Shape &shape = shapes[p_index];
-	if (shape.transform == p_transform) {
+	Box2DShapeInstance *shape = shapes[p_index];
+	if (shape->transform == p_transform) {
 		return;
 	}
-	shape.transform = p_transform;
+	shape->transform = p_transform;
 	build_shape(shape, true);
 }
 
 Transform2D Box2DBody2D::get_shape_transform(int p_index) {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), Transform2D());
-	Shape shape = shapes[p_index];
-	return shape.transform;
+	Box2DShapeInstance *shape = shapes[p_index];
+	return shape->transform;
 }
 
 Box2DDirectBodyState2D *Box2DBody2D::get_direct_state() {

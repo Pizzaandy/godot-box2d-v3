@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dom8tup8nlvq"]
 
-[ext_resource type="Script" path="res://scene_switcher.gd" id="1_45eq1"]
+[ext_resource type="Script" path="res://scripts/scene_switcher.gd" id="1_45eq1"]
 
 [node name="Menu" type="CanvasLayer"]
 

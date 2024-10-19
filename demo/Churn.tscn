@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/spinner.gd" id="1_o1u2r"]
 [ext_resource type="Script" path="res://scripts/camera_navigation.gd" id="1_rnyq5"]
 [ext_resource type="Script" path="res://scripts/rain_spawner.gd" id="2_whm8o"]
-[ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://scenes/circle_body.tscn" id="3_ip53t"]
+[ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://scenes/CircleBody.tscn" id="4_6buib"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
 size = Vector2(101.108, 2782.56)
@@ -50,8 +50,8 @@ shape = SubResource("CapsuleShape2D_ndips")
 [node name="Spawner" type="Node2D" parent="."]
 position = Vector2(1477, -5314)
 script = ExtResource("2_whm8o")
-max_bodies = 4000
-body = ExtResource("3_ip53t")
+max_bodies = 3000
+body = ExtResource("4_6buib")
 spawn_range = Vector2(-2000, 2000)
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]

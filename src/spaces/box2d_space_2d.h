@@ -2,6 +2,7 @@
 
 #include "../box2d_globals.h"
 #include "box2d_physics_direct_space_state_2d.h"
+#include <godot_cpp/templates/local_vector.hpp>
 #include <godot_cpp/variant/packed_vector2_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
 
@@ -39,13 +40,13 @@ public:
 
 	int max_tasks = -1;
 	bool locked = false;
+	LocalVector<void *> delete_after_sync;
 
 private:
 	b2WorldId world_id = b2_nullWorldId;
 	RID rid;
 	Box2DPhysicsDirectSpaceState2D *direct_state = nullptr;
 	float last_step = -1.0;
-	b2BodyEvents body_events;
 	b2ContactEvents contact_events;
 	PackedVector2Array debug_contacts;
 	int debug_contact_count = 0;
