@@ -31,6 +31,10 @@ void Box2DBody2D::destroy_body() {
 void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
 	destroy_body();
 
+	if (space == p_space) {
+		return;
+	}
+
 	space = p_space;
 
 	if (!space) {
@@ -64,9 +68,8 @@ void Box2DBody2D::set_space(Box2DSpace2D *p_space) {
 	b2Body_SetUserData(body_id, this);
 
 	body_exists = true;
-	for (Shape &shape : shapes) {
-		build_shape(shape);
-	}
+
+	rebuild_all_shapes();
 }
 
 void Box2DBody2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
@@ -84,23 +87,27 @@ void Box2DBody2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 			break;
 		case PhysicsServer2D::BODY_MODE_RIGID:
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
+			update_mass(false);
 			break;
 		case PhysicsServer2D::BODY_MODE_RIGID_LINEAR:
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
 			b2Body_SetFixedRotation(body_id, true);
+			update_mass(false);
 			break;
 	}
 
 	if (mode == PhysicsServer2D::BodyMode::BODY_MODE_RIGID_LINEAR && p_mode != PhysicsServer2D::BodyMode::BODY_MODE_RIGID_LINEAR) {
 		b2Body_SetFixedRotation(body_id, false);
+		update_mass(false);
 	}
 
 	mode = p_mode;
 }
 
 void Box2DBody2D::set_bullet(bool p_bullet) {
+	is_bullet = p_bullet;
+
 	if (!body_exists) {
-		is_bullet = p_bullet;
 		return;
 	}
 
@@ -111,10 +118,13 @@ void Box2DBody2D::set_collision_layer(uint32_t p_layer) {
 	shape_def.filter.categoryBits = p_layer;
 	layer = p_layer;
 
-	if (body_exists) {
-		for (Shape &shape : shapes) {
-			build_shape(shape);
-		}
+	if (!body_exists) {
+		return;
+	}
+
+	BodyShapeRange range(body_id);
+	for (b2ShapeId id : range) {
+		b2Shape_SetFilter(id, shape_def.filter);
 	}
 }
 
@@ -122,16 +132,23 @@ void Box2DBody2D::set_collision_mask(uint32_t p_mask) {
 	shape_def.filter.maskBits = p_mask;
 	mask = p_mask;
 
-	if (body_exists) {
-		for (Shape &shape : shapes) {
-			build_shape(shape);
-		}
+	if (!body_exists) {
+		return;
+	}
+
+	BodyShapeRange range(body_id);
+	for (b2ShapeId id : range) {
+		b2Shape_SetFilter(id, shape_def.filter);
 	}
 }
 
 void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) {
 	if (!body_exists) {
 		current_transform = p_transform;
+		return;
+	}
+
+	if (p_transform == current_transform) {
 		return;
 	}
 
@@ -161,12 +178,111 @@ void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) 
 
 	if (current_transform.get_scale() != p_transform.get_scale()) {
 		current_transform = p_transform;
-		for (Shape &shape : shapes) {
-			build_shape(shape);
-		}
+		rebuild_all_shapes();
 	}
 
 	current_transform = p_transform;
+}
+
+void Box2DBody2D::set_bounce(float p_bounce) {
+	bounce = p_bounce;
+	shape_def.restitution = p_bounce;
+
+	if (!body_exists) {
+		return;
+	}
+
+	BodyShapeRange range(body_id);
+	for (b2ShapeId id : range) {
+		b2Shape_SetRestitution(id, shape_def.restitution);
+	}
+}
+
+void Box2DBody2D::set_friction(float p_friction) {
+	friction = p_friction;
+	shape_def.friction = p_friction;
+
+	if (!body_exists) {
+		return;
+	}
+
+	BodyShapeRange range(body_id);
+	for (b2ShapeId id : range) {
+		b2Shape_SetFriction(id, shape_def.friction);
+	}
+}
+
+void Box2DBody2D::reset_mass() {
+	override_inertia = false;
+	override_center_of_mass = false;
+
+	if (!body_exists) {
+		return;
+	}
+
+	update_mass(true);
+}
+
+void Box2DBody2D::set_mass(float p_mass) {
+	mass = p_mass;
+
+	if (!body_exists) {
+		return;
+	}
+
+	update_mass(true);
+}
+
+void Box2DBody2D::set_inertia(float p_inertia) {
+	inertia = p_inertia;
+	override_inertia = true;
+
+	if (!body_exists) {
+		return;
+	}
+
+	update_mass(true);
+}
+
+void Box2DBody2D::set_center_of_mass(Vector2 p_center) {
+	center_of_mass = p_center;
+	override_center_of_mass = true;
+
+	if (!body_exists) {
+		return;
+	}
+
+	update_mass(true);
+}
+
+void Box2DBody2D::set_gravity_scale(float p_scale) {
+	body_def.gravityScale = p_scale;
+
+	if (!body_exists) {
+		return;
+	}
+
+	b2Body_SetGravityScale(body_id, p_scale);
+}
+
+void Box2DBody2D::set_linear_damping(float p_damping) {
+	body_def.linearDamping = p_damping;
+
+	if (!body_exists) {
+		return;
+	}
+
+	b2Body_SetLinearDamping(body_id, p_damping);
+}
+
+void Box2DBody2D::set_angular_damping(float p_damping) {
+	body_def.angularDamping = p_damping;
+
+	if (!body_exists) {
+		return;
+	}
+
+	b2Body_SetAngularDamping(body_id, p_damping);
 }
 
 void Box2DBody2D::apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position) {
@@ -237,7 +353,7 @@ RID Box2DBody2D::get_shape_rid(int p_index) {
 	return shape.shape->get_rid();
 }
 
-void Box2DBody2D::build_shape(Shape &p_shape) {
+void Box2DBody2D::build_shape(Shape &p_shape, bool p_update_mass) {
 	if (!body_exists) {
 		return;
 	}
@@ -246,6 +362,40 @@ void Box2DBody2D::build_shape(Shape &p_shape) {
 
 	Transform2D shape_transform = p_shape.transform.scaled(current_transform.get_scale());
 	p_shape.build(body_id, shape_transform, shape_def);
+
+	if (p_update_mass) {
+		update_mass(false);
+	}
+}
+
+void Box2DBody2D::rebuild_all_shapes() {
+	for (Shape &shape : shapes) {
+		build_shape(shape, false);
+	}
+
+	update_mass(false);
+}
+
+void Box2DBody2D::update_mass(bool p_recompute_from_shapes) {
+	if (mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
+		return;
+	}
+
+	if (p_recompute_from_shapes) {
+		b2Body_ApplyMassFromShapes(body_id);
+	}
+
+	mass_data = b2Body_GetMassData(body_id);
+	mass_data.mass = mass;
+
+	if (override_inertia) {
+		mass_data.rotationalInertia = inertia;
+	}
+	if (override_center_of_mass) {
+		mass_data.center = to_box2d(center_of_mass);
+	}
+
+	b2Body_SetMassData(body_id, mass_data);
 }
 
 void Box2DBody2D::add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled) {
@@ -254,7 +404,7 @@ void Box2DBody2D::add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool
 	shape.transform = p_transform;
 	shape.disabled = p_disabled;
 
-	build_shape(shape);
+	build_shape(shape, true);
 	shapes.push_back(shape);
 
 	int index = 0;
@@ -268,7 +418,7 @@ void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Shape &shape = shapes[p_index];
 	shape.shape = p_shape;
-	build_shape(shape);
+	build_shape(shape, true);
 }
 
 void Box2DBody2D::remove_shape(int p_index) {
@@ -292,8 +442,11 @@ void Box2DBody2D::remove_shape(int p_index) {
 void Box2DBody2D::set_shape_transform(int p_index, Transform2D p_transform) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Shape &shape = shapes[p_index];
+	if (shape.transform == p_transform) {
+		return;
+	}
 	shape.transform = p_transform;
-	build_shape(shape);
+	build_shape(shape, true);
 }
 
 Transform2D Box2DBody2D::get_shape_transform(int p_index) {

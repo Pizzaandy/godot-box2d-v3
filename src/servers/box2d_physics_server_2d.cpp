@@ -315,24 +315,97 @@ uint32_t Box2DPhysicsServer2D::_body_get_collision_mask(const RID &p_body) const
 	return body->get_collision_mask();
 }
 
+void Box2DPhysicsServer2D::_body_set_param(const RID &p_body, PhysicsServer2D::BodyParameter p_param, const Variant &p_value) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	switch (p_param) {
+		case BodyParameter::BODY_PARAM_BOUNCE:
+			body->set_bounce(p_value);
+			break;
+		case BodyParameter::BODY_PARAM_FRICTION:
+			body->set_friction(p_value);
+			break;
+		case BodyParameter::BODY_PARAM_MASS:
+			body->set_mass(p_value);
+			break;
+		case BodyParameter::BODY_PARAM_INERTIA:
+			body->set_inertia(p_value);
+			break;
+		case BodyParameter::BODY_PARAM_CENTER_OF_MASS:
+			body->set_center_of_mass(p_value);
+			break;
+		case BodyParameter::BODY_PARAM_GRAVITY_SCALE:
+			body->set_gravity_scale(p_value);
+			break;
+		case BodyParameter::BODY_PARAM_LINEAR_DAMP_MODE:
+			ERR_FAIL_COND("Box2D: Linear damp mode is not supported");
+			break;
+		case BodyParameter::BODY_PARAM_ANGULAR_DAMP_MODE:
+			ERR_FAIL_COND("Box2D: Angular damp mode is not supported");
+			break;
+		case BodyParameter::BODY_PARAM_LINEAR_DAMP:
+			body->set_linear_damping(p_value);
+			break;
+		case BodyParameter::BODY_PARAM_ANGULAR_DAMP:
+			body->set_angular_damping(p_value);
+			break;
+	}
+}
+
+Variant Box2DPhysicsServer2D::_body_get_param(const RID &p_body, PhysicsServer2D::BodyParameter p_param) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND_V(!body, Variant());
+
+	switch (p_param) {
+		case BodyParameter::BODY_PARAM_BOUNCE:
+			return body->get_bounce();
+		case BodyParameter::BODY_PARAM_FRICTION:
+			return body->get_friction();
+		case BodyParameter::BODY_PARAM_MASS:
+			return body->get_mass();
+		case BodyParameter::BODY_PARAM_INERTIA:
+			return body->get_inertia();
+		case BodyParameter::BODY_PARAM_CENTER_OF_MASS:
+			return body->get_center_of_mass();
+		case BodyParameter::BODY_PARAM_GRAVITY_SCALE:
+			return body->get_gravity_scale();
+		case BodyParameter::BODY_PARAM_LINEAR_DAMP_MODE:
+			ERR_FAIL_COND_V("Box2D: Linear damp mode is not supported", {});
+		case BodyParameter::BODY_PARAM_ANGULAR_DAMP_MODE:
+			ERR_FAIL_COND_V("Box2D: Angular damp mode is not supported", {});
+		case BodyParameter::BODY_PARAM_LINEAR_DAMP:
+			return body->get_linear_damping();
+		case BodyParameter::BODY_PARAM_ANGULAR_DAMP:
+			return body->get_angular_damping();
+	}
+
+	return Variant();
+}
+
+void Box2DPhysicsServer2D::_body_reset_mass_properties(const RID &p_body) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+}
+
 void Box2DPhysicsServer2D::_body_set_state(const RID &p_body, PhysicsServer2D::BodyState p_state, const Variant &p_value) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_COND(!body);
 
 	switch (p_state) {
-		case PhysicsServer2D::BODY_STATE_TRANSFORM:
+		case BodyState::BODY_STATE_TRANSFORM:
 			body->set_transform(p_value, true);
 			break;
-		case PhysicsServer2D::BODY_STATE_LINEAR_VELOCITY:
+		case BodyState::BODY_STATE_LINEAR_VELOCITY:
 			body->set_linear_velocity(p_value);
 			break;
-		case PhysicsServer2D::BODY_STATE_ANGULAR_VELOCITY:
+		case BodyState::BODY_STATE_ANGULAR_VELOCITY:
 			body->set_angular_velocity(p_value);
 			break;
-		case PhysicsServer2D::BODY_STATE_SLEEPING:
-			return;
-		case PhysicsServer2D::BODY_STATE_CAN_SLEEP:
-			return;
+		case BodyState::BODY_STATE_SLEEPING:
+			break;
+		case BodyState::BODY_STATE_CAN_SLEEP:
+			break;
 	}
 }
 
@@ -341,15 +414,15 @@ Variant Box2DPhysicsServer2D::_body_get_state(const RID &p_body, PhysicsServer2D
 	ERR_FAIL_COND_V(!body, Variant());
 
 	switch (p_state) {
-		case PhysicsServer2D::BODY_STATE_TRANSFORM:
+		case BodyState::BODY_STATE_TRANSFORM:
 			return body->get_transform();
-		case PhysicsServer2D::BODY_STATE_LINEAR_VELOCITY:
+		case BodyState::BODY_STATE_LINEAR_VELOCITY:
 			return body->get_linear_velocity();
-		case PhysicsServer2D::BODY_STATE_ANGULAR_VELOCITY:
+		case BodyState::BODY_STATE_ANGULAR_VELOCITY:
 			return body->get_angular_velocity();
-		case PhysicsServer2D::BODY_STATE_SLEEPING:
+		case BodyState::BODY_STATE_SLEEPING:
 			return body->is_sleeping();
-		case PhysicsServer2D::BODY_STATE_CAN_SLEEP:
+		case BodyState::BODY_STATE_CAN_SLEEP:
 			return true;
 	}
 

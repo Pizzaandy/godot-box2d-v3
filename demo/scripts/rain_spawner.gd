@@ -15,7 +15,7 @@ func _physics_process(delta: float) -> void:
 	if count >= max_bodies or not enabled:
 		return
 
-	for i in 8:
+	for i in 5:
 		var inst: Node2D = body.instantiate()
 		get_parent().add_child(inst)
 		inst.global_position = global_position + Vector2.RIGHT * randf_range(spawn_range.x, spawn_range.y)

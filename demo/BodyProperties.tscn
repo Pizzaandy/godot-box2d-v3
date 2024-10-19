@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://dh5toih2pg8nh"]
+
+[ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="1_tumiq"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_okqu6"]
+size = Vector2(1825, 105)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_i2sdw"]
+radius = 56.0357
+
+[node name="BodyProperties" type="Node2D"]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+position = Vector2(846, 836)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(60, 19)
+shape = SubResource("RectangleShape2D_okqu6")
+
+[node name="Camera2D" parent="." instance=ExtResource("1_tumiq")]
+position = Vector2(861, 634)
+zoom = Vector2(1, 1)
+
+[node name="RigidBody2D" type="RigidBody2D" parent="."]
+position = Vector2(663, 520)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+shape = SubResource("CircleShape2D_i2sdw")

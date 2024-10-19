@@ -34,12 +34,12 @@ scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1503, 923)
+position = Vector2(1588, 69)
 zoom = Vector2(0.2, 0.2)
 script = ExtResource("1_rnyq5")
 
 [node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
-position = Vector2(1572, 810)
+position = Vector2(1503, 597)
 script = ExtResource("1_o1u2r")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
@@ -50,7 +50,7 @@ shape = SubResource("CapsuleShape2D_ndips")
 [node name="Spawner" type="Node2D" parent="."]
 position = Vector2(1477, -5314)
 script = ExtResource("2_whm8o")
-max_bodies = 6000
+max_bodies = 4000
 body = ExtResource("3_ip53t")
 spawn_range = Vector2(-2000, 2000)
 

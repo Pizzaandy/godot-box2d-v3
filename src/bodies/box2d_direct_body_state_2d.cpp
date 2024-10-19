@@ -23,21 +23,23 @@
 // 	return body->total_linear_damping;
 // }
 
-// Vector2 Box2DDirectBodyState2D::_get_center_of_mass() const {
-// 	return body->get_transform().basis_xform(body->get_center_of_mass());
-// }
+Vector2 Box2DDirectBodyState2D::_get_center_of_mass() const {
+	return body->get_transform().basis_xform(body->get_center_of_mass());
+}
 
-// Vector2 Box2DDirectBodyState2D::_get_center_of_mass_local() const {
-// 	return body->get_center_of_mass();
-// }
+Vector2 Box2DDirectBodyState2D::_get_center_of_mass_local() const {
+	return body->get_center_of_mass();
+}
 
-// double Box2DDirectBodyState2D::_get_inverse_mass() const {
-// 	return body->get_inv_mass();
-// }
+float Box2DDirectBodyState2D::_get_inverse_mass() const {
+	float mass = body->get_mass();
+	return mass > 0.0 ? mass : 0.0;
+}
 
-// double Box2DDirectBodyState2D::_get_inverse_inertia() const {
-// 	return body->get_inv_inertia();
-// }
+float Box2DDirectBodyState2D::_get_inverse_inertia() const {
+	float inertia = body->get_inertia();
+	return inertia > 0.0 ? inertia : 0.0;
+}
 
 void Box2DDirectBodyState2D::_set_linear_velocity(const Vector2 &p_velocity) {
 	body->set_linear_velocity(p_velocity);

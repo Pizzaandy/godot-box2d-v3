@@ -26,10 +26,10 @@ public:
 	// virtual double _get_total_angular_damp() const override;
 	// virtual double _get_total_linear_damp() const override;
 
-	// virtual Vector2 _get_center_of_mass() const override;
-	// virtual Vector2 _get_center_of_mass_local() const override;
-	// virtual double _get_inverse_mass() const override;
-	// virtual double _get_inverse_inertia() const override;
+	virtual Vector2 _get_center_of_mass() const override;
+	virtual Vector2 _get_center_of_mass_local() const override;
+	virtual float _get_inverse_mass() const override;
+	virtual float _get_inverse_inertia() const override;
 
 	virtual void _set_linear_velocity(const Vector2 &p_velocity) override;
 	virtual Vector2 _get_linear_velocity() const override;

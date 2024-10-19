@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://dom8tup8nlvq"]
+
+[ext_resource type="Script" path="res://scene_switcher.gd" id="1_45eq1"]
+
+[node name="Menu" type="CanvasLayer"]
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+offset_right = 200.0
+offset_bottom = 1080.0
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="ItemList" type="ItemList" parent="PanelContainer/MarginContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+item_count = 2
+item_0/text = "Churn"
+item_1/text = "BodyProperties"
+script = ExtResource("1_45eq1")
+
+[connection signal="item_clicked" from="PanelContainer/MarginContainer/ItemList" to="PanelContainer/MarginContainer/ItemList" method="_on_item_clicked"]
+[connection signal="item_selected" from="PanelContainer/MarginContainer/ItemList" to="PanelContainer/MarginContainer/ItemList" method="_on_item_selected"]
