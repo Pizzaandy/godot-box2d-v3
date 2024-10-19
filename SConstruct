@@ -82,6 +82,12 @@ env.Append(CPPDEFINES=["BOX2D_ENABLE_SIMD"])
 #     env.Append(CPPDEFINES=["BOX2D_AVX2"])
 #     use_avx2 = True
 
+if env["target"] == "template_release":
+    if env["CC"] == "cl":
+        env.Append(CCFLAGS=["/O2"])
+    else:
+        env.Append(CCFLAGS=["-O2"])
+
 if env["CC"] == "cl":
     env.Append(CFLAGS=["/std:c11", "/experimental:c11atomics"])
 

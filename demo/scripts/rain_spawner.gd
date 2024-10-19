@@ -30,4 +30,4 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	draw_set_transform_matrix(global_transform.affine_inverse())
-	draw_dashed_line(global_position + Vector2.RIGHT * spawn_range.x, global_position + Vector2.RIGHT * spawn_range.y, Color.BLACK)
+	draw_line(global_position + Vector2.RIGHT * spawn_range.x, global_position + Vector2.RIGHT * spawn_range.y, Color.BLACK)

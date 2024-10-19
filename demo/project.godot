@@ -19,6 +19,11 @@ config/icon="res://sprites/icon.svg"
 
 DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
 
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
 [dotnet]
 
 project/assembly_name="Box2D Demo Project"
