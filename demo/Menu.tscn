@@ -4,20 +4,36 @@
 
 [node name="Menu" type="CanvasLayer"]
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="ScenePanel" type="PanelContainer" parent="."]
 offset_right = 200.0
 offset_bottom = 1080.0
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="ScenePanel"]
 layout_mode = 2
 
-[node name="ItemList" type="ItemList" parent="PanelContainer/MarginContainer"]
+[node name="ItemList" type="ItemList" parent="ScenePanel/MarginContainer"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
-item_count = 2
+item_count = 3
 item_0/text = "Churn"
 item_1/text = "BodyProperties"
+item_2/text = "Queries"
 script = ExtResource("1_45eq1")
 
-[connection signal="item_clicked" from="PanelContainer/MarginContainer/ItemList" to="PanelContainer/MarginContainer/ItemList" method="_on_item_clicked"]
-[connection signal="item_selected" from="PanelContainer/MarginContainer/ItemList" to="PanelContainer/MarginContainer/ItemList" method="_on_item_selected"]
+[node name="SettingsPanel" type="PanelContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_bottom = 300.0
+grow_horizontal = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="SettingsPanel"]
+layout_mode = 2
+
+[node name="ItemList" type="ItemList" parent="SettingsPanel/MarginContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[connection signal="item_clicked" from="ScenePanel/MarginContainer/ItemList" to="ScenePanel/MarginContainer/ItemList" method="_on_item_clicked"]
+[connection signal="item_selected" from="ScenePanel/MarginContainer/ItemList" to="ScenePanel/MarginContainer/ItemList" method="_on_item_selected"]

@@ -1,17 +1,21 @@
 extends AnimatableBody2D
 
 var elapsed_time = 0
-var period_seconds: float = 2
+@export var period_seconds: float = 2
 var original_position: Vector2
 var original_scale: Vector2
+
 
 func _ready() -> void:
 	original_position = global_position
 	original_scale = global_scale
 
+
 func _physics_process(delta: float) -> void:
 	spin(delta)
+
 	# pulse(delta)
+
 
 func oscillate(delta: float):
 	elapsed_time += delta
@@ -22,6 +26,7 @@ func oscillate(delta: float):
 		(sine_value + 1.0) / 2.0
 	)
 
+
 func pulse(delta: float):
 	elapsed_time += delta
 	var t : float = elapsed_time / period_seconds
@@ -30,6 +35,7 @@ func pulse(delta: float):
 		original_scale + Vector2(1, 1),
 		(sine_value + 1.0) / 2.0
 	)
+
 
 func spin(delta: float):
 	global_rotation += (delta * PI * 2.0) / period_seconds

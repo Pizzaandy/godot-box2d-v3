@@ -41,7 +41,7 @@ ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, Transform2D p_transfor
 	ERR_FAIL_COND_V_MSG(
 			point_count > b2_maxPolygonVertices,
 			{},
-			"Box2D: Convex polygons cannot have more than " + UtilityFunctions::str(b2_maxPolygonVertices) + "vertices");
+			"Box2D: Convex polygons cannot have more than " + UtilityFunctions::str(b2_maxPolygonVertices) + " vertices");
 
 	b2Hull hull = b2ComputeHull(points, point_count);
 

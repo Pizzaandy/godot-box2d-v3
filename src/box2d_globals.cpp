@@ -1,3 +1,3 @@
 #include "box2d_globals.h"
 
-float box2d_pixels_per_meter = 1;
+float BOX2D_PIXELS_PER_METER = 1;

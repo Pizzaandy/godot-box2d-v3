@@ -5,8 +5,9 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_okqu6"]
 size = Vector2(1825, 105)
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_i2sdw"]
-radius = 56.0357
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_xnqn8"]
+radius = 81.0
+height = 304.0
 
 [node name="BodyProperties" type="Node2D"]
 
@@ -22,7 +23,10 @@ position = Vector2(861, 634)
 zoom = Vector2(1, 1)
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
-position = Vector2(663, 520)
+position = Vector2(923, 376)
+rotation = 0.804732
+center_of_mass_mode = 1
+center_of_mass = Vector2(0, 100)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
-shape = SubResource("CircleShape2D_i2sdw")
+shape = SubResource("CapsuleShape2D_xnqn8")

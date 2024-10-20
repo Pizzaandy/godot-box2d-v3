@@ -11,7 +11,6 @@ void Box2DShapeInstance::assign_shape(Box2DShape2D *p_shape) {
 	}
 
 	shape = p_shape;
-
 	p_shape->add_instance(this);
 }
 

@@ -6,11 +6,16 @@ ShapeID Box2DRectangleShape2D::build(b2BodyId p_body, Transform2D p_transform, b
 
 	Vector2 half_extents = data;
 
-	Vector2 origin = p_transform.get_origin();
-	float angle = p_transform.get_rotation();
-	half_extents *= p_transform.get_scale().x;
+	b2Vec2 points[4] = {
+		to_box2d(p_transform.xform(Vector2(-half_extents.x, half_extents.y))),
+		to_box2d(p_transform.xform(Vector2(half_extents.x, half_extents.y))),
+		to_box2d(p_transform.xform(Vector2(half_extents.x, -half_extents.y))),
+		to_box2d(p_transform.xform(Vector2(-half_extents.x, -half_extents.y)))
+	};
 
-	b2Polygon box = b2MakeOffsetBox(to_box2d(half_extents.x), to_box2d(half_extents.y), to_box2d(origin), b2MakeRot(angle));
+	b2Hull hull = b2ComputeHull(points, 4);
+
+	b2Polygon box = b2MakePolygon(&hull, 0.0);
 
 	return b2CreatePolygonShape(p_body, &p_shape_def, &box);
 }

@@ -130,7 +130,7 @@ void Box2DBody2D::set_collision_layer(uint32_t p_layer) {
 }
 
 void Box2DBody2D::set_collision_mask(uint32_t p_mask) {
-	shape_def.filter.maskBits = p_mask;
+	shape_def.filter.maskBits = p_mask | COMMON_MASK_BIT;
 	mask = p_mask;
 
 	if (!body_exists) {
@@ -163,7 +163,7 @@ void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) 
 			return;
 		}
 
-		Vector2 current_position = to_godot(b2Body_GetPosition(body_id));
+		Vector2 current_position = current_transform.get_origin();
 		Vector2 linear = (position - current_position) / last_step;
 
 		b2Rot target_rotation = b2MakeRot(rotation);
@@ -177,7 +177,8 @@ void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) 
 		b2Body_SetAwake(body_id, true);
 	}
 
-	if (current_transform.get_scale() != p_transform.get_scale()) {
+	if (current_transform.get_scale() != p_transform.get_scale() ||
+			current_transform.get_skew() != p_transform.get_skew()) {
 		current_transform = p_transform;
 		rebuild_all_shapes();
 	}
@@ -235,8 +236,12 @@ void Box2DBody2D::set_mass(float p_mass) {
 }
 
 void Box2DBody2D::set_inertia(float p_inertia) {
-	inertia = p_inertia;
-	override_inertia = true;
+	if (p_inertia == 0.0) {
+		override_inertia = false;
+	} else {
+		inertia = p_inertia;
+		override_inertia = true;
+	}
 
 	if (!body_exists) {
 		return;
@@ -335,9 +340,12 @@ void Box2DBody2D::sync_state(b2Transform p_transform, bool fell_asleep) {
 		return;
 	}
 
-	current_transform.set_origin(to_godot(p_transform.p));
-	current_transform.set_rotation(b2Rot_GetAngle(p_transform.q));
 	sleeping = fell_asleep;
+	current_transform.set_origin(to_godot(p_transform.p));
+	current_transform.set_rotation_scale_and_skew(
+			b2Rot_GetAngle(p_transform.q),
+			current_transform.get_scale(),
+			current_transform.get_skew());
 
 	if (body_state_callback.is_valid()) {
 		static thread_local Array arguments = []() {
@@ -367,8 +375,10 @@ void Box2DBody2D::build_shape(Box2DShapeInstance *p_shape, bool p_update_mass) {
 
 	ERR_FAIL_COND(space->locked);
 
-	Transform2D shape_transform = p_shape->transform.scaled(current_transform.get_scale());
-	p_shape->build(body_id, shape_transform, shape_def);
+	// Apply parent scale and skew
+	Transform2D scale_and_skew = Transform2D(0.0, current_transform.get_scale(), current_transform.get_skew(), Vector2());
+
+	p_shape->build(body_id, scale_and_skew * p_shape->transform, shape_def);
 
 	if (p_update_mass) {
 		update_mass(false);

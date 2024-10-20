@@ -5,13 +5,44 @@
 #include "../shapes/box2d_concave_polygon_shape_2d.h"
 #include "../shapes/box2d_convex_polygon_shape_2d.h"
 #include "../shapes/box2d_rectangle_shape_2d.h"
+#include "../shapes/box2d_segment_shape_2d.h"
+
+namespace {
+constexpr char PHYSICS_SERVER_NAME[] = "Box2DPhysicsServer2D";
+}
 
 #define FLUSH_QUERY_CHECK(m_object) \
 	ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead.");
 
 void Box2DPhysicsServer2D::_bind_methods() {}
 
+Box2DPhysicsServer2D::Box2DPhysicsServer2D() {
+	Engine *engine = Engine::get_singleton();
+
+	if (engine->has_singleton(PHYSICS_SERVER_NAME)) {
+		engine->unregister_singleton(PHYSICS_SERVER_NAME);
+	}
+
+	engine->register_singleton(PHYSICS_SERVER_NAME, this);
+}
+
+Box2DPhysicsServer2D::~Box2DPhysicsServer2D() {
+	Engine::get_singleton()->unregister_singleton(PHYSICS_SERVER_NAME);
+}
+
+Box2DPhysicsServer2D *Box2DPhysicsServer2D::get_singleton() {
+	static auto *instance = dynamic_cast<Box2DPhysicsServer2D *>(PhysicsServer2D::get_singleton());
+	return instance;
+}
+
 // Shape API
+RID Box2DPhysicsServer2D::_segment_shape_create() {
+	Box2DSegmentShape2D *shape = memnew(Box2DSegmentShape2D);
+	RID rid = shape_owner.make_rid(shape);
+	shape->set_rid(rid);
+	return rid;
+}
+
 RID Box2DPhysicsServer2D::_circle_shape_create() {
 	Box2DCircleShape2D *shape = memnew(Box2DCircleShape2D);
 	RID rid = shape_owner.make_rid(shape);

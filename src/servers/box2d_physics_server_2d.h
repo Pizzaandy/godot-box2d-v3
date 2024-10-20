@@ -4,6 +4,7 @@
 #include "../box2d_globals.h"
 #include "../box2d_project_settings.h"
 #include "../spaces/box2d_space_2d.h"
+#include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/physics_server2d_extension.hpp>
 #include <godot_cpp/templates/hash_set.hpp>
 #include <godot_cpp/templates/rid_owner.hpp>
@@ -16,7 +17,7 @@ class Box2DPhysicsServer2D : public PhysicsServer2DExtension {
 public:
 	// RID _world_boundary_shape_create() override;
 	// RID _separation_ray_shape_create() override;
-	// RID _segment_shape_create() override;
+	RID _segment_shape_create() override;
 	RID _circle_shape_create() override;
 	RID _rectangle_shape_create() override;
 	RID _capsule_shape_create() override;
@@ -137,6 +138,11 @@ public:
 	bool _is_flushing_queries() const override;
 	int32_t _get_process_info(PhysicsServer2D::ProcessInfo p_process_info) override;
 
+	Box2DPhysicsServer2D();
+	~Box2DPhysicsServer2D();
+	static Box2DPhysicsServer2D *get_singleton();
+	Box2DShape2D *get_shape(const RID &p_rid) const { return shape_owner.get_or_null(p_rid); }
+
 private:
 	static void _bind_methods();
 
@@ -146,4 +152,6 @@ private:
 	mutable RID_PtrOwner<Box2DBody2D> body_owner;
 	mutable RID_PtrOwner<Box2DShape2D> shape_owner;
 	HashSet<Box2DSpace2D *> active_spaces;
+
+	static Box2DPhysicsServer2D *singleton;
 };

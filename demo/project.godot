@@ -34,5 +34,3 @@ enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg")
 [physics]
 
 2d/physics_engine="Box2D"
-common/physics_interpolation=true
-box_2d/default_gravity=Vector2(0, 2940)
