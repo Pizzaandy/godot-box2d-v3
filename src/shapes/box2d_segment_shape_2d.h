@@ -6,4 +6,7 @@
 class Box2DSegmentShape2D : public Box2DShape2D {
 public:
 	ShapeID build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) override;
+	void cast_shape(b2WorldId p_world, Transform2D p_transform, Vector2 p_motion, b2QueryFilter p_filter, b2CastResultFcn *fcn, void *context) override;
+	static bool make_segment(Transform2D p_transform, Variant p_data, b2Segment &p_segment);
+	static bool make_fat_segment(Transform2D p_transform, Variant p_data, float radius, b2Capsule &p_capsule);
 };

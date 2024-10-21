@@ -33,6 +33,16 @@ Box2DPhysicsServer2D *Box2DPhysicsServer2D::get_singleton() {
 }
 
 // Shape API
+RID Box2DPhysicsServer2D::_world_boundary_shape_create() {
+	ERR_PRINT_ONCE("Box2D: World boundary shape is not supported. This feature is planned for v3.1");
+	return RID();
+}
+
+RID Box2DPhysicsServer2D::_separation_ray_shape_create() {
+	ERR_PRINT_ONCE("Box2D: Separation ray shape is not supported.");
+	return RID();
+}
+
 RID Box2DPhysicsServer2D::_segment_shape_create() {
 	Box2DSegmentShape2D *shape = memnew(Box2DSegmentShape2D);
 	RID rid = shape_owner.make_rid(shape);

@@ -16,7 +16,7 @@ custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 item_count = 3
 item_0/text = "Churn"
-item_1/text = "BodyProperties"
+item_1/text = "Body Properties"
 item_2/text = "Queries"
 script = ExtResource("1_45eq1")
 

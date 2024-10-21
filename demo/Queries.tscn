@@ -24,6 +24,7 @@ size = Vector2(152, 145)
 [node name="Queries" type="Node2D"]
 
 [node name="QueryTester" type="Node2D" parent="."]
+position = Vector2(172.175, -179.065)
 script = ExtResource("3_scqh4")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
@@ -88,7 +89,7 @@ position = Vector2(-67, -24.5)
 shape = SubResource("RectangleShape2D_o0sn6")
 
 [node name="RigidBody2D5" type="AnimatableBody2D" parent="."]
-position = Vector2(1650, 458)
+position = Vector2(1647, 488)
 script = ExtResource("2_vflxn")
 period_seconds = 4.0
 
@@ -115,9 +116,9 @@ offset_bottom = 276.0
 text = "CCW"
 
 [node name="CW" type="Label" parent="."]
-offset_left = 1622.0
-offset_top = 450.0
-offset_right = 1662.0
-offset_bottom = 473.0
+offset_left = 1619.0
+offset_top = 480.0
+offset_right = 1659.0
+offset_bottom = 503.0
 text = "CW
 "

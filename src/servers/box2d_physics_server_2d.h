@@ -15,8 +15,8 @@ class Box2DPhysicsServer2D : public PhysicsServer2DExtension {
 	GDCLASS(Box2DPhysicsServer2D, PhysicsServer2DExtension);
 
 public:
-	// RID _world_boundary_shape_create() override;
-	// RID _separation_ray_shape_create() override;
+	RID _world_boundary_shape_create() override;
+	RID _separation_ray_shape_create() override;
 	RID _segment_shape_create() override;
 	RID _circle_shape_create() override;
 	RID _rectangle_shape_create() override;

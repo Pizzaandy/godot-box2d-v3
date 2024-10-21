@@ -54,7 +54,7 @@ struct NearestCastHitCollector {
 			context(p_context) {}
 };
 
-float nearest_raycast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
+float nearest_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
 	NearestCastHitCollector *collector = static_cast<NearestCastHitCollector *>(context);
 
 	b2BodyId body_id = b2Shape_GetBody(shapeId);

@@ -83,7 +83,7 @@ bool Box2DPhysicsDirectSpaceState2D::_intersect_ray(
 	}
 
 	NearestCastHitCollector collector(this);
-	b2World_CastRay(world, to_box2d(p_from), to_box2d(p_to - p_from), filter, nearest_raycast_callback, &collector);
+	b2World_CastRay(world, to_box2d(p_from), to_box2d(p_to - p_from), filter, nearest_cast_callback, &collector);
 
 	if (!collector.hit) {
 		return false;
@@ -127,3 +127,37 @@ int32_t Box2DPhysicsDirectSpaceState2D::_intersect_shape(
 
 	return 0;
 }
+
+bool Box2DPhysicsDirectSpaceState2D::_cast_motion(
+		const RID &p_shape_rid,
+		const Transform2D &p_transform,
+		const Vector2 &p_motion,
+		float p_margin,
+		uint32_t p_collision_mask,
+		bool p_collide_with_bodies,
+		bool p_collide_with_areas,
+		float *p_closest_safe,
+		float *p_closest_unsafe) {
+	ERR_FAIL_COND_V(!space, false);
+
+	b2WorldId world = space->get_world_id();
+	b2QueryFilter filter = make_filter(p_collision_mask);
+
+	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
+	ERR_FAIL_COND_V(!shape, false);
+
+	NearestCastHitCollector collector(this);
+	shape->cast_shape(world, p_transform, p_motion, filter, nearest_cast_callback, &collector);
+
+	if (!collector.hit) {
+		*p_closest_safe = 1.0;
+		*p_closest_unsafe = 1.0;
+		return false;
+	}
+
+	CastHit hit = collector.nearest_hit;
+	*p_closest_safe = hit.fraction;
+	*p_closest_unsafe = hit.fraction;
+
+	return true;
+};
