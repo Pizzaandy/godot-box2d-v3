@@ -11,9 +11,6 @@ namespace {
 constexpr char PHYSICS_SERVER_NAME[] = "Box2DPhysicsServer2D";
 }
 
-#define FLUSH_QUERY_CHECK(m_object) \
-	ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead.");
-
 void Box2DPhysicsServer2D::_bind_methods() {}
 
 Box2DPhysicsServer2D::Box2DPhysicsServer2D() {
