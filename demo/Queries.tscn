@@ -23,6 +23,9 @@ size = Vector2(152, 145)
 
 [node name="Queries" type="Node2D"]
 
+[node name="QueryTester" type="Node2D" parent="."]
+script = ExtResource("3_scqh4")
+
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
@@ -84,5 +87,37 @@ period_seconds = 4.0
 position = Vector2(-67, -24.5)
 shape = SubResource("RectangleShape2D_o0sn6")
 
-[node name="Node2D" type="Node2D" parent="."]
-script = ExtResource("3_scqh4")
+[node name="RigidBody2D5" type="AnimatableBody2D" parent="."]
+position = Vector2(1650, 458)
+script = ExtResource("2_vflxn")
+period_seconds = 4.0
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="RigidBody2D5"]
+position = Vector2(11, 11)
+build_mode = 1
+polygon = PackedVector2Array(-97, -11, -26, -85, 59, -6, -16, 67)
+
+[node name="RigidBody2D6" type="AnimatableBody2D" parent="."]
+position = Vector2(1635, 264)
+script = ExtResource("2_vflxn")
+period_seconds = 4.0
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="RigidBody2D6"]
+position = Vector2(24, -20)
+build_mode = 1
+polygon = PackedVector2Array(-86, 25, -19, 87, 57, 27, -19, -47)
+
+[node name="CCW" type="Label" parent="."]
+offset_left = 1621.0
+offset_top = 253.0
+offset_right = 1661.0
+offset_bottom = 276.0
+text = "CCW"
+
+[node name="CW" type="Label" parent="."]
+offset_left = 1622.0
+offset_top = 450.0
+offset_right = 1662.0
+offset_bottom = 473.0
+text = "CW
+"
