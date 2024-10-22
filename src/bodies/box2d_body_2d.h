@@ -62,7 +62,10 @@ public:
 
 	void apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position);
 	void apply_impulse_center(const Vector2 &p_impulse);
+	void apply_torque(float p_torque);
 	void apply_torque_impulse(float p_impulse);
+	void apply_force(const Vector2 &p_force, const Vector2 &p_position);
+	void apply_force_center(const Vector2 &p_force);
 
 	void set_linear_velocity(const Vector2 &p_velocity);
 	Vector2 get_linear_velocity() const;
@@ -79,6 +82,12 @@ public:
 	void set_shape_transform(int p_index, const Transform2D &p_transform);
 	Transform2D get_shape_transform(int p_index) const;
 	RID get_shape_rid(int p_index) const;
+
+	void add_collision_exception(RID p_rid);
+	void remove_collision_exception(RID p_rid);
+	bool is_collision_exception(RID p_rid) const;
+
+	void set_presolve_enabled(bool p_enabled);
 
 	void set_instance_id(const ObjectID &p_instance_id) { instance_id = p_instance_id; }
 	ObjectID get_instance_id() const { return instance_id; }
@@ -106,6 +115,7 @@ private:
 	Transform2D current_transform;
 	PhysicsServer2D::BodyMode mode;
 	LocalVector<Box2DShapeInstance *> shapes;
+	HashSet<RID> exceptions;
 
 	uint32_t layer;
 	uint32_t mask;

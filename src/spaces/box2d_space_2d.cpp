@@ -48,6 +48,14 @@ void finish_task_callback(void *taskPtr, void *userContext) {
 	}
 }
 
+bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *manifold, void *context) {
+	Box2DBody2D *body_a = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)));
+	Box2DBody2D *body_b = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)));
+
+	return body_a->is_collision_exception(body_b->get_rid()) ||
+			body_b->is_collision_exception(body_b->get_rid());
+}
+
 Box2DSpace2D::Box2DSpace2D() {
 	substeps = Box2DProjectSettings::get_substeps();
 
@@ -71,6 +79,8 @@ Box2DSpace2D::Box2DSpace2D() {
 	world_def.finishTask = finish_task_callback;
 
 	world_id = b2CreateWorld(&world_def);
+
+	b2World_SetPreSolveCallback(world_id, box2d_godot_presolve, nullptr);
 }
 
 Box2DSpace2D::~Box2DSpace2D() {

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cmhr2esr7b2ty"]
+[gd_scene load_steps=10 format=3 uid="uid://cmhr2esr7b2ty"]
 
 [ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="1_c0irw"]
 [ext_resource type="Script" path="res://scripts/body_animator.gd" id="2_vflxn"]
@@ -9,6 +9,9 @@ size = Vector2(107, 1105)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e88so"]
 size = Vector2(107, 1950.03)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yx4hw"]
+radius = 96.0208
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_r2w26"]
 radius = 44.0
@@ -22,6 +25,27 @@ b = Vector2(185, 58)
 size = Vector2(152, 145)
 
 [node name="Queries" type="Node2D"]
+
+[node name="_Settings" type="VBoxContainer" parent="."]
+offset_left = 2038.0
+offset_right = 2180.0
+offset_bottom = 136.0
+
+[node name="Raycast" type="Button" parent="_Settings"]
+layout_mode = 2
+text = "Ray"
+
+[node name="Circle" type="Button" parent="_Settings"]
+layout_mode = 2
+text = "Circle"
+
+[node name="Rectangle" type="Button" parent="_Settings"]
+layout_mode = 2
+text = "Rectangle"
+
+[node name="Polygon" type="Button" parent="_Settings"]
+layout_mode = 2
+text = "Polygon"
 
 [node name="QueryTester" type="Node2D" parent="."]
 position = Vector2(172.175, -179.065)
@@ -46,6 +70,10 @@ shape = SubResource("RectangleShape2D_e88so")
 position = Vector2(984, 32.9999)
 rotation = -1.57397
 shape = SubResource("RectangleShape2D_e88so")
+
+[node name="CollisionShape2D5" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(343, 301)
+shape = SubResource("CircleShape2D_yx4hw")
 
 [node name="Camera2D" parent="." instance=ExtResource("1_c0irw")]
 position = Vector2(963, 535)
@@ -89,7 +117,7 @@ position = Vector2(-67, -24.5)
 shape = SubResource("RectangleShape2D_o0sn6")
 
 [node name="RigidBody2D5" type="AnimatableBody2D" parent="."]
-position = Vector2(1647, 488)
+position = Vector2(1628, 614)
 script = ExtResource("2_vflxn")
 period_seconds = 4.0
 
@@ -116,9 +144,13 @@ offset_bottom = 276.0
 text = "CCW"
 
 [node name="CW" type="Label" parent="."]
-offset_left = 1619.0
-offset_top = 480.0
-offset_right = 1659.0
-offset_bottom = 503.0
+offset_left = 1600.0
+offset_top = 606.0
+offset_right = 1640.0
+offset_bottom = 629.0
 text = "CW
 "
+
+[connection signal="pressed" from="_Settings/Raycast" to="QueryTester" method="_on_raycast_pressed"]
+[connection signal="pressed" from="_Settings/Circle" to="QueryTester" method="_on_circle_pressed"]
+[connection signal="pressed" from="_Settings/Rectangle" to="QueryTester" method="_on_rectangle_pressed"]

@@ -102,9 +102,9 @@ public:
 	void _body_apply_central_impulse(const RID &p_body, const Vector2 &p_impulse) override;
 	void _body_apply_torque_impulse(const RID &p_body, float p_impulse) override;
 	void _body_apply_impulse(const RID &p_body, const Vector2 &p_impulse, const Vector2 &p_position) override;
-	// virtual void _body_apply_central_force(const RID &p_body, const Vector2 &p_force) override;
-	// virtual void _body_apply_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
-	// virtual void _body_apply_torque(const RID &p_body, double p_torque) override;
+	void _body_apply_central_force(const RID &p_body, const Vector2 &p_force) override;
+	void _body_apply_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
+	void _body_apply_torque(const RID &p_body, float p_torque) override;
 	// virtual void _body_add_constant_central_force(const RID &p_body, const Vector2 &p_force) override;
 	// virtual void _body_add_constant_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
 	// virtual void _body_add_constant_torque(const RID &p_body, double p_torque) override;

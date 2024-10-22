@@ -304,10 +304,29 @@ void Box2DBody2D::apply_impulse_center(const Vector2 &p_impulse) {
 	b2Body_ApplyLinearImpulseToCenter(body_id, to_box2d(p_impulse), true);
 }
 
+void Box2DBody2D::apply_torque(float p_torque) {
+	ERR_FAIL_COND(is_locked());
+
+	b2Body_ApplyTorque(body_id, p_torque, true);
+}
+
 void Box2DBody2D::apply_torque_impulse(float p_impulse) {
 	ERR_FAIL_COND(is_locked());
 
 	b2Body_ApplyAngularImpulse(body_id, p_impulse, true);
+}
+
+void Box2DBody2D::apply_force(const Vector2 &p_force, const Vector2 &p_position) {
+	ERR_FAIL_COND(is_locked());
+
+	Vector2 point = current_transform.get_origin() + p_position;
+	b2Body_ApplyForce(body_id, to_box2d(p_force), to_box2d(point), true);
+}
+
+void Box2DBody2D::apply_force_center(const Vector2 &p_force) {
+	ERR_FAIL_COND(is_locked());
+
+	b2Body_ApplyForceToCenter(body_id, to_box2d(p_force), true);
 }
 
 void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
@@ -366,6 +385,43 @@ RID Box2DBody2D::get_shape_rid(int p_index) const {
 	Box2DShape2D *inst = shape->get_shape_or_null();
 	ERR_FAIL_COND_V(!inst, RID());
 	return inst->get_rid();
+}
+
+void Box2DBody2D::add_collision_exception(RID p_rid) {
+	if (mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
+		WARN_PRINT_ONCE("Box2D: Collision exceptions are ignored for static and kinematic bodies");
+	}
+
+	if (exceptions.is_empty()) {
+		set_presolve_enabled(true);
+	}
+
+	exceptions.insert(p_rid);
+}
+
+void Box2DBody2D::remove_collision_exception(RID p_rid) {
+	bool erased = exceptions.erase(p_rid);
+
+	if (erased && exceptions.is_empty()) {
+		set_presolve_enabled(false);
+	}
+}
+
+bool Box2DBody2D::is_collision_exception(RID p_rid) const {
+	return exceptions.has(p_rid);
+}
+
+void Box2DBody2D::set_presolve_enabled(bool p_enabled) {
+	shape_def.enablePreSolveEvents = p_enabled;
+
+	if (!body_exists) {
+		return;
+	}
+
+	BodyShapeRange range(body_id);
+	for (b2ShapeId id : range) {
+		b2Shape_EnablePreSolveEvents(id, p_enabled);
+	}
 }
 
 void Box2DBody2D::build_shape(Box2DShapeInstance *p_shape, bool p_update_mass) {

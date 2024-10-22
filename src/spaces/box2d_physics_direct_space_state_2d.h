@@ -22,6 +22,7 @@ public:
 	bool _cast_motion(const RID &p_shape_rid, const Transform2D &p_transform, const Vector2 &p_motion, float p_margin, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, float *p_closest_safe, float *p_closest_unsafe) override;
 	// bool _collide_shape(const RID &p_shape_rid, const Transform2D &p_transform, const Vector2 &p_motion, double p_margin, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, void *p_results, int32_t p_max_results, int32_t *p_result_count) override;
 	// bool _rest_info(const RID &p_shape_rid, const Transform2D &p_transform, const Vector2 &p_motion, double p_margin, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, PhysicsServer2DExtensionShapeRestInfo *p_rest_info) override;
+	//Dictionary cast_shape(const Ref<PhysicsShapeQueryParameters2D> &p_parameters, int32_t p_max_results = 32);
 
 	static Object *get_instance_hack(uint64_t p_object_id) {
 		// ????

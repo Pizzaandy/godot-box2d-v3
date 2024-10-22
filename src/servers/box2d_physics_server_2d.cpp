@@ -488,6 +488,27 @@ void Box2DPhysicsServer2D::_body_apply_impulse(const RID &p_body, const Vector2 
 	body->apply_impulse(p_impulse, p_position);
 }
 
+void Box2DPhysicsServer2D::_body_apply_central_force(const RID &p_body, const Vector2 &p_force) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	body->apply_force_center(p_force);
+}
+
+void Box2DPhysicsServer2D::_body_apply_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	body->apply_force(p_force, p_position);
+}
+
+void Box2DPhysicsServer2D::_body_apply_torque(const RID &p_body, float p_torque) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_COND(!body);
+
+	body->apply_torque(p_torque);
+}
+
 void Box2DPhysicsServer2D::_body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_COND(!body);

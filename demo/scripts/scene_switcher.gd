@@ -1,6 +1,7 @@
 extends ItemList
 
 var current_scene = null
+@onready var settings_container: SettingsPanelFinder = $"../../../SettingsRoot/Panel/SettingsContainer"
 
 func _on_item_selected(index: int) -> void:
 	var scene_name := get_item_text(index)
@@ -21,3 +22,4 @@ func _deferred_goto_scene(path):
 	current_scene = s.instantiate()
 	get_tree().root.add_child(current_scene)
 	get_tree().current_scene = current_scene
+	settings_container.find_settings()

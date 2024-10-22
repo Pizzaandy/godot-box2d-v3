@@ -3,8 +3,11 @@
 #include "../bodies/box2d_body_2d.h"
 #include "../servers/box2d_physics_server_2d.h"
 #include "box2d_query_collectors.h"
+#include <godot_cpp/classes/physics_shape_query_parameters2d.hpp>
 
-void Box2DPhysicsDirectSpaceState2D::_bind_methods() {}
+void Box2DPhysicsDirectSpaceState2D::_bind_methods() {
+	//ClassDB::bind_method(D_METHOD("cast_shape"), &Box2DPhysicsDirectSpaceState2D::cast_shape);
+}
 
 int32_t Box2DPhysicsDirectSpaceState2D::_intersect_point(
 		const Vector2 &p_position,
@@ -152,7 +155,7 @@ bool Box2DPhysicsDirectSpaceState2D::_cast_motion(
 	if (!collector.hit) {
 		*p_closest_safe = 1.0;
 		*p_closest_unsafe = 1.0;
-		return false;
+		return true;
 	}
 
 	CastHit hit = collector.nearest_hit;

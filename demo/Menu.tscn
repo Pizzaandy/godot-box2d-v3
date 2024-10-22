@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dom8tup8nlvq"]
+[gd_scene load_steps=3 format=3 uid="uid://dom8tup8nlvq"]
 
 [ext_resource type="Script" path="res://scripts/scene_switcher.gd" id="1_45eq1"]
+[ext_resource type="Script" path="res://scripts/settings_panel_finder.gd" id="2_bwc4w"]
 
 [node name="Menu" type="CanvasLayer"]
 
@@ -20,20 +21,25 @@ item_1/text = "Body Properties"
 item_2/text = "Queries"
 script = ExtResource("1_45eq1")
 
-[node name="SettingsPanel" type="PanelContainer" parent="."]
+[node name="SettingsRoot" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Panel" type="PanelContainer" parent="SettingsRoot"]
+layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -200.0
+offset_left = 1680.0
+offset_right = 1880.0
 offset_bottom = 300.0
 grow_horizontal = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="SettingsPanel"]
+[node name="SettingsContainer" type="MarginContainer" parent="SettingsRoot/Panel"]
 layout_mode = 2
-
-[node name="ItemList" type="ItemList" parent="SettingsPanel/MarginContainer"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
+script = ExtResource("2_bwc4w")
 
 [connection signal="item_clicked" from="ScenePanel/MarginContainer/ItemList" to="ScenePanel/MarginContainer/ItemList" method="_on_item_clicked"]
 [connection signal="item_selected" from="ScenePanel/MarginContainer/ItemList" to="ScenePanel/MarginContainer/ItemList" method="_on_item_selected"]

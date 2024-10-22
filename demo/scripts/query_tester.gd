@@ -2,11 +2,32 @@
 extends Node2D
 
 var circle_rid: RID
+var capsule_rid: RID
+var rectangle_rid: RID
 
+var shape_color: Color
+var query: Query = Query.RAY
+
+enum Query {
+	RAY,
+	CIRCLE,
+	CAPSULE,
+	RECTANGLE,
+	POLYGON,
+}
 
 func _ready() -> void:
 	circle_rid = PhysicsServer2D.circle_shape_create()
 	PhysicsServer2D.shape_set_data(circle_rid, 30)
+
+	capsule_rid = PhysicsServer2D.circle_shape_create()
+	PhysicsServer2D.shape_set_data(capsule_rid, [80, 30])
+
+	rectangle_rid = PhysicsServer2D.rectangle_shape_create()
+	PhysicsServer2D.shape_set_data(rectangle_rid, Vector2(30, 30))
+
+	shape_color = Color.DIM_GRAY
+	shape_color.a = 0.6
 
 
 func _physics_process(delta: float) -> void:
@@ -16,11 +37,17 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	draw_set_transform_matrix(global_transform.affine_inverse())
-	var ray_count = 1
+	var ray_count = 16
 	for i in range(ray_count):
 		var angle = i * (2 * PI / ray_count)
-		# test_raycast(Vector2.from_angle(angle) * 2000)
-		test_shapecast(circle_rid, Vector2.from_angle(angle) * 2000)
+		var ray = Vector2.from_angle(angle) * 2000
+		match query:
+			Query.RAY:
+				test_raycast(ray)
+			Query.CIRCLE:
+				test_circle(ray)
+			Query.RECTANGLE:
+				test_rectangle(ray)
 
 
 func test_raycast(ray: Vector2):
@@ -36,16 +63,44 @@ func test_raycast(ray: Vector2):
 		draw_line(global_position, global_position + ray, Color.BLACK)
 
 
-func test_shapecast(shape: RID, ray: Vector2):
+func test_circle(ray: Vector2):
 	var parameters = PhysicsShapeQueryParameters2D.new()
 	parameters.transform = global_transform
 	parameters.motion = ray
-	parameters.shape_rid = shape
+	parameters.shape_rid = circle_rid
 	var fractions = get_world_2d().direct_space_state.cast_motion(parameters)
+	if not fractions:
+		return
 	draw_line(global_position, global_position + (ray * fractions[0]), Color.BLACK)
+	draw_circle(global_position + (ray * fractions[0]), 30, shape_color)
+
+
+func test_rectangle(ray: Vector2):
+	var parameters = PhysicsShapeQueryParameters2D.new()
+	parameters.transform = global_transform
+	parameters.motion = ray
+	parameters.shape_rid = rectangle_rid
+	var fractions = get_world_2d().direct_space_state.cast_motion(parameters)
+	if not fractions:
+		return
+	var end_point = global_position + (ray * fractions[0])
+	draw_line(global_position, end_point, Color.BLACK)
+	draw_rect(Rect2(end_point - Vector2(30, 30), Vector2(60, 60)), shape_color)
 
 
 func test_point():
 	var parameters = PhysicsPointQueryParameters2D.new()
 	parameters.position = global_position
 	var results = get_world_2d().direct_space_state.intersect_point(parameters)
+
+
+func _on_raycast_pressed() -> void:
+	query = Query.RAY
+
+
+func _on_circle_pressed() -> void:
+	query = Query.CIRCLE
+
+
+func _on_rectangle_pressed() -> void:
+	query = Query.RECTANGLE
