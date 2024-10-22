@@ -2,7 +2,7 @@
 #include "box2d_physics_direct_space_state_2d.h"
 
 struct QueryFilter {
-	Box2DPhysicsDirectSpaceState2D *space_state = nullptr;
+	Box2DDirectSpaceState2D *space_state = nullptr;
 	TypedArray<RID> *exclude = nullptr;
 
 	bool is_excluded(const RID &p_body) {
@@ -13,7 +13,7 @@ struct QueryFilter {
 		}
 	}
 
-	QueryFilter(Box2DPhysicsDirectSpaceState2D *p_space_state) :
+	QueryFilter(Box2DDirectSpaceState2D *p_space_state) :
 			space_state(p_space_state) {}
 
 	QueryFilter(TypedArray<RID> *p_exclude) :

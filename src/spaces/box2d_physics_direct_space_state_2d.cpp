@@ -5,11 +5,11 @@
 #include "box2d_query_collectors.h"
 #include <godot_cpp/classes/physics_shape_query_parameters2d.hpp>
 
-void Box2DPhysicsDirectSpaceState2D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("cast_shape"), &Box2DPhysicsDirectSpaceState2D::cast_shape, "parameters");
+void Box2DDirectSpaceState2D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("cast_shape"), &Box2DDirectSpaceState2D::cast_shape, "parameters");
 }
 
-int32_t Box2DPhysicsDirectSpaceState2D::_intersect_point(
+int32_t Box2DDirectSpaceState2D::_intersect_point(
 		const Vector2 &p_position,
 		uint64_t p_canvas_instance_id,
 		uint32_t p_collision_mask,
@@ -49,7 +49,7 @@ int32_t Box2DPhysicsDirectSpaceState2D::_intersect_point(
 	return collector.shapes.size();
 }
 
-bool Box2DPhysicsDirectSpaceState2D::_intersect_ray(
+bool Box2DDirectSpaceState2D::_intersect_ray(
 		const Vector2 &p_from,
 		const Vector2 &p_to,
 		uint32_t p_collision_mask,
@@ -107,7 +107,7 @@ bool Box2DPhysicsDirectSpaceState2D::_intersect_ray(
 	return true;
 }
 
-int32_t Box2DPhysicsDirectSpaceState2D::_intersect_shape(
+int32_t Box2DDirectSpaceState2D::_intersect_shape(
 		const RID &p_shape_rid,
 		const Transform2D &p_transform,
 		const Vector2 &p_motion,
@@ -144,7 +144,7 @@ int32_t Box2DPhysicsDirectSpaceState2D::_intersect_shape(
 	return collector.hits.size();
 }
 
-bool Box2DPhysicsDirectSpaceState2D::_cast_motion(
+bool Box2DDirectSpaceState2D::_cast_motion(
 		const RID &p_shape_rid,
 		const Transform2D &p_transform,
 		const Vector2 &p_motion,
@@ -178,7 +178,7 @@ bool Box2DPhysicsDirectSpaceState2D::_cast_motion(
 	return true;
 }
 
-Dictionary Box2DPhysicsDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParameters2D> &p_parameters) {
+Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParameters2D> &p_parameters) {
 	ERR_FAIL_COND_V(!space, {});
 
 	PhysicsShapeQueryParameters2D *params = p_parameters.ptr();

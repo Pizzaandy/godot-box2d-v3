@@ -8,12 +8,12 @@ using namespace godot;
 
 class Box2DSpace2D;
 
-class Box2DPhysicsDirectSpaceState2D : public PhysicsDirectSpaceState2DExtension {
-	GDCLASS(Box2DPhysicsDirectSpaceState2D, PhysicsDirectSpaceState2DExtension);
+class Box2DDirectSpaceState2D : public PhysicsDirectSpaceState2DExtension {
+	GDCLASS(Box2DDirectSpaceState2D, PhysicsDirectSpaceState2DExtension);
 
 public:
-	Box2DPhysicsDirectSpaceState2D() = default;
-	Box2DPhysicsDirectSpaceState2D(Box2DSpace2D *p_space) :
+	Box2DDirectSpaceState2D() = default;
+	Box2DDirectSpaceState2D(Box2DSpace2D *p_space) :
 			space(p_space) {};
 
 	bool _intersect_ray(const Vector2 &p_from, const Vector2 &p_to, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, bool p_hit_from_inside, PhysicsServer2DExtensionRayResult *p_result) override;

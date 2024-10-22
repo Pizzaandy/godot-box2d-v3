@@ -8,7 +8,7 @@
 
 using namespace godot;
 
-class Box2DPhysicsDirectSpaceState2D;
+class Box2DDirectSpaceState2D;
 
 class Box2DSpace2D {
 public:
@@ -23,7 +23,7 @@ public:
 
 	void set_rid(const RID &p_rid) { rid = p_rid; }
 
-	Box2DPhysicsDirectSpaceState2D *get_direct_state();
+	Box2DDirectSpaceState2D *get_direct_state();
 
 	b2WorldId get_world_id() const { return world_id; }
 
@@ -45,7 +45,7 @@ public:
 private:
 	b2WorldId world_id = b2_nullWorldId;
 	RID rid;
-	Box2DPhysicsDirectSpaceState2D *direct_state = nullptr;
+	Box2DDirectSpaceState2D *direct_state = nullptr;
 	float last_step = -1.0;
 	b2ContactEvents contact_events;
 	PackedVector2Array debug_contacts;

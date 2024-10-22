@@ -18,7 +18,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level) {
 	switch (p_level) {
 		case MODULE_INITIALIZATION_LEVEL_SERVERS: {
 			ClassDB::register_class<Box2DDirectBodyState2D>(true);
-			ClassDB::register_class<Box2DPhysicsDirectSpaceState2D>(true);
+			ClassDB::register_class<Box2DDirectSpaceState2D>(true);
 			ClassDB::register_class<Box2DPhysicsServer2D>();
 
 			PhysicsServer2DManager::get_singleton()->register_server(

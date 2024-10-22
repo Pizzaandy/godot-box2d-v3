@@ -118,9 +118,9 @@ void Box2DSpace2D::sync_state() {
 	delete_after_sync.clear();
 }
 
-Box2DPhysicsDirectSpaceState2D *Box2DSpace2D::get_direct_state() {
+Box2DDirectSpaceState2D *Box2DSpace2D::get_direct_state() {
 	if (!direct_state) {
-		direct_state = memnew(Box2DPhysicsDirectSpaceState2D(this));
+		direct_state = memnew(Box2DDirectSpaceState2D(this));
 	}
 	return direct_state;
 }
