@@ -1,6 +1,6 @@
 #include "box2d_capsule_shape_2d.h"
 
-ShapeID Box2DCapsuleShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
+ShapeID Box2DCapsuleShape2D::build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
 	b2Capsule capsule;
 
 	if (!make_capsule(p_transform, data, capsule)) {
@@ -12,11 +12,11 @@ ShapeID Box2DCapsuleShape2D::build(b2BodyId p_body, Transform2D p_transform, b2S
 
 void Box2DCapsuleShape2D::cast_shape(
 		b2WorldId p_world,
-		Transform2D p_transform,
+		const Transform2D &p_transform,
 		Vector2 p_motion,
 		b2QueryFilter p_filter,
 		b2CastResultFcn *fcn,
-		void *context) {
+		void *context) const {
 	b2Capsule capsule;
 
 	if (!make_capsule(p_transform, data, capsule)) {
@@ -26,7 +26,7 @@ void Box2DCapsuleShape2D::cast_shape(
 	b2World_CastCapsule(p_world, &capsule, b2Transform_identity, to_box2d(p_motion), p_filter, fcn, context);
 }
 
-bool Box2DCapsuleShape2D::make_capsule(Transform2D p_transform, Variant p_data, b2Capsule &p_capsule) {
+bool Box2DCapsuleShape2D::make_capsule(const Transform2D &p_transform, const Variant &p_data, b2Capsule &p_capsule) {
 	Variant::Type type = p_data.get_type();
 	ERR_FAIL_COND_V(type != Variant::VECTOR2 && type != Variant::ARRAY, false);
 

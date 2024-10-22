@@ -46,9 +46,9 @@ public:
 
 	void assign_shape(Box2DShape2D *p_shape);
 
-	Box2DShape2D *get_shape_or_null() { return shape; }
+	Box2DShape2D *get_shape_or_null() const { return shape; }
 
-	void build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def);
+	void build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def);
 
 	void destroy();
 

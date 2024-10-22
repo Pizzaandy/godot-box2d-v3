@@ -1,7 +1,7 @@
 
 #include "box2d_concave_polygon_shape_2d.h"
 
-ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
+ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
 	Variant::Type type = data.get_type();
 	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY, {});
 
@@ -35,11 +35,11 @@ ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, Transform2D p_transfo
 
 void Box2DConcavePolygonShape2D::cast_shape(
 		b2WorldId p_world,
-		Transform2D p_transform,
+		const Transform2D &p_transform,
 		Vector2 p_motion,
 		b2QueryFilter p_filter,
 		b2CastResultFcn *fcn,
-		void *context) {
+		void *context) const {
 	ERR_PRINT_ONCE("Box2D: Shape casting concave polygons is not supported");
 }
 

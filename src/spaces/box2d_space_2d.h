@@ -27,7 +27,7 @@ public:
 
 	b2WorldId get_world_id() const { return world_id; }
 
-	float get_last_step() { return last_step; }
+	float get_last_step() const { return last_step; }
 
 	int get_debug_contact_count() { return debug_contact_count; };
 	PackedVector2Array &get_debug_contacts() { return debug_contacts; };

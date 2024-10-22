@@ -503,7 +503,7 @@ void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 	} else if (body_owner.owns(p_rid)) {
 		Box2DBody2D *body = body_owner.get_or_null(p_rid);
 		body_owner.free(p_rid);
-		body->queue_free();
+		body->queue_delete();
 	}
 	// else if (area_owner.owns(p_rid)) {
 	// 	Box2DArea2D *area = area_owner.get_or_null(p_rid);

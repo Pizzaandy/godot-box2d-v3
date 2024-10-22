@@ -12,7 +12,7 @@ Box2DBody2D::~Box2DBody2D() {
 	}
 }
 
-void Box2DBody2D::queue_free() {
+void Box2DBody2D::queue_delete() {
 	destroy_body();
 	if (!space) {
 		return;
@@ -143,7 +143,7 @@ void Box2DBody2D::set_collision_mask(uint32_t p_mask) {
 	}
 }
 
-void Box2DBody2D::set_transform(Transform2D p_transform, bool p_move_kinematic) {
+void Box2DBody2D::set_transform(const Transform2D &p_transform, bool p_move_kinematic) {
 	if (!body_exists) {
 		current_transform = p_transform;
 		return;
@@ -250,7 +250,7 @@ void Box2DBody2D::set_inertia(float p_inertia) {
 	update_mass(true);
 }
 
-void Box2DBody2D::set_center_of_mass(Vector2 p_center) {
+void Box2DBody2D::set_center_of_mass(const Vector2 &p_center) {
 	center_of_mass = p_center;
 	override_center_of_mass = true;
 
@@ -335,7 +335,7 @@ float Box2DBody2D::get_angular_velocity() const {
 	return angular_velocity;
 }
 
-void Box2DBody2D::sync_state(b2Transform p_transform, bool fell_asleep) {
+void Box2DBody2D::sync_state(const b2Transform &p_transform, bool fell_asleep) {
 	if (!body_exists) {
 		return;
 	}
@@ -360,7 +360,7 @@ void Box2DBody2D::sync_state(b2Transform p_transform, bool fell_asleep) {
 	}
 }
 
-RID Box2DBody2D::get_shape_rid(int p_index) {
+RID Box2DBody2D::get_shape_rid(int p_index) const {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), RID());
 	Box2DShapeInstance *shape = shapes[p_index];
 	Box2DShape2D *inst = shape->get_shape_or_null();
@@ -415,7 +415,7 @@ void Box2DBody2D::update_mass(bool p_recompute_from_shapes) {
 	b2Body_SetMassData(body_id, mass_data);
 }
 
-void Box2DBody2D::add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled) {
+void Box2DBody2D::add_shape(Box2DShape2D *p_shape, const Transform2D &p_transform, bool p_disabled) {
 	Box2DShapeInstance *shape = memnew(Box2DShapeInstance);
 	shape->assign_shape(p_shape);
 	shape->transform = p_transform;
@@ -451,7 +451,7 @@ void Box2DBody2D::remove_shape(int p_index) {
 	}
 }
 
-void Box2DBody2D::set_shape_transform(int p_index, Transform2D p_transform) {
+void Box2DBody2D::set_shape_transform(int p_index, const Transform2D &p_transform) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Box2DShapeInstance *shape = shapes[p_index];
 	if (shape->transform == p_transform) {
@@ -461,7 +461,7 @@ void Box2DBody2D::set_shape_transform(int p_index, Transform2D p_transform) {
 	build_shape(shape, true);
 }
 
-Transform2D Box2DBody2D::get_shape_transform(int p_index) {
+Transform2D Box2DBody2D::get_shape_transform(int p_index) const {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), Transform2D());
 	Box2DShapeInstance *shape = shapes[p_index];
 	return shape->transform;

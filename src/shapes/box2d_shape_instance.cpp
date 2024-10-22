@@ -14,7 +14,7 @@ void Box2DShapeInstance::assign_shape(Box2DShape2D *p_shape) {
 	p_shape->add_instance(this);
 }
 
-void Box2DShapeInstance::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
+void Box2DShapeInstance::build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) {
 	destroy();
 
 	if (disabled) {

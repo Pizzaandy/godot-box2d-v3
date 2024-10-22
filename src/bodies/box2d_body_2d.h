@@ -19,65 +19,66 @@ public:
 	Box2DBody2D();
 	~Box2DBody2D();
 
-	void queue_free();
+	void queue_delete();
 	void destroy_body();
 
 	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }
 
 	void set_space(Box2DSpace2D *p_space);
-	Box2DSpace2D *get_space() { return space; }
+	Box2DSpace2D *get_space() const { return space; }
 
 	void set_mode(PhysicsServer2D::BodyMode p_mode);
-	PhysicsServer2D::BodyMode get_mode() { return mode; }
+	PhysicsServer2D::BodyMode get_mode() const { return mode; }
 
 	void set_bullet(bool p_bullet);
-	bool get_bullet() { return is_bullet; }
+	bool get_bullet() const { return is_bullet; }
 
 	void set_collision_layer(uint32_t p_layer);
 	uint32_t get_collision_layer() { return layer; }
 	void set_collision_mask(uint32_t p_mask);
 	uint32_t get_collision_mask() { return mask; }
 
-	void set_transform(Transform2D p_transform, bool p_move_kinematic = false);
-	Transform2D get_transform() { return current_transform; }
+	void set_transform(const Transform2D &p_transform, bool p_move_kinematic = false);
+	Transform2D get_transform() const { return current_transform; }
 
-	float get_bounce() { return bounce; }
+	float get_bounce() const { return bounce; }
 	void set_bounce(float p_bounce);
-	float get_friction() { return friction; }
+	float get_friction() const { return friction; }
 	void set_friction(float p_friction);
 	void reset_mass();
-	float get_mass() { return mass_data.mass; }
+	float get_mass() const { return mass_data.mass; }
 	void set_mass(float p_mass);
-	float get_inertia() { return mass_data.rotationalInertia; }
+	float get_inertia() const { return mass_data.rotationalInertia; }
 	void set_inertia(float p_inertia);
-	Vector2 get_center_of_mass() { return to_godot(mass_data.center); }
-	void set_center_of_mass(Vector2 p_center);
-	float get_gravity_scale() { return body_def.gravityScale; }
+	Vector2 get_center_of_mass() const { return to_godot(mass_data.center); }
+	void set_center_of_mass(const Vector2 &p_center);
+	float get_gravity_scale() const { return body_def.gravityScale; }
 	void set_gravity_scale(float p_scale);
-	float get_linear_damping() { return body_def.linearDamping; }
+	float get_linear_damping() const { return body_def.linearDamping; }
 	void set_linear_damping(float p_damping);
-	float get_angular_damping() { return body_def.angularDamping; }
+	float get_angular_damping() const { return body_def.angularDamping; }
 	void set_angular_damping(float p_damping);
 
 	void apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position);
 	void apply_impulse_center(const Vector2 &p_impulse);
 	void apply_torque_impulse(float p_impulse);
+
 	void set_linear_velocity(const Vector2 &p_velocity);
 	Vector2 get_linear_velocity() const;
 	void set_angular_velocity(float p_velocity);
 	float get_angular_velocity() const;
 	bool is_sleeping() { return sleeping; }
 
-	void sync_state(b2Transform p_transform, bool is_sleeping);
+	void sync_state(const b2Transform &p_transform, bool is_sleeping);
 
-	void add_shape(Box2DShape2D *p_shape, Transform2D p_transform, bool p_disabled);
+	void add_shape(Box2DShape2D *p_shape, const Transform2D &p_transform, bool p_disabled);
 	void set_shape(int p_index, Box2DShape2D *p_shape);
 	void remove_shape(int p_index);
-	int32_t get_shape_count() { return shapes.size(); }
-	void set_shape_transform(int p_index, Transform2D p_transform);
-	Transform2D get_shape_transform(int p_index);
-	RID get_shape_rid(int p_index);
+	int32_t get_shape_count() const { return shapes.size(); }
+	void set_shape_transform(int p_index, const Transform2D &p_transform);
+	Transform2D get_shape_transform(int p_index) const;
+	RID get_shape_rid(int p_index) const;
 
 	void set_instance_id(const ObjectID &p_instance_id) { instance_id = p_instance_id; }
 	ObjectID get_instance_id() const { return instance_id; }

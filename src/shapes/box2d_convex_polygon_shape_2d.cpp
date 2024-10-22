@@ -1,7 +1,7 @@
 #include "box2d_convex_polygon_shape_2d.h"
 #include <godot_cpp/variant/utility_functions.hpp>
 
-ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, Transform2D p_transform, b2ShapeDef &p_shape_def) {
+ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
 	b2Polygon polygon;
 
 	if (!make_polygon(p_transform, data, polygon)) {
@@ -13,11 +13,11 @@ ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, Transform2D p_transfor
 
 void Box2DConvexPolygonShape2D::cast_shape(
 		b2WorldId p_world,
-		Transform2D p_transform,
+		const Transform2D &p_transform,
 		Vector2 p_motion,
 		b2QueryFilter p_filter,
 		b2CastResultFcn *fcn,
-		void *context) {
+		void *context) const {
 	b2Polygon polygon;
 
 	if (!make_polygon(p_transform, data, polygon)) {
@@ -27,7 +27,7 @@ void Box2DConvexPolygonShape2D::cast_shape(
 	b2World_CastPolygon(p_world, &polygon, b2Transform_identity, to_box2d(p_motion), p_filter, fcn, context);
 }
 
-bool Box2DConvexPolygonShape2D::make_polygon(Transform2D p_transform, Variant p_data, b2Polygon &p_polygon) {
+bool Box2DConvexPolygonShape2D::make_polygon(const Transform2D &p_transform, const Variant &p_data, b2Polygon &p_polygon) {
 	Variant::Type type = p_data.get_type();
 #ifdef REAL_T_IS_DOUBLE
 	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY && type != Variant::PACKED_FLOAT64_ARRAY, {});
