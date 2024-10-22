@@ -1,6 +1,25 @@
 #include "../bodies/box2d_body_2d.h"
 #include "box2d_physics_direct_space_state_2d.h"
 
+struct QueryFilter {
+	Box2DPhysicsDirectSpaceState2D *space_state = nullptr;
+	TypedArray<RID> *exclude = nullptr;
+
+	bool is_excluded(const RID &p_body) {
+		if (space_state) {
+			return space_state->is_body_excluded_from_query(p_body);
+		} else {
+			return exclude->has(p_body);
+		}
+	}
+
+	QueryFilter(Box2DPhysicsDirectSpaceState2D *p_space_state) :
+			space_state(p_space_state) {}
+
+	QueryFilter(TypedArray<RID> *p_exclude) :
+			exclude(p_exclude) {}
+};
+
 struct ShapeOverlap {
 	Box2DBody2D *body = nullptr;
 	Box2DShapeInstance *shape = nullptr;
@@ -8,10 +27,11 @@ struct ShapeOverlap {
 
 struct ShapeOverlapCollector {
 	int max_results = 0;
-	Box2DPhysicsDirectSpaceState2D *context;
 	Vector<ShapeOverlap> shapes;
-	ShapeOverlapCollector(int p_max_results, Box2DPhysicsDirectSpaceState2D *p_context) :
-			max_results(p_max_results), context(p_context) {}
+	QueryFilter filter;
+	ShapeOverlapCollector(int p_max_results, QueryFilter &p_context) :
+			filter(p_context),
+			max_results(p_max_results) {}
 };
 
 bool overlap_callback(b2ShapeId shapeId, void *context) {
@@ -20,7 +40,7 @@ bool overlap_callback(b2ShapeId shapeId, void *context) {
 	Box2DBody2D *body = static_cast<Box2DBody2D *>(b2Body_GetUserData(body_id));
 	Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
 
-	if (collector->context->is_body_excluded_from_query(body->get_rid())) {
+	if (collector->filter.is_excluded(body->get_rid())) {
 		return true;
 	}
 
@@ -37,21 +57,12 @@ struct CastHit {
 	float fraction;
 };
 
-struct CastHitCollector {
-	int max_results = 0;
-	Box2DPhysicsDirectSpaceState2D *context;
-	bool hit = false;
-	Vector<CastHit> hits;
-	CastHitCollector(int p_max_results, Box2DPhysicsDirectSpaceState2D *p_context) :
-			max_results(p_max_results), context(p_context) {}
-};
-
 struct NearestCastHitCollector {
 	CastHit nearest_hit;
-	Box2DPhysicsDirectSpaceState2D *context;
+	QueryFilter filter;
 	bool hit = false;
-	NearestCastHitCollector(Box2DPhysicsDirectSpaceState2D *p_context) :
-			context(p_context) {}
+	NearestCastHitCollector(QueryFilter &p_filter) :
+			filter(p_filter) {}
 };
 
 float nearest_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
@@ -61,7 +72,7 @@ float nearest_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, floa
 	Box2DBody2D *body = static_cast<Box2DBody2D *>(b2Body_GetUserData(body_id));
 	Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
 
-	if (collector->context->is_body_excluded_from_query(body->get_rid())) {
+	if (collector->filter.is_excluded(body->get_rid())) {
 		return -1;
 	}
 
@@ -69,4 +80,35 @@ float nearest_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, floa
 	collector->nearest_hit = CastHit{ body, shape, point, normal, fraction };
 
 	return fraction;
+}
+
+struct CastHitCollector {
+	int max_results = 0;
+	QueryFilter filter;
+	bool hit = false;
+	Vector<CastHit> hits;
+
+	CastHitCollector(int p_max_results, QueryFilter &p_filter) :
+			max_results(p_max_results), filter(p_filter) {}
+};
+
+float cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
+	CastHitCollector *collector = static_cast<CastHitCollector *>(context);
+
+	b2BodyId body_id = b2Shape_GetBody(shapeId);
+	Box2DBody2D *body = static_cast<Box2DBody2D *>(b2Body_GetUserData(body_id));
+	Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
+
+	if (collector->filter.is_excluded(body->get_rid())) {
+		return -1;
+	}
+
+	collector->hit = true;
+	collector->hits.push_back(CastHit{ body, shape, point, normal, fraction });
+
+	if (collector->hits.size() >= collector->max_results) {
+		return 0;
+	}
+
+	return 1;
 }

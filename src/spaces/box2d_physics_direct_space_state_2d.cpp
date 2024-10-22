@@ -6,7 +6,7 @@
 #include <godot_cpp/classes/physics_shape_query_parameters2d.hpp>
 
 void Box2DPhysicsDirectSpaceState2D::_bind_methods() {
-	//ClassDB::bind_method(D_METHOD("cast_shape"), &Box2DPhysicsDirectSpaceState2D::cast_shape);
+	ClassDB::bind_method(D_METHOD("cast_shape"), &Box2DPhysicsDirectSpaceState2D::cast_shape, "parameters");
 }
 
 int32_t Box2DPhysicsDirectSpaceState2D::_intersect_point(
@@ -29,7 +29,7 @@ int32_t Box2DPhysicsDirectSpaceState2D::_intersect_point(
 	b2Transform transform = b2Transform_identity;
 	transform.p = to_box2d(p_position);
 
-	ShapeOverlapCollector collector(p_max_results, this);
+	ShapeOverlapCollector collector(p_max_results, QueryFilter(this));
 
 	b2World_OverlapPoint(world, to_box2d(Vector2()), transform, filter, overlap_callback, &collector);
 
@@ -63,11 +63,8 @@ bool Box2DPhysicsDirectSpaceState2D::_intersect_ray(
 	b2QueryFilter filter = make_filter(p_collision_mask);
 
 	if (p_hit_from_inside) {
-		b2Transform transform = b2Transform_identity;
-		transform.p = to_box2d(p_from);
-		ShapeOverlapCollector collector(1, this);
-
-		b2World_OverlapPoint(world, to_box2d(Vector2()), transform, filter, overlap_callback, &collector);
+		ShapeOverlapCollector collector(1, QueryFilter(this));
+		b2World_OverlapPoint(world, to_box2d(p_from), b2Transform_identity, filter, overlap_callback, &collector);
 
 		if (collector.shapes.size() > 0) {
 			ShapeOverlap overlap = collector.shapes[0];
@@ -85,7 +82,7 @@ bool Box2DPhysicsDirectSpaceState2D::_intersect_ray(
 		}
 	}
 
-	NearestCastHitCollector collector(this);
+	NearestCastHitCollector collector(QueryFilter(this));
 	b2World_CastRay(world, to_box2d(p_from), to_box2d(p_to - p_from), filter, nearest_cast_callback, &collector);
 
 	if (!collector.hit) {
@@ -128,7 +125,23 @@ int32_t Box2DPhysicsDirectSpaceState2D::_intersect_shape(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, 0);
 
-	return 0;
+	CastHitCollector collector(p_max_results, QueryFilter(this));
+	shape->cast_shape(world, p_transform, p_motion, filter, cast_callback, &collector);
+
+	for (CastHit hit : collector.hits) {
+		ERR_FAIL_COND_V(hit.shape->index < 0, 0);
+
+		PhysicsServer2DExtensionShapeResult &result = *p_result++;
+
+		result.shape = hit.shape->index;
+		result.rid = hit.body->get_rid();
+		result.collider_id = hit.body->get_instance_id();
+		if (result.collider_id.is_valid()) {
+			result.collider = get_instance_hack(result.collider_id);
+		}
+	}
+
+	return collector.hits.size();
 }
 
 bool Box2DPhysicsDirectSpaceState2D::_cast_motion(
@@ -149,7 +162,7 @@ bool Box2DPhysicsDirectSpaceState2D::_cast_motion(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, false);
 
-	NearestCastHitCollector collector(this);
+	NearestCastHitCollector collector(QueryFilter(this));
 	shape->cast_shape(world, p_transform, p_motion, filter, nearest_cast_callback, &collector);
 
 	if (!collector.hit) {
@@ -163,4 +176,42 @@ bool Box2DPhysicsDirectSpaceState2D::_cast_motion(
 	*p_closest_unsafe = hit.fraction;
 
 	return true;
-};
+}
+
+Dictionary Box2DPhysicsDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParameters2D> &p_parameters) {
+	ERR_FAIL_COND_V(!space, {});
+
+	PhysicsShapeQueryParameters2D *params = p_parameters.ptr();
+
+	b2WorldId world = space->get_world_id();
+	b2QueryFilter filter = make_filter(params->get_collision_mask());
+
+	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(params->get_shape_rid());
+	ERR_FAIL_COND_V(!shape, {});
+
+	Vector2 motion = params->get_motion();
+	Transform2D start = params->get_transform();
+
+	NearestCastHitCollector collector(QueryFilter(this));
+	shape->cast_shape(world, start, motion, filter, nearest_cast_callback, &collector);
+
+	if (!collector.hit) {
+		return {};
+	}
+
+	Dictionary result;
+	CastHit hit = collector.nearest_hit;
+
+	result["point"] = to_godot(hit.point);
+	result["centroid"] = start.get_origin() + (hit.fraction * motion);
+	result["normal"] = to_godot(hit.normal).normalized();
+	result["shape"] = hit.shape->index;
+	result["rid"] = hit.body->get_rid();
+	ObjectID id = hit.body->get_instance_id();
+	result["collider_id"] = id;
+	if (id.is_valid()) {
+		result["collider"] = get_instance_hack(id);
+	}
+
+	return result;
+}
