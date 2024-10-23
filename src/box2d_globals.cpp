@@ -7,8 +7,7 @@ ShapeCollideResult box2d_collide_shapes(
 		const b2Transform &xfa,
 		const ShapeInfo &p_shape_b,
 		const b2Transform &xfb,
-		bool p_swapped,
-		b2DistanceCache *p_cache) {
+		bool p_swapped) {
 	if (!p_shape_a.is_valid || !p_shape_b.is_valid) {
 		return {};
 	}
@@ -18,12 +17,6 @@ ShapeCollideResult box2d_collide_shapes(
 
 	b2Manifold manifold;
 	ShapeCollideResult result;
-
-	b2DistanceCache cache{ 0 };
-
-	if (!p_cache) {
-		p_cache = &cache;
-	}
 
 	switch (type_a) {
 		case b2_capsuleShape:
@@ -102,13 +95,13 @@ ShapeCollideResult box2d_collide_shapes(
 		case b2_chainSegmentShape:
 			switch (type_b) {
 				case b2_capsuleShape:
-					manifold = b2CollideChainSegmentAndCapsule(&p_shape_a.chainSegment, xfa, &p_shape_b.capsule, xfb, p_cache);
+					manifold = b2CollideChainSegmentAndCapsule(&p_shape_a.chainSegment, xfa, &p_shape_b.capsule, xfb, { 0 });
 					break;
 				case b2_circleShape:
 					manifold = b2CollideChainSegmentAndCircle(&p_shape_a.chainSegment, xfa, &p_shape_b.circle, xfb);
 					break;
 				case b2_polygonShape:
-					manifold = b2CollideChainSegmentAndPolygon(&p_shape_a.chainSegment, xfa, &p_shape_b.polygon, xfb, p_cache);
+					manifold = b2CollideChainSegmentAndPolygon(&p_shape_a.chainSegment, xfa, &p_shape_b.polygon, xfb, { 0 });
 					break;
 				case b2_segmentShape:
 					return {};

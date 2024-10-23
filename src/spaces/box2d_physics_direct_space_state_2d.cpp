@@ -255,16 +255,13 @@ bool Box2DDirectSpaceState2D::_rest_info(
 		return false;
 	}
 
-	b2DistanceCache cache{ 0 };
-
 	for (ShapeOverlap overlap : collector.overlaps) {
 		ShapeCollideResult result = box2d_collide_shapes(
 				shape_info,
 				b2Transform_identity,
 				get_shape_info(overlap.shape_id),
 				to_box2d(overlap.body->get_transform()),
-				false,
-				&cache);
+				false);
 
 		if (result.point_count == 0) {
 			continue;

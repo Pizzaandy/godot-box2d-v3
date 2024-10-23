@@ -38,7 +38,7 @@ func _physics_process(delta: float) -> void:
 func _draw() -> void:
 	draw_set_transform_matrix(global_transform.affine_inverse())
 
-	var ray_count = 16 if query != Query.RAY else 500
+	var ray_count = 16 if query != Query.RAY else 1000
 	for i in range(ray_count):
 		var angle = i * (2 * PI / ray_count)
 		var ray = Vector2.from_angle(angle) * 2000

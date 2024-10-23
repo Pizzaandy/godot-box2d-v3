@@ -71,8 +71,7 @@ ShapeCollideResult box2d_collide_shapes(
 		const b2Transform &xfa,
 		const ShapeInfo &p_shape_b,
 		const b2Transform &xf,
-		bool p_swapped = false,
-		b2DistanceCache *p_cache = nullptr);
+		bool p_swapped = false);
 
 void box2d_cast_shape(
 		const b2WorldId &p_world,
