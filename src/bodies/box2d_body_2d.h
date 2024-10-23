@@ -69,6 +69,7 @@ public:
 
 	void set_linear_velocity(const Vector2 &p_velocity);
 	Vector2 get_linear_velocity() const;
+	Vector2 get_linear_velocity_at_point(const Vector2 &p_point) const;
 	void set_angular_velocity(float p_velocity);
 	float get_angular_velocity() const;
 	bool is_sleeping() { return sleeping; }

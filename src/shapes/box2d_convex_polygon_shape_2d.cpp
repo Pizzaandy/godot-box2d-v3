@@ -11,20 +11,13 @@ ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, const Transform2D &p_t
 	return b2CreatePolygonShape(p_body, &p_shape_def, &polygon);
 }
 
-void Box2DConvexPolygonShape2D::cast_shape(
-		b2WorldId p_world,
-		const Transform2D &p_transform,
-		Vector2 p_motion,
-		b2QueryFilter p_filter,
-		b2CastResultFcn *fcn,
-		void *context) const {
-	b2Polygon polygon;
-
-	if (!make_polygon(p_transform, data, polygon)) {
-		return;
+ShapeInfo Box2DConvexPolygonShape2D::get_shape_info(const Transform2D &p_transform) const {
+	ShapeInfo shape;
+	shape.type = b2_polygonShape;
+	if (!make_polygon(p_transform, data, shape.polygon)) {
+		return {};
 	}
-
-	b2World_CastPolygon(p_world, &polygon, b2Transform_identity, to_box2d(p_motion), p_filter, fcn, context);
+	return shape;
 }
 
 bool Box2DConvexPolygonShape2D::make_polygon(const Transform2D &p_transform, const Variant &p_data, b2Polygon &p_polygon) {

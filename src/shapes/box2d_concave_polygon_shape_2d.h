@@ -6,6 +6,7 @@
 class Box2DConcavePolygonShape2D : public Box2DShape2D {
 public:
 	ShapeID build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const override;
-	void cast_shape(b2WorldId p_world, const Transform2D &p_transform, Vector2 p_motion, b2QueryFilter p_filter, b2CastResultFcn *fcn, void *context) const override;
+	ShapeInfo get_shape_info(const Transform2D &p_transform) const override;
+
 	static bool is_polygon_clockwise(const PackedVector2Array &p_points);
 };

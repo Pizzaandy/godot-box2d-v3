@@ -23,11 +23,12 @@ struct QueryFilter {
 struct ShapeOverlap {
 	Box2DBody2D *body = nullptr;
 	Box2DShapeInstance *shape = nullptr;
+	b2ShapeId shape_id;
 };
 
 struct ShapeOverlapCollector {
 	int max_results = 0;
-	Vector<ShapeOverlap> shapes;
+	Vector<ShapeOverlap> overlaps;
 	QueryFilter filter;
 	ShapeOverlapCollector(int p_max_results, QueryFilter &p_context) :
 			filter(p_context),
@@ -44,14 +45,15 @@ bool overlap_callback(b2ShapeId shapeId, void *context) {
 		return true;
 	}
 
-	collector->shapes.push_back(ShapeOverlap{ body, shape });
+	collector->overlaps.push_back(ShapeOverlap{ body, shape, shapeId });
 
-	return collector->shapes.size() < collector->max_results;
+	return collector->overlaps.size() < collector->max_results;
 }
 
 struct CastHit {
 	Box2DBody2D *body;
 	Box2DShapeInstance *shape;
+	b2ShapeId shape_id;
 	b2Vec2 point;
 	b2Vec2 normal;
 	float fraction;
@@ -65,7 +67,7 @@ struct NearestCastHitCollector {
 			filter(p_filter) {}
 };
 
-float nearest_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
+float cast_callback_nearest(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
 	NearestCastHitCollector *collector = static_cast<NearestCastHitCollector *>(context);
 
 	b2BodyId body_id = b2Shape_GetBody(shapeId);
@@ -77,7 +79,7 @@ float nearest_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, floa
 	}
 
 	collector->hit = true;
-	collector->nearest_hit = CastHit{ body, shape, point, normal, fraction };
+	collector->nearest_hit = CastHit{ body, shape, shapeId, point, normal, fraction };
 
 	return fraction;
 }
@@ -92,7 +94,7 @@ struct CastHitCollector {
 			max_results(p_max_results), filter(p_filter) {}
 };
 
-float cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
+float cast_callback_all(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
 	CastHitCollector *collector = static_cast<CastHitCollector *>(context);
 
 	b2BodyId body_id = b2Shape_GetBody(shapeId);
@@ -104,7 +106,7 @@ float cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fracti
 	}
 
 	collector->hit = true;
-	collector->hits.push_back(CastHit{ body, shape, point, normal, fraction });
+	collector->hits.push_back(CastHit{ body, shape, shapeId, point, normal, fraction });
 
 	if (collector->hits.size() >= collector->max_results) {
 		return 0;

@@ -10,13 +10,15 @@ using namespace godot;
 class Box2DShapeInstance;
 struct ShapeID;
 
-/// @brief Builder class for shapes.
+/// Builder class for shapes.
 class Box2DShape2D {
 public:
 	~Box2DShape2D();
 
 	virtual ShapeID build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const = 0;
-	virtual void cast_shape(b2WorldId p_world, const Transform2D &p_transform, Vector2 p_motion, b2QueryFilter p_filter, b2CastResultFcn *fcn, void *context) const = 0;
+
+	/// Return the shape geometry modified by the given transform.
+	virtual ShapeInfo get_shape_info(const Transform2D &p_transform) const = 0;
 
 	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }

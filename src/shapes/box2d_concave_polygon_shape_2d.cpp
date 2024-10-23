@@ -33,14 +33,8 @@ ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, const Transform2D &p_
 	return id;
 }
 
-void Box2DConcavePolygonShape2D::cast_shape(
-		b2WorldId p_world,
-		const Transform2D &p_transform,
-		Vector2 p_motion,
-		b2QueryFilter p_filter,
-		b2CastResultFcn *fcn,
-		void *context) const {
-	ERR_PRINT_ONCE("Box2D: Shape casting concave polygons is not supported");
+ShapeInfo Box2DConcavePolygonShape2D::get_shape_info(const Transform2D &p_transform) const {
+	ERR_FAIL_V_MSG({}, "Box2D: Overlap and shape cast queries are not supported for concave polygons.");
 }
 
 bool Box2DConcavePolygonShape2D::is_polygon_clockwise(const PackedVector2Array &p_polygon) {

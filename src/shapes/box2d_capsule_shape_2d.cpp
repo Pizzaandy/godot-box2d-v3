@@ -10,20 +10,13 @@ ShapeID Box2DCapsuleShape2D::build(b2BodyId p_body, const Transform2D &p_transfo
 	return b2CreateCapsuleShape(p_body, &p_shape_def, &capsule);
 }
 
-void Box2DCapsuleShape2D::cast_shape(
-		b2WorldId p_world,
-		const Transform2D &p_transform,
-		Vector2 p_motion,
-		b2QueryFilter p_filter,
-		b2CastResultFcn *fcn,
-		void *context) const {
-	b2Capsule capsule;
-
-	if (!make_capsule(p_transform, data, capsule)) {
-		return;
+ShapeInfo Box2DCapsuleShape2D::get_shape_info(const Transform2D &p_transform) const {
+	ShapeInfo shape;
+	shape.type = b2_circleShape;
+	if (!make_capsule(p_transform, data, shape.capsule)) {
+		return {};
 	}
-
-	b2World_CastCapsule(p_world, &capsule, b2Transform_identity, to_box2d(p_motion), p_filter, fcn, context);
+	return shape;
 }
 
 bool Box2DCapsuleShape2D::make_capsule(const Transform2D &p_transform, const Variant &p_data, b2Capsule &p_capsule) {

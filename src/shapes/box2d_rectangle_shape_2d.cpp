@@ -10,20 +10,13 @@ ShapeID Box2DRectangleShape2D::build(b2BodyId p_body, const Transform2D &p_trans
 	return b2CreatePolygonShape(p_body, &p_shape_def, &box);
 }
 
-void Box2DRectangleShape2D::cast_shape(
-		b2WorldId p_world,
-		const Transform2D &p_transform,
-		Vector2 p_motion,
-		b2QueryFilter p_filter,
-		b2CastResultFcn *fcn,
-		void *context) const {
-	b2Polygon box;
-
-	if (!make_rectangle(p_transform, data, box)) {
-		return;
+ShapeInfo Box2DRectangleShape2D::get_shape_info(const Transform2D &p_transform) const {
+	ShapeInfo shape;
+	shape.type = b2_polygonShape;
+	if (!make_rectangle(p_transform, data, shape.polygon)) {
+		return {};
 	}
-
-	b2World_CastPolygon(p_world, &box, b2Transform_identity, to_box2d(p_motion), p_filter, fcn, context);
+	return shape;
 }
 
 bool Box2DRectangleShape2D::make_rectangle(const Transform2D &p_transform, const Variant &p_data, b2Polygon &p_box) {

@@ -20,8 +20,9 @@ public:
 	int32_t _intersect_point(const Vector2 &p_position, uint64_t p_canvas_instance_id, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, PhysicsServer2DExtensionShapeResult *p_results, int32_t p_max_results) override;
 	int32_t _intersect_shape(const RID &p_shape_rid, const Transform2D &p_transform, const Vector2 &p_motion, float p_margin, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, PhysicsServer2DExtensionShapeResult *p_result, int32_t p_max_results) override;
 	bool _cast_motion(const RID &p_shape_rid, const Transform2D &p_transform, const Vector2 &p_motion, float p_margin, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, float *p_closest_safe, float *p_closest_unsafe) override;
-	// bool _collide_shape(const RID &p_shape_rid, const Transform2D &p_transform, const Vector2 &p_motion, double p_margin, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, void *p_results, int32_t p_max_results, int32_t *p_result_count) override;
-	// bool _rest_info(const RID &p_shape_rid, const Transform2D &p_transform, const Vector2 &p_motion, double p_margin, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, PhysicsServer2DExtensionShapeRestInfo *p_rest_info) override;
+	bool _collide_shape(const RID &p_shape_rid, const Transform2D &p_transform, const Vector2 &p_motion, float p_margin, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, void *p_results, int32_t p_max_results, int32_t *p_result_count) override;
+	bool _rest_info(const RID &p_shape_rid, const Transform2D &p_transform, const Vector2 &p_motion, float p_margin, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas, PhysicsServer2DExtensionShapeRestInfo *p_rest_info) override;
+
 	Dictionary cast_shape(const Ref<PhysicsShapeQueryParameters2D> &p_parameters);
 	TypedArray<Dictionary> cast_shape_all(const Ref<PhysicsShapeQueryParameters2D> &p_parameters, int32_t p_max_results = 32);
 
@@ -32,6 +33,35 @@ public:
 
 	b2QueryFilter make_filter(uint64_t p_collision_mask) {
 		return b2QueryFilter{ UINT64_MAX, p_collision_mask };
+	}
+
+	ShapeInfo get_shape_info(const b2ShapeId &p_shape) {
+		b2ShapeType type = b2Shape_GetType(p_shape);
+
+		ShapeInfo shape_info;
+		shape_info.type = type;
+
+		switch (type) {
+			case b2_circleShape:
+				shape_info.circle = b2Shape_GetCircle(p_shape);
+				break;
+			case b2_capsuleShape:
+				shape_info.capsule = b2Shape_GetCapsule(p_shape);
+				break;
+			case b2_polygonShape:
+				shape_info.polygon = b2Shape_GetPolygon(p_shape);
+				break;
+			case b2_segmentShape:
+				shape_info.segment = b2Shape_GetSegment(p_shape);
+				break;
+			case b2_chainSegmentShape:
+				shape_info.chainSegment = b2Shape_GetChainSegment(p_shape);
+				break;
+			default:
+				return {};
+		}
+
+		return shape_info;
 	}
 
 private:

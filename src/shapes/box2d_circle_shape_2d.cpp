@@ -10,20 +10,13 @@ ShapeID Box2DCircleShape2D::build(b2BodyId p_body, const Transform2D &p_transfor
 	return b2CreateCircleShape(p_body, &p_shape_def, &circle);
 }
 
-void Box2DCircleShape2D::cast_shape(
-		b2WorldId p_world,
-		const Transform2D &p_transform,
-		Vector2 p_motion,
-		b2QueryFilter p_filter,
-		b2CastResultFcn *fcn,
-		void *context) const {
-	b2Circle circle;
-
-	if (!make_circle(p_transform, data, circle)) {
-		return;
+ShapeInfo Box2DCircleShape2D::get_shape_info(const Transform2D &p_transform) const {
+	ShapeInfo shape;
+	shape.type = b2_circleShape;
+	if (!make_circle(p_transform, data, shape.circle)) {
+		return {};
 	}
-
-	b2World_CastCircle(p_world, &circle, b2Transform_identity, to_box2d(p_motion), p_filter, fcn, context);
+	return shape;
 }
 
 bool Box2DCircleShape2D::make_circle(const Transform2D &p_transform, const Variant &p_data, b2Circle &p_circle) {
