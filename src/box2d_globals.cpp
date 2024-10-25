@@ -8,104 +8,100 @@ ShapeCollideResult box2d_collide_shapes(
 		const ShapeInfo &p_shape_b,
 		const b2Transform &xfb,
 		bool p_swapped) {
-	if (!p_shape_a.is_valid || !p_shape_b.is_valid) {
-		return {};
-	}
-
-	b2ShapeType type_a = p_shape_a.type;
-	b2ShapeType type_b = p_shape_b.type;
+	ShapeInfo::Type type_a = p_shape_a.type;
+	ShapeInfo::Type type_b = p_shape_b.type;
 
 	b2Manifold manifold;
 	ShapeCollideResult result;
 
 	switch (type_a) {
-		case b2_capsuleShape:
+		case ShapeInfo::Type::CAPSULE:
 			switch (type_b) {
-				case b2_capsuleShape:
+				case ShapeInfo::Type::CAPSULE:
 					manifold = b2CollideCapsules(&p_shape_a.capsule, xfa, &p_shape_b.capsule, xfb);
 					break;
-				case b2_circleShape:
+				case ShapeInfo::Type::CIRCLE:
 					manifold = b2CollideCapsuleAndCircle(&p_shape_a.capsule, xfa, &p_shape_b.circle, xfb);
 					break;
-				case b2_polygonShape:
+				case ShapeInfo::Type::POLYGON:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case b2_segmentShape:
+				case ShapeInfo::Type::SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case b2_chainSegmentShape:
+				case ShapeInfo::Type::CHAIN_SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
 				default:
 					return {};
 			}
 			break;
-		case b2_circleShape:
+		case ShapeInfo::Type::CIRCLE:
 			switch (type_b) {
-				case b2_capsuleShape:
+				case ShapeInfo::Type::CAPSULE:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case b2_circleShape:
+				case ShapeInfo::Type::CIRCLE:
 					manifold = b2CollideCircles(&p_shape_a.circle, xfa, &p_shape_b.circle, xfb);
 					break;
-				case b2_polygonShape:
+				case ShapeInfo::Type::POLYGON:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case b2_segmentShape:
+				case ShapeInfo::Type::SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case b2_chainSegmentShape:
+				case ShapeInfo::Type::CHAIN_SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
 				default:
 					return {};
 			}
 			break;
-		case b2_polygonShape:
+		case ShapeInfo::Type::POLYGON:
 			switch (type_b) {
-				case b2_capsuleShape:
+				case ShapeInfo::Type::CAPSULE:
 					manifold = b2CollidePolygonAndCapsule(&p_shape_a.polygon, xfa, &p_shape_b.capsule, xfb);
 					break;
-				case b2_circleShape:
+				case ShapeInfo::Type::CIRCLE:
 					manifold = b2CollidePolygonAndCircle(&p_shape_a.polygon, xfa, &p_shape_b.circle, xfb);
 					break;
-				case b2_polygonShape:
+				case ShapeInfo::Type::POLYGON:
 					manifold = b2CollidePolygons(&p_shape_a.polygon, xfa, &p_shape_b.polygon, xfb);
 					break;
-				case b2_segmentShape:
+				case ShapeInfo::Type::SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case b2_chainSegmentShape:
+				case ShapeInfo::Type::CHAIN_SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
 				default:
 					return {};
 			}
 			break;
-		case b2_segmentShape:
+		case ShapeInfo::Type::SEGMENT:
 			switch (type_b) {
-				case b2_capsuleShape:
+				case ShapeInfo::Type::CAPSULE:
 					manifold = b2CollideSegmentAndCapsule(&p_shape_a.segment, xfa, &p_shape_b.capsule, xfb);
 					break;
-				case b2_circleShape:
+				case ShapeInfo::Type::CIRCLE:
 					manifold = b2CollideSegmentAndCircle(&p_shape_a.segment, xfa, &p_shape_b.circle, xfb);
 					break;
-				case b2_polygonShape:
+				case ShapeInfo::Type::POLYGON:
 					manifold = b2CollideSegmentAndPolygon(&p_shape_a.segment, xfa, &p_shape_b.polygon, xfb);
 					break;
-				case b2_segmentShape:
+				case ShapeInfo::Type::SEGMENT:
 					return {};
-				case b2_chainSegmentShape:
+				case ShapeInfo::Type::CHAIN_SEGMENT:
 					return {};
 				default:
 					return {};
 			}
 			break;
-		case b2_chainSegmentShape:
+		case ShapeInfo::Type::CHAIN_SEGMENT:
 			switch (type_b) {
-				case b2_capsuleShape:
+				case ShapeInfo::Type::CAPSULE:
 					manifold = b2CollideChainSegmentAndCapsule(&p_shape_a.chainSegment, xfa, &p_shape_b.capsule, xfb, { 0 });
 					break;
-				case b2_circleShape:
+				case ShapeInfo::Type::CIRCLE:
 					manifold = b2CollideChainSegmentAndCircle(&p_shape_a.chainSegment, xfa, &p_shape_b.circle, xfb);
 					break;
-				case b2_polygonShape:
+				case ShapeInfo::Type::POLYGON:
 					manifold = b2CollideChainSegmentAndPolygon(&p_shape_a.chainSegment, xfa, &p_shape_b.polygon, xfb, { 0 });
 					break;
-				case b2_segmentShape:
+				case ShapeInfo::Type::SEGMENT:
 					return {};
-				case b2_chainSegmentShape:
+				case ShapeInfo::Type::CHAIN_SEGMENT:
 					return {};
 				default:
 					return {};
@@ -145,10 +141,6 @@ void box2d_cast_shape(
 		void *context) {
 	b2Capsule capsule;
 
-	if (!p_shape.is_valid) {
-		return;
-	}
-
 	switch (p_shape.type) {
 		case b2_capsuleShape:
 			b2World_CastCapsule(p_world, &p_shape.capsule, p_transform, p_motion, p_filter, fcn, context);
@@ -185,10 +177,6 @@ void box2d_overlap_shape(
 		b2OverlapResultFcn *fcn,
 		void *context) {
 	b2Capsule capsule;
-
-	if (!p_shape.is_valid) {
-		return;
-	}
 
 	switch (p_shape.type) {
 		case b2_capsuleShape:

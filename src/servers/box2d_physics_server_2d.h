@@ -35,22 +35,22 @@ public:
 	PackedVector2Array _space_get_contacts(const RID &p_space) const override;
 	int32_t _space_get_contact_count(const RID &p_space) const override;
 
-	// RID _area_create() override;
-	// void _area_set_space(const RID &p_area, const RID &p_space) override;
-	// RID _area_get_space(const RID &p_area) const override;
-	// void _area_add_shape(const RID &p_area, const RID &p_shape, const Transform2D &p_transform, bool p_disabled) override;
-	// void _area_set_shape(const RID &p_area, int32_t p_shape_idx, const RID &p_shape) override;
-	// void _area_set_shape_transform(const RID &p_area, int32_t p_shape_idx, const Transform2D &p_transform) override;
-	// void _area_set_shape_disabled(const RID &p_area, int32_t p_shape_idx, bool p_disabled) override;
-	// int32_t _area_get_shape_count(const RID &p_area) const override;
-	// RID _area_get_shape(const RID &p_area, int32_t p_shape_idx) const override;
-	// Transform2D _area_get_shape_transform(const RID &p_area, int32_t p_shape_idx) const override;
-	// void _area_remove_shape(const RID &p_area, int32_t p_shape_idx) override;
-	// void _area_clear_shapes(const RID &p_area) override;
-	// void _area_attach_object_instance_id(const RID &p_area, uint64_t p_id) override;
-	// uint64_t _area_get_object_instance_id(const RID &p_area) const override;
-	// void _area_attach_canvas_instance_id(const RID &p_area, uint64_t p_id) override;
-	// uint64_t _area_get_canvas_instance_id(const RID &p_area) const override;
+	RID _area_create() override;
+	void _area_set_space(const RID &p_area, const RID &p_space) override;
+	RID _area_get_space(const RID &p_area) const override;
+	void _area_add_shape(const RID &p_area, const RID &p_shape, const Transform2D &p_transform, bool p_disabled) override;
+	void _area_set_shape(const RID &p_area, int32_t p_shape_idx, const RID &p_shape) override;
+	void _area_set_shape_transform(const RID &p_area, int32_t p_shape_idx, const Transform2D &p_transform) override;
+	void _area_set_shape_disabled(const RID &p_area, int32_t p_shape_idx, bool p_disabled) override;
+	int32_t _area_get_shape_count(const RID &p_area) const override;
+	RID _area_get_shape(const RID &p_area, int32_t p_shape_idx) const override;
+	Transform2D _area_get_shape_transform(const RID &p_area, int32_t p_shape_idx) const override;
+	void _area_remove_shape(const RID &p_area, int32_t p_shape_idx) override;
+	void _area_clear_shapes(const RID &p_area) override;
+	void _area_attach_object_instance_id(const RID &p_area, uint64_t p_id) override;
+	uint64_t _area_get_object_instance_id(const RID &p_area) const override;
+	void _area_attach_canvas_instance_id(const RID &p_area, uint64_t p_id) override;
+	uint64_t _area_get_canvas_instance_id(const RID &p_area) const override;
 	void _area_set_param(const RID &p_area, PhysicsServer2D::AreaParameter p_param, const Variant &p_value) override;
 	// void _area_set_transform(const RID &p_area, const Transform2D &p_transform) override;
 	// Variant _area_get_param(const RID &p_area, PhysicsServer2D::AreaParameter p_param) const override;
@@ -91,8 +91,8 @@ public:
 	uint32_t _body_get_collision_layer(const RID &p_body) const override;
 	void _body_set_collision_mask(const RID &p_body, uint32_t p_mask) override;
 	uint32_t _body_get_collision_mask(const RID &p_body) const override;
-	//  void _body_set_collision_priority(const RID &p_body, double p_priority) override;
-	//  double _body_get_collision_priority(const RID &p_body) const override;
+	void _body_set_collision_priority(const RID &p_body, float p_priority) override;
+	float _body_get_collision_priority(const RID &p_body) const override;
 	void _body_set_param(const RID &p_body, PhysicsServer2D::BodyParameter p_param, const Variant &p_value) override;
 	Variant _body_get_param(const RID &p_body, PhysicsServer2D::BodyParameter p_param) const override;
 	void _body_reset_mass_properties(const RID &p_body) override;
@@ -150,7 +150,9 @@ private:
 	bool flushing_queries;
 	mutable RID_PtrOwner<Box2DSpace2D> space_owner;
 	mutable RID_PtrOwner<Box2DBody2D> body_owner;
+	mutable RID_PtrOwner<Box2DBody2D> area_owner;
 	mutable RID_PtrOwner<Box2DShape2D> shape_owner;
+
 	HashSet<Box2DSpace2D *> active_spaces;
 
 	static Box2DPhysicsServer2D *singleton;

@@ -4,7 +4,7 @@ ShapeID Box2DCapsuleShape2D::build(b2BodyId p_body, const Transform2D &p_transfo
 	b2Capsule capsule;
 
 	if (!make_capsule(p_transform, data, capsule)) {
-		return {};
+		return ShapeID::invalid();
 	}
 
 	return b2CreateCapsuleShape(p_body, &p_shape_def, &capsule);
@@ -12,9 +12,9 @@ ShapeID Box2DCapsuleShape2D::build(b2BodyId p_body, const Transform2D &p_transfo
 
 ShapeInfo Box2DCapsuleShape2D::get_shape_info(const Transform2D &p_transform) const {
 	ShapeInfo shape;
-	shape.type = b2_circleShape;
+	shape.type = ShapeInfo::Type::CIRCLE;
 	if (!make_capsule(p_transform, data, shape.capsule)) {
-		return {};
+		return ShapeInfo::invalid();
 	}
 	return shape;
 }
@@ -38,7 +38,7 @@ bool Box2DCapsuleShape2D::make_capsule(const Transform2D &p_transform, const Var
 	}
 
 	Vector2 origin = p_transform.get_origin();
-	Vector2 capsule_up = Vector2(0, 1).rotated(p_transform.get_rotation());
+	Vector2 capsule_up = p_transform.columns[1].normalized();
 	float scale = p_transform.get_scale().x;
 
 	radius *= scale;

@@ -1,6 +1,6 @@
 #include "box2d_shape_instance.h"
 
-void Box2DShapeInstance::assign_shape(Box2DShape2D *p_shape) {
+void Box2DShapeInstance::set_shape(Box2DShape2D *p_shape) {
 	if (shape) {
 		shape->remove_instance(this);
 	}

@@ -31,7 +31,7 @@ void group_task_function(void *p_userdata, uint32_t worker_index) {
 void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t minRange, void *taskContext, void *userContext) {
 	Box2DSpace2D *space = static_cast<Box2DSpace2D *>(userContext);
 
-	int32_t taskCount = Math::clamp(itemCount / minRange, 1, space->max_tasks);
+	int32_t taskCount = CLAMP(itemCount / minRange, 1, space->max_tasks);
 
 	Box2DTaskData *taskData = new Box2DTaskData{ task, itemCount, taskCount, taskContext };
 
@@ -52,8 +52,45 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 	Box2DBody2D *body_a = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)));
 	Box2DBody2D *body_b = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)));
 
-	return body_a->is_collision_exception(body_b->get_rid()) ||
-			body_b->is_collision_exception(body_b->get_rid());
+	if (body_a->is_collision_exception(body_b->get_rid()) ||
+			body_b->is_collision_exception(body_a->get_rid())) {
+		return false;
+	}
+
+	float depth;
+
+	if (manifold->pointCount == 2) {
+		depth = -to_godot(MIN(manifold->points[0].separation, manifold->points[1].separation));
+	} else if (manifold->pointCount == 1) {
+		depth = -to_godot(manifold->points[0].separation);
+	} else {
+		return false;
+	}
+
+	Box2DShapeInstance *shape_a = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdA));
+	Box2DShapeInstance *shape_b = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdB));
+
+	Vector2 contact_normal = to_godot(manifold->normal).normalized();
+
+	if (shape_a->one_way_collision) {
+		Vector2 one_way_normal = (shape_a->transform * body_a->get_transform()).columns[1].normalized();
+		Vector2 velocity = body_b->get_linear_velocity();
+		float max_allowed_depth = velocity.length() * MAX(velocity.normalized().dot(one_way_normal), 0.0) + shape_a->one_way_collision_margin;
+		if (contact_normal.dot(one_way_normal) <= 0.0 || depth > max_allowed_depth) {
+			return false;
+		}
+	}
+
+	if (shape_b->one_way_collision) {
+		Vector2 one_way_normal = (shape_b->transform * body_b->get_transform()).columns[1].normalized();
+		Vector2 velocity = body_a->get_linear_velocity();
+		float max_allowed_depth = velocity.length() * MAX(velocity.normalized().dot(one_way_normal), 0.0) + shape_b->one_way_collision_margin;
+		if (contact_normal.dot(one_way_normal) <= 0.0 || depth > max_allowed_depth) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 Box2DSpace2D::Box2DSpace2D() {
@@ -68,7 +105,7 @@ Box2DSpace2D::Box2DSpace2D() {
 		max_tasks = (max_thread_count < hardware_thread_count) ? max_thread_count : hardware_thread_count;
 	}
 
-	max_tasks = Math::clamp(max_tasks, 1, 8);
+	max_tasks = CLAMP(max_tasks, 1, 8);
 
 	b2WorldDef world_def = b2DefaultWorldDef();
 	world_def.gravity = to_box2d(Box2DProjectSettings::get_default_gravity());

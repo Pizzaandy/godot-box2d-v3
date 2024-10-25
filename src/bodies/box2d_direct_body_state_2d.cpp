@@ -65,33 +65,33 @@ Transform2D Box2DDirectBodyState2D::_get_transform() const {
 	return body->get_transform();
 }
 
-// Vector2 Box2DDirectBodyState2D::_get_velocity_at_local_position(const Vector2 &p_position) const {
-// 	return body->get_velocity_at_local_point(p_position);
-// }
+Vector2 Box2DDirectBodyState2D::_get_velocity_at_local_position(const Vector2 &p_position) const {
+	return body->get_velocity_at_local_point(p_position);
+}
 
-// void Box2DDirectBodyState2D::_apply_central_impulse(const Vector2 &p_impulse) {
-// 	body->apply_central_impulse(p_impulse);
-// }
+void Box2DDirectBodyState2D::_apply_central_impulse(const Vector2 &p_impulse) {
+	body->apply_impulse_center(p_impulse);
+}
 
-// void Box2DDirectBodyState2D::_apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position) {
-// 	body->apply_impulse(p_impulse, p_position);
-// }
+void Box2DDirectBodyState2D::_apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position) {
+	body->apply_impulse(p_impulse, p_position);
+}
 
-// void Box2DDirectBodyState2D::_apply_torque_impulse(double p_torque) {
-// 	body->apply_torque_impulse(p_torque);
-// }
+void Box2DDirectBodyState2D::_apply_torque_impulse(float p_torque) {
+	body->apply_torque_impulse(p_torque);
+}
 
-// void Box2DDirectBodyState2D::_apply_central_force(const Vector2 &p_force) {
-// 	body->apply_central_force(p_force);
-// }
+void Box2DDirectBodyState2D::_apply_central_force(const Vector2 &p_force) {
+	body->apply_force_center(p_force);
+}
 
-// void Box2DDirectBodyState2D::_apply_force(const Vector2 &p_force, const Vector2 &p_position) {
-// 	body->apply_force(p_force, p_position);
-// }
+void Box2DDirectBodyState2D::_apply_force(const Vector2 &p_force, const Vector2 &p_position) {
+	body->apply_force(p_force, p_position);
+}
 
-// void Box2DDirectBodyState2D::_apply_torque(double p_torque) {
-// 	body->apply_torque(p_torque);
-// }
+void Box2DDirectBodyState2D::_apply_torque(float p_torque) {
+	body->apply_torque(p_torque);
+}
 
 // void Box2DDirectBodyState2D::_add_constant_central_force(const Vector2 &p_force) {
 // 	body->add_constant_central_force(p_force);
@@ -129,9 +129,9 @@ bool Box2DDirectBodyState2D::_is_sleeping() const {
 	return body->is_sleeping();
 }
 
-// int Box2DDirectBodyState2D::_get_contact_count() const {
-// 	return body->contact_count;
-// }
+int Box2DDirectBodyState2D::_get_contact_count() const {
+	return body->get_contact_count();
+}
 
 // Vector2 Box2DDirectBodyState2D::_get_contact_local_position(int p_contact_idx) const {
 // 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
@@ -152,6 +152,7 @@ bool Box2DDirectBodyState2D::_is_sleeping() const {
 // 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, RID());
 // 	return body->contacts[p_contact_idx].collider;
 // }
+
 // Vector2 Box2DDirectBodyState2D::_get_contact_collider_position(int p_contact_idx) const {
 // 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
 // 	return body->contacts[p_contact_idx].collider_pos;
@@ -177,9 +178,9 @@ bool Box2DDirectBodyState2D::_is_sleeping() const {
 // 	return body->contacts[p_contact_idx].collider_velocity_at_pos;
 // }
 
-// PhysicsDirectSpaceState2D *Box2DDirectBodyState2D::_get_space_state() {
-// 	return body->get_space()->get_direct_state();
-// }
+PhysicsDirectSpaceState2D *Box2DDirectBodyState2D::_get_space_state() {
+	return body->get_space()->get_direct_state();
+}
 
 float Box2DDirectBodyState2D::_get_step() const {
 	return body->get_space()->get_last_step();

@@ -4,7 +4,7 @@ ShapeID Box2DCircleShape2D::build(b2BodyId p_body, const Transform2D &p_transfor
 	b2Circle circle;
 
 	if (!make_circle(p_transform, data, circle)) {
-		return {};
+		return ShapeID::invalid();
 	}
 
 	return b2CreateCircleShape(p_body, &p_shape_def, &circle);
@@ -12,9 +12,9 @@ ShapeID Box2DCircleShape2D::build(b2BodyId p_body, const Transform2D &p_transfor
 
 ShapeInfo Box2DCircleShape2D::get_shape_info(const Transform2D &p_transform) const {
 	ShapeInfo shape;
-	shape.type = b2_circleShape;
+	shape.type = ShapeInfo::Type::CIRCLE;
 	if (!make_circle(p_transform, data, shape.circle)) {
-		return {};
+		return ShapeInfo::invalid();
 	}
 	return shape;
 }

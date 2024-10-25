@@ -39,26 +39,30 @@ public:
 		b2ShapeType type = b2Shape_GetType(p_shape);
 
 		ShapeInfo shape_info;
-		shape_info.type = type;
 
 		switch (type) {
 			case b2_circleShape:
+				shape_info.type = ShapeInfo::Type::CIRCLE;
 				shape_info.circle = b2Shape_GetCircle(p_shape);
 				break;
 			case b2_capsuleShape:
+				shape_info.type = ShapeInfo::Type::CAPSULE;
 				shape_info.capsule = b2Shape_GetCapsule(p_shape);
 				break;
 			case b2_polygonShape:
+				shape_info.type = ShapeInfo::Type::POLYGON;
 				shape_info.polygon = b2Shape_GetPolygon(p_shape);
 				break;
 			case b2_segmentShape:
+				shape_info.type = ShapeInfo::Type::SEGMENT;
 				shape_info.segment = b2Shape_GetSegment(p_shape);
 				break;
 			case b2_chainSegmentShape:
+				shape_info.type = ShapeInfo::Type::CHAIN_SEGMENT;
 				shape_info.chainSegment = b2Shape_GetChainSegment(p_shape);
 				break;
 			default:
-				return {};
+				return ShapeInfo::invalid();
 		}
 
 		return shape_info;

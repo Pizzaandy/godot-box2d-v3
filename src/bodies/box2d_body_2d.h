@@ -16,7 +16,12 @@ class Box2DDirectBodyState2D;
 
 class Box2DBody2D {
 public:
-	Box2DBody2D();
+	enum Type {
+		BODY,
+		AREA,
+	};
+
+	Box2DBody2D(Type p_type);
 	~Box2DBody2D();
 
 	void queue_delete();
@@ -69,7 +74,7 @@ public:
 
 	void set_linear_velocity(const Vector2 &p_velocity);
 	Vector2 get_linear_velocity() const;
-	Vector2 get_linear_velocity_at_point(const Vector2 &p_point) const;
+	Vector2 get_velocity_at_local_point(const Vector2 &p_point) const;
 	void set_angular_velocity(float p_velocity);
 	float get_angular_velocity() const;
 	bool is_sleeping() { return sleeping; }
@@ -79,16 +84,34 @@ public:
 	void add_shape(Box2DShape2D *p_shape, const Transform2D &p_transform, bool p_disabled);
 	void set_shape(int p_index, Box2DShape2D *p_shape);
 	void remove_shape(int p_index);
+	void clear_shapes();
 	int32_t get_shape_count() const { return shapes.size(); }
 	void set_shape_transform(int p_index, const Transform2D &p_transform);
 	Transform2D get_shape_transform(int p_index) const;
 	RID get_shape_rid(int p_index) const;
+	void set_shape_disabled(int p_index, bool p_disabled);
+
+	void update_contacts();
+
+	int32_t get_contact_count();
+	// Vector2 get_contact_local_position(int p_contact_idx) const;
+	// Vector2 get_contact_local_normal(int p_contact_idx) const;
+	// int get_contact_local_shape(int p_contact_idx) const;
+	// RID get_contact_collider(int p_contact_idx) const;
+	// Vector2 get_contact_collider_position(int p_contact_idx) const;
+	// uint64_t get_contact_collider_id(int p_contact_idx) const;
+	// int get_contact_collider_shape(int p_contact_idx) const;
+	// Vector2 get_contact_impulse(int p_contact_idx) const;
 
 	void add_collision_exception(RID p_rid);
 	void remove_collision_exception(RID p_rid);
-	bool is_collision_exception(RID p_rid) const;
+	bool is_collision_exception(RID p_rid) const { return exceptions.has(p_rid); }
 
-	void set_presolve_enabled(bool p_enabled);
+	float get_character_collision_priority() const { return character_collision_priority; }
+	void set_character_collision_priority(float p_priority) { character_collision_priority = p_priority; }
+
+	void set_shape_one_way_collision(int p_index, bool p_enabled, float p_margin);
+	bool get_shape_one_way_collision(int p_index);
 
 	void set_instance_id(const ObjectID &p_instance_id) { instance_id = p_instance_id; }
 	ObjectID get_instance_id() const { return instance_id; }
@@ -117,6 +140,7 @@ private:
 	PhysicsServer2D::BodyMode mode;
 	LocalVector<Box2DShapeInstance *> shapes;
 	HashSet<RID> exceptions;
+	float character_collision_priority = 0.0;
 
 	uint32_t layer;
 	uint32_t mask;
@@ -135,8 +159,12 @@ private:
 	b2ShapeDef shape_def = b2DefaultShapeDef();
 	b2BodyId body_id = b2_nullBodyId;
 
+	Type type = Type::BODY;
 	bool sleeping = false;
-	bool is_area = false;
 	bool is_bullet = false;
 	bool body_exists = false;
+
+	bool queried_contacts = false;
+	int contact_count = 0;
+	b2ContactData *contact_data = nullptr;
 };

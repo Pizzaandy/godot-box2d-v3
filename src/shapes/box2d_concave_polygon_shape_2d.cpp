@@ -3,12 +3,12 @@
 
 ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
 	Variant::Type type = data.get_type();
-	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY, {});
+	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY, ShapeID::invalid());
 
 	PackedVector2Array arr = data;
 
 	int point_count = arr.size();
-	ERR_FAIL_COND_V_MSG(point_count < 4, {}, "Box2D: Concave polygons must have at least 4 vertices");
+	ERR_FAIL_COND_V_MSG(point_count < 4, ShapeID::invalid(), "Box2D: Concave polygons must have at least 4 vertices");
 
 	if (is_polygon_clockwise(arr)) {
 		arr.reverse();
@@ -34,7 +34,7 @@ ShapeID Box2DConcavePolygonShape2D::build(b2BodyId p_body, const Transform2D &p_
 }
 
 ShapeInfo Box2DConcavePolygonShape2D::get_shape_info(const Transform2D &p_transform) const {
-	ERR_FAIL_V_MSG({}, "Box2D: Overlap and shape cast queries are not supported for concave polygons.");
+	ERR_FAIL_V_MSG(ShapeInfo::invalid(), "Box2D: Overlap and shape cast queries are not supported for concave polygons.");
 }
 
 bool Box2DConcavePolygonShape2D::is_polygon_clockwise(const PackedVector2Array &p_polygon) {

@@ -2,8 +2,16 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-Box2DBody2D::Box2DBody2D() {
+Box2DBody2D::Box2DBody2D(Type p_type) {
 	// read project settings here
+	type = p_type;
+
+	if (type == Type::AREA) {
+		shape_def.isSensor = true;
+		mode = PhysicsServer2D::BodyMode::BODY_MODE_STATIC;
+	} else {
+		shape_def.enablePreSolveEvents = true;
+	}
 }
 
 Box2DBody2D::~Box2DBody2D() {
@@ -336,12 +344,12 @@ void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
 }
 
 Vector2 Box2DBody2D::get_linear_velocity() const {
-	ERR_FAIL_COND_V(is_locked(), Vector2());
+	ERR_FAIL_COND_V(!body_exists, Vector2());
 
 	return to_godot(b2Body_GetLinearVelocity(body_id));
 }
 
-Vector2 Box2DBody2D::get_linear_velocity_at_point(const Vector2 &p_point) const {
+Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
 	ERR_FAIL_COND_V(is_locked(), Vector2());
 
 	Vector2 linear = to_godot(b2Body_GetLinearVelocity(body_id));
@@ -354,13 +362,11 @@ Vector2 Box2DBody2D::get_linear_velocity_at_point(const Vector2 &p_point) const 
 
 void Box2DBody2D::set_angular_velocity(float p_velocity) {
 	ERR_FAIL_COND(is_locked());
-
 	b2Body_SetAngularVelocity(body_id, (float)p_velocity);
 }
 
 float Box2DBody2D::get_angular_velocity() const {
 	ERR_FAIL_COND_V(is_locked(), 0.0);
-
 	float angular_velocity = b2Body_GetAngularVelocity(body_id);
 	return angular_velocity;
 }
@@ -369,6 +375,8 @@ void Box2DBody2D::sync_state(const b2Transform &p_transform, bool fell_asleep) {
 	if (!body_exists) {
 		return;
 	}
+
+	queried_contacts = false;
 
 	sleeping = fell_asleep;
 	current_transform.set_origin(to_godot(p_transform.p));
@@ -398,41 +406,56 @@ RID Box2DBody2D::get_shape_rid(int p_index) const {
 	return inst->get_rid();
 }
 
+void Box2DBody2D::set_shape_disabled(int p_index, bool p_disabled) {
+	ERR_FAIL_INDEX(p_index, shapes.size());
+	Box2DShapeInstance *shape = shapes[p_index];
+	if (shape->disabled == p_disabled) {
+		return;
+	}
+	shape->disabled = p_disabled;
+	build_shape(shape, true);
+}
+
+void Box2DBody2D::update_contacts() {
+	if (!body_exists || queried_contacts) {
+		return;
+	}
+
+	delete[] contact_data;
+	contact_count = b2Body_GetContactCapacity(body_id);
+	contact_data = new b2ContactData[contact_count];
+	b2Body_GetContactData(body_id, contact_data, contact_count);
+	queried_contacts = true;
+}
+
+int32_t Box2DBody2D::get_contact_count() {
+	ERR_FAIL_COND_V(!body_exists, 0);
+	update_contacts();
+	return contact_count;
+}
+
 void Box2DBody2D::add_collision_exception(RID p_rid) {
-	if (mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
-		WARN_PRINT_ONCE("Box2D: Collision exceptions are ignored for static and kinematic bodies");
-	}
-
-	if (exceptions.is_empty()) {
-		set_presolve_enabled(true);
-	}
-
+	// if (mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
+	// 	WARN_PRINT_ONCE("Box2D: Collision exceptions are ignored for static and kinematic bodies");
+	// }
 	exceptions.insert(p_rid);
 }
 
 void Box2DBody2D::remove_collision_exception(RID p_rid) {
-	bool erased = exceptions.erase(p_rid);
-
-	if (erased && exceptions.is_empty()) {
-		set_presolve_enabled(false);
-	}
+	exceptions.erase(p_rid);
 }
 
-bool Box2DBody2D::is_collision_exception(RID p_rid) const {
-	return exceptions.has(p_rid);
+void Box2DBody2D::set_shape_one_way_collision(int p_index, bool p_one_way, float p_margin) {
+	ERR_FAIL_INDEX(p_index, shapes.size());
+	Box2DShapeInstance *shape = shapes[p_index];
+	shape->one_way_collision = p_one_way;
+	shape->one_way_collision_margin = p_margin;
 }
 
-void Box2DBody2D::set_presolve_enabled(bool p_enabled) {
-	shape_def.enablePreSolveEvents = p_enabled;
-
-	if (!body_exists) {
-		return;
-	}
-
-	BodyShapeRange range(body_id);
-	for (b2ShapeId id : range) {
-		b2Shape_EnablePreSolveEvents(id, p_enabled);
-	}
+bool Box2DBody2D::get_shape_one_way_collision(int p_index) {
+	ERR_FAIL_INDEX_V(p_index, shapes.size(), false);
+	Box2DShapeInstance *shape = shapes[p_index];
+	return shape->one_way_collision;
 }
 
 void Box2DBody2D::build_shape(Box2DShapeInstance *p_shape, bool p_update_mass) {
@@ -461,7 +484,7 @@ void Box2DBody2D::rebuild_all_shapes() {
 }
 
 void Box2DBody2D::update_mass(bool p_recompute_from_shapes) {
-	if (!body_exists || mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
+	if (type == Type::AREA || !body_exists || mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
 		return;
 	}
 
@@ -484,7 +507,7 @@ void Box2DBody2D::update_mass(bool p_recompute_from_shapes) {
 
 void Box2DBody2D::add_shape(Box2DShape2D *p_shape, const Transform2D &p_transform, bool p_disabled) {
 	Box2DShapeInstance *shape = memnew(Box2DShapeInstance);
-	shape->assign_shape(p_shape);
+	shape->set_shape(p_shape);
 	shape->transform = p_transform;
 	shape->disabled = p_disabled;
 
@@ -501,14 +524,13 @@ void Box2DBody2D::add_shape(Box2DShape2D *p_shape, const Transform2D &p_transfor
 void Box2DBody2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Box2DShapeInstance *shape = shapes[p_index];
-	shape->assign_shape(p_shape);
+	shape->set_shape(p_shape);
 	build_shape(shape, true);
 }
 
 void Box2DBody2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 
-	Box2DShapeInstance *shape = shapes[p_index];
 	shapes.remove_at(p_index);
 
 	int index = 0;
@@ -516,6 +538,12 @@ void Box2DBody2D::remove_shape(int p_index) {
 		shape->index = index;
 		index++;
 	}
+
+	update_mass(false);
+}
+
+void Box2DBody2D::clear_shapes() {
+	shapes.clear();
 }
 
 void Box2DBody2D::set_shape_transform(int p_index, const Transform2D &p_transform) {

@@ -5,7 +5,7 @@ ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, const Transform2D &p_t
 	b2Polygon polygon;
 
 	if (!make_polygon(p_transform, data, polygon)) {
-		return {};
+		return ShapeID::invalid();
 	}
 
 	return b2CreatePolygonShape(p_body, &p_shape_def, &polygon);
@@ -13,9 +13,9 @@ ShapeID Box2DConvexPolygonShape2D::build(b2BodyId p_body, const Transform2D &p_t
 
 ShapeInfo Box2DConvexPolygonShape2D::get_shape_info(const Transform2D &p_transform) const {
 	ShapeInfo shape;
-	shape.type = b2_polygonShape;
+	shape.type = ShapeInfo::Type::POLYGON;
 	if (!make_polygon(p_transform, data, shape.polygon)) {
-		return {};
+		return ShapeInfo::invalid();
 	}
 	return shape;
 }

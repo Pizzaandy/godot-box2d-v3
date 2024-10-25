@@ -7,17 +7,19 @@ class Box2DShape2D;
 
 struct ShapeID {
 	enum Type {
+		INVALID,
 		DEFAULT,
 		CHAIN,
 	};
 
-	Type type = Type::DEFAULT;
+	Type type = Type::INVALID;
 	b2ChainId chain_id = b2_nullChainId;
 	b2ShapeId shape_id = b2_nullShapeId;
 
 	ShapeID() = default;
 
 	ShapeID(b2ShapeId p_shape_id) {
+		type = Type::DEFAULT;
 		shape_id = p_shape_id;
 	}
 
@@ -26,12 +28,8 @@ struct ShapeID {
 		chain_id = p_chain_id;
 	}
 
-	bool is_valid() {
-		if (type == Type::DEFAULT) {
-			return B2_IS_NON_NULL(shape_id);
-		} else {
-			return B2_IS_NON_NULL(chain_id);
-		}
+	static ShapeID invalid() {
+		return {};
 	}
 };
 
@@ -42,9 +40,9 @@ public:
 	Transform2D transform;
 	bool disabled = false;
 	bool one_way_collision = false;
-	real_t one_way_collision_margin = 0.0;
+	float one_way_collision_margin = 0.0;
 
-	void assign_shape(Box2DShape2D *p_shape);
+	void set_shape(Box2DShape2D *p_shape);
 
 	Box2DShape2D *get_shape_or_null() const { return shape; }
 
@@ -54,7 +52,7 @@ public:
 
 	~Box2DShapeInstance() {
 		destroy();
-		assign_shape(nullptr);
+		set_shape(nullptr);
 	}
 
 private:

@@ -179,7 +179,7 @@ bool Box2DDirectSpaceState2D::_cast_motion(
 	const float adjustment = 0.1f;
 	float safe_adjustment = p_motion.length_squared() > 0.0 ? adjustment / p_motion.length() : 0.0f;
 
-	*p_closest_safe = Math::max(0.0f, hit.fraction - safe_adjustment);
+	*p_closest_safe = MAX(0.0f, hit.fraction - safe_adjustment);
 	*p_closest_unsafe = hit.fraction;
 
 	return true;
@@ -272,7 +272,7 @@ bool Box2DDirectSpaceState2D::_rest_info(
 		p_rest_info->rid = overlap.body->get_rid();
 		p_rest_info->collider_id = overlap.body->get_instance_id();
 		p_rest_info->shape = overlap.shape->index;
-		p_rest_info->linear_velocity = overlap.body->get_linear_velocity_at_point(result.points[0].point);
+		p_rest_info->linear_velocity = overlap.body->get_velocity_at_local_point(result.points[0].point);
 		return true;
 	}
 

@@ -4,7 +4,7 @@ ShapeID Box2DSegmentShape2D::build(b2BodyId p_body, const Transform2D &p_transfo
 	b2Segment segment;
 
 	if (!make_segment(p_transform, data, segment)) {
-		return {};
+		return ShapeID::invalid();
 	}
 
 	return b2CreateSegmentShape(p_body, &p_shape_def, &segment);
@@ -12,9 +12,9 @@ ShapeID Box2DSegmentShape2D::build(b2BodyId p_body, const Transform2D &p_transfo
 
 ShapeInfo Box2DSegmentShape2D::get_shape_info(const Transform2D &p_transform) const {
 	ShapeInfo shape;
-	shape.type = b2_segmentShape;
+	shape.type = ShapeInfo::Type::SEGMENT;
 	if (!make_segment(p_transform, data, shape.segment)) {
-		return {};
+		return ShapeInfo::invalid();
 	}
 	return shape;
 }

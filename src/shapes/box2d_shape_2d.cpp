@@ -2,6 +2,6 @@
 
 Box2DShape2D::~Box2DShape2D() {
 	for (Box2DShapeInstance *inst : instances) {
-		inst->assign_shape(nullptr);
+		inst->set_shape(nullptr);
 	}
 }

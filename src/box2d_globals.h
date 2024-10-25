@@ -11,6 +11,9 @@ extern float BOX2D_PIXELS_PER_METER;
 /// This mask bit is used by queries only.
 const uint64_t COMMON_MASK_BIT = 0x8000000000000000ULL;
 
+/// This mask bit is for areas only.
+const uint64_t AREA_MASK_BIT = 0x4000000000000000ULL;
+
 _FORCE_INLINE_ void box2d_set_pixels_per_meter(float p_value) {
 	BOX2D_PIXELS_PER_METER = p_value;
 }
@@ -40,18 +43,28 @@ _FORCE_INLINE_ b2Transform to_box2d(Transform2D p_transform) {
 }
 
 struct ShapeInfo {
-	bool is_valid = true;
-	b2ShapeType type;
+	enum Type {
+		INVALID,
+		CIRCLE,
+		CAPSULE,
+		SEGMENT,
+		POLYGON,
+		CHAIN_SEGMENT,
+		CHAIN_ID,
+	};
+
+	Type type = Type::INVALID;
 	union {
 		b2Capsule capsule;
 		b2Circle circle;
 		b2Polygon polygon;
 		b2Segment segment;
 		b2ChainSegment chainSegment;
+		b2ChainId chainId;
 	};
 
 	static ShapeInfo invalid() {
-		return ShapeInfo{ false };
+		return {};
 	}
 };
 
