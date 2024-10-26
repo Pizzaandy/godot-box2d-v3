@@ -142,7 +142,7 @@ int32_t Box2DPhysicsServer2D::_space_get_contact_count(const RID &p_space) const
 
 // Area API
 RID Box2DPhysicsServer2D::_area_create() {
-	Box2DBody2D *body = memnew(Box2DBody2D(Box2DBody2D::Type::AREA));
+	Box2DBody2D *body = memnew(Box2DBody2D);
 	RID rid = area_owner.make_rid(body);
 	body->set_rid(rid);
 	return rid;
@@ -263,21 +263,19 @@ void Box2DPhysicsServer2D::_area_set_param(
 		const RID &p_area,
 		AreaParameter p_param,
 		const Variant &p_value) {
-	RID area_rid = p_area;
+	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_COND(!area);
+}
 
-	// if (space_owner.owns(area_rid)) {
-	// 	const Box2DSpace2D* space = space_owner.get_or_null(area_rid);
-	// 	area_rid = space->get_default_area()->get_rid();
-	// }
-
-	// Box2DArea2D* area = area_owner.get_or_null(area_rid);
-	// ERR_FAIL_NULL(area);
-	// area->set_param(p_param, p_value);
+void Box2DPhysicsServer2D::_area_set_transform(const RID &p_area, const Transform2D &p_transform) {
+	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_COND(!area);
+	area->set_transform(p_transform);
 }
 
 // Body API
 RID Box2DPhysicsServer2D::_body_create() {
-	Box2DBody2D *body = memnew(Box2DBody2D(Box2DBody2D::Type::BODY));
+	Box2DBody2D *body = memnew(Box2DBody2D);
 	RID rid = body_owner.make_rid(body);
 	body->set_rid(rid);
 	return rid;

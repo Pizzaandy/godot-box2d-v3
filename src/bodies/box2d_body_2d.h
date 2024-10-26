@@ -1,55 +1,21 @@
 #pragma once
 
-#include "../box2d_globals.h"
-#include "../box2d_project_settings.h"
-#include "../shapes/box2d_concave_polygon_shape_2d.h"
-#include "../shapes/box2d_shape_2d.h"
-#include "../shapes/box2d_shape_instance.h"
-#include "../spaces/box2d_space_2d.h"
-#include "body_shape_range.h"
+#include "box2d_collision_object_2d.h"
 #include "box2d_direct_body_state_2d.h"
-#include "chain_segment_range.h"
-#include <godot_cpp/classes/physics_server2d.hpp>
-#include <godot_cpp/templates/local_vector.hpp>
 
 class Box2DDirectBodyState2D;
 
-class Box2DBody2D {
+class Box2DBody2D : public Box2DCollisionObject2D {
 public:
-	enum Type {
-		BODY,
-		AREA,
-	};
-
-	Box2DBody2D(Type p_type);
+	Box2DBody2D();
 	~Box2DBody2D();
 
-	void queue_delete();
-	void destroy_body();
-
-	RID get_rid() const { return rid; }
-	void set_rid(const RID &p_rid) { rid = p_rid; }
-
-	void set_space(Box2DSpace2D *p_space);
-	Box2DSpace2D *get_space() const { return space; }
-
-	void set_mode(PhysicsServer2D::BodyMode p_mode);
-	PhysicsServer2D::BodyMode get_mode() const { return mode; }
-
 	void set_bullet(bool p_bullet);
-	bool get_bullet() const { return is_bullet; }
+	bool get_bullet() const { return body_def.isBullet; }
 
-	void set_collision_layer(uint32_t p_layer);
-	uint32_t get_collision_layer() { return layer; }
-	void set_collision_mask(uint32_t p_mask);
-	uint32_t get_collision_mask() { return mask; }
-
-	void set_transform(const Transform2D &p_transform, bool p_move_kinematic = false);
-	Transform2D get_transform() const { return current_transform; }
-
-	float get_bounce() const { return bounce; }
+	float get_bounce() const { return shape_def.restitution; }
 	void set_bounce(float p_bounce);
-	float get_friction() const { return friction; }
+	float get_friction() const { return shape_def.friction; }
 	void set_friction(float p_friction);
 	void reset_mass();
 	float get_mass() const { return mass_data.mass; }
@@ -81,16 +47,6 @@ public:
 
 	void sync_state(const b2Transform &p_transform, bool is_sleeping);
 
-	void add_shape(Box2DShape2D *p_shape, const Transform2D &p_transform, bool p_disabled);
-	void set_shape(int p_index, Box2DShape2D *p_shape);
-	void remove_shape(int p_index);
-	void clear_shapes();
-	int32_t get_shape_count() const { return shapes.size(); }
-	void set_shape_transform(int p_index, const Transform2D &p_transform);
-	Transform2D get_shape_transform(int p_index) const;
-	RID get_shape_rid(int p_index) const;
-	void set_shape_disabled(int p_index, bool p_disabled);
-
 	void update_contacts();
 
 	int32_t get_contact_count();
@@ -113,56 +69,29 @@ public:
 	void set_shape_one_way_collision(int p_index, bool p_enabled, float p_margin);
 	bool get_shape_one_way_collision(int p_index);
 
-	void set_instance_id(const ObjectID &p_instance_id) { instance_id = p_instance_id; }
-	ObjectID get_instance_id() const { return instance_id; }
-
-	void set_canvas_instance_id(const ObjectID &p_canvas_instance_id) { canvas_instance_id = p_canvas_instance_id; }
-	ObjectID get_canvas_instance_id() const { return canvas_instance_id; }
-
 	Box2DDirectBodyState2D *get_direct_state();
 	void set_state_sync_callback(const Callable &p_callable) { body_state_callback = p_callable; }
 
-private:
-	void build_shape(Box2DShapeInstance *p_shape, bool p_update_mass);
-	void rebuild_all_shapes();
-	void update_mass(bool p_recompute_from_shapes);
+	void update_mass();
+	void shapes_changed() override;
 
+private:
 	bool is_locked() const { return !body_exists || !space || space->locked; }
 
 	Box2DDirectBodyState2D *direct_state = nullptr;
-	Box2DSpace2D *space = nullptr;
 
-	RID rid;
-	ObjectID instance_id;
-	ObjectID canvas_instance_id;
+	bool sleeping = false;
+
 	Callable body_state_callback;
-	Transform2D current_transform;
-	PhysicsServer2D::BodyMode mode;
-	LocalVector<Box2DShapeInstance *> shapes;
 	HashSet<RID> exceptions;
 	float character_collision_priority = 0.0;
 
-	uint32_t layer;
-	uint32_t mask;
-
-	float friction = 0.6;
-	float bounce = 0.0;
 	float mass = 1.0;
-
-	b2MassData mass_data = b2MassData{ 0.0, b2Vec2{ 0 }, 0.0 };
+	b2MassData mass_data = b2MassData{ 0 };
 	bool override_center_of_mass = false;
 	Vector2 center_of_mass = Vector2();
 	bool override_inertia = false;
 	float inertia = 0.0;
-
-	b2BodyDef body_def = b2DefaultBodyDef();
-	b2ShapeDef shape_def = b2DefaultShapeDef();
-	b2BodyId body_id = b2_nullBodyId;
-
-	Type type = Type::BODY;
-	bool sleeping = false;
-	bool is_bullet = false;
-	bool body_exists = false;
 
 	bool queried_contacts = false;
 	int contact_count = 0;

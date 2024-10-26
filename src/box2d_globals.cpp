@@ -142,23 +142,23 @@ void box2d_cast_shape(
 	b2Capsule capsule;
 
 	switch (p_shape.type) {
-		case b2_capsuleShape:
+		case ShapeInfo::Type::CAPSULE:
 			b2World_CastCapsule(p_world, &p_shape.capsule, p_transform, p_motion, p_filter, fcn, context);
 			return;
-		case b2_circleShape:
+		case ShapeInfo::Type::CIRCLE:
 			b2World_CastCircle(p_world, &p_shape.circle, p_transform, p_motion, p_filter, fcn, context);
 			return;
-		case b2_polygonShape:
+		case ShapeInfo::Type::POLYGON:
 			b2World_CastPolygon(p_world, &p_shape.polygon, p_transform, p_motion, p_filter, fcn, context);
 			return;
-		case b2_segmentShape:
+		case ShapeInfo::Type::SEGMENT:
 			b2Capsule capsule;
 			capsule.center1 = p_shape.segment.point1;
 			capsule.center2 = p_shape.segment.point2;
 			capsule.radius = 0.0;
 			b2World_CastCapsule(p_world, &capsule, p_transform, p_motion, p_filter, fcn, context);
 			return;
-		case b2_chainSegmentShape:
+		case ShapeInfo::Type::CHAIN_SEGMENT:
 			capsule.center1 = p_shape.chainSegment.segment.point1;
 			capsule.center2 = p_shape.chainSegment.segment.point2;
 			capsule.radius = 0.0;
@@ -179,22 +179,22 @@ void box2d_overlap_shape(
 	b2Capsule capsule;
 
 	switch (p_shape.type) {
-		case b2_capsuleShape:
+		case ShapeInfo::Type::CAPSULE:
 			b2World_OverlapCapsule(p_world, &p_shape.capsule, p_transform, p_filter, fcn, context);
 			return;
-		case b2_circleShape:
+		case ShapeInfo::Type::CIRCLE:
 			b2World_OverlapCircle(p_world, &p_shape.circle, p_transform, p_filter, fcn, context);
 			return;
-		case b2_polygonShape:
+		case ShapeInfo::Type::POLYGON:
 			b2World_OverlapPolygon(p_world, &p_shape.polygon, p_transform, p_filter, fcn, context);
 			return;
-		case b2_segmentShape:
+		case ShapeInfo::Type::SEGMENT:
 			capsule.center1 = p_shape.segment.point1;
 			capsule.center2 = p_shape.segment.point2;
 			capsule.radius = 0.0;
 			b2World_OverlapCapsule(p_world, &capsule, p_transform, p_filter, fcn, context);
 			return;
-		case b2_chainSegmentShape:
+		case ShapeInfo::Type::CHAIN_SEGMENT:
 			capsule.center1 = p_shape.chainSegment.segment.point1;
 			capsule.center2 = p_shape.chainSegment.segment.point2;
 			capsule.radius = 0.0;

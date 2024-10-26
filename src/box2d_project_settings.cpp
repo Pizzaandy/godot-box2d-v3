@@ -3,6 +3,7 @@
 constexpr char DEFAULT_GRAVITY[] = "physics/box_2d/default_gravity";
 constexpr char SUBSTEPS[] = "physics/box_2d/substeps";
 constexpr char PIXELS_PER_METER[] = "physics/box_2d/pixels_per_meter";
+constexpr char PRESOLVE_ENABLED[] = "physics/box_2d/presolve_enabled";
 constexpr char MAX_THREADS[] = "threading/worker_pool/max_threads";
 
 template <typename TType>
@@ -86,6 +87,7 @@ void Box2DProjectSettings::register_settings() {
 	register_setting_plain(DEFAULT_GRAVITY, Vector2(0, 980));
 	register_setting_ranged(SUBSTEPS, 4, U"1,8,or_greater");
 	register_setting_ranged(PIXELS_PER_METER, 100, U"1,500,or_greater,suffix:px / m", true);
+	register_setting_plain(PRESOLVE_ENABLED, true, true);
 }
 
 Vector2 Box2DProjectSettings::get_default_gravity() {
@@ -105,5 +107,10 @@ int Box2DProjectSettings::get_pixels_per_meter() {
 
 int32_t Box2DProjectSettings::get_max_threads() {
 	static const auto value = get_setting<int32_t>(MAX_THREADS);
+	return value;
+}
+
+bool Box2DProjectSettings::get_presolve_enabled() {
+	static const auto value = get_setting<bool>(PRESOLVE_ENABLED);
 	return value;
 }

@@ -117,7 +117,9 @@ Box2DSpace2D::Box2DSpace2D() {
 
 	world_id = b2CreateWorld(&world_def);
 
-	b2World_SetPreSolveCallback(world_id, box2d_godot_presolve, nullptr);
+	if (Box2DProjectSettings::get_presolve_enabled()) {
+		b2World_SetPreSolveCallback(world_id, box2d_godot_presolve, nullptr);
+	}
 }
 
 Box2DSpace2D::~Box2DSpace2D() {
@@ -147,6 +149,16 @@ void Box2DSpace2D::sync_state() {
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(event->userData);
 		body->sync_state(event->transform, event->fellAsleep);
 	}
+
+	// b2SensorEvents sensor_events = b2World_GetSensorEvents(world_id);
+
+	// for (int i = 0; i < sensor_events.beginCount; ++i) {
+	// 	const b2SensorBeginTouchEvent *begin_event = sensor_events.beginEvents + i;
+	// }
+
+	// for (int i = 0; i < sensor_events.endCount; ++i) {
+	// 	const b2SensorEndTouchEvent *end_event = sensor_events.endEvents + i;
+	// }
 
 	for (void *body : delete_after_sync) {
 		memdelete(body);

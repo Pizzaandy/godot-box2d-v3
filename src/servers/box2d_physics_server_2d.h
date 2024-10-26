@@ -52,9 +52,9 @@ public:
 	void _area_attach_canvas_instance_id(const RID &p_area, uint64_t p_id) override;
 	uint64_t _area_get_canvas_instance_id(const RID &p_area) const override;
 	void _area_set_param(const RID &p_area, PhysicsServer2D::AreaParameter p_param, const Variant &p_value) override;
-	// void _area_set_transform(const RID &p_area, const Transform2D &p_transform) override;
-	// Variant _area_get_param(const RID &p_area, PhysicsServer2D::AreaParameter p_param) const override;
-	// Transform2D _area_get_transform(const RID &p_area) const override;
+	void _area_set_transform(const RID &p_area, const Transform2D &p_transform) override;
+	//Variant _area_get_param(const RID &p_area, PhysicsServer2D::AreaParameter p_param) const override;
+	//Transform2D _area_get_transform(const RID &p_area) const override;
 	// void _area_set_collision_layer(const RID &p_area, uint32_t p_layer) override;
 	// uint32_t _area_get_collision_layer(const RID &p_area) const override;
 	// void _area_set_collision_mask(const RID &p_area, uint32_t p_mask) override;
