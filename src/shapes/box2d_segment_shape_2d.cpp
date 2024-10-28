@@ -1,20 +1,22 @@
 #include "box2d_segment_shape_2d.h"
 
-ShapeID Box2DSegmentShape2D::build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
-	b2Segment segment;
+ShapeIdAndGeometry Box2DSegmentShape2D::add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
+	ShapeIdAndGeometry result;
 
-	if (!make_segment(p_transform, data, segment)) {
-		return ShapeID::invalid();
+	result.info = get_shape_info(p_transform);
+	if (!result.info.is_valid()) {
+		return result;
 	}
 
-	return b2CreateSegmentShape(p_body, &p_shape_def, &segment);
+	result.id = b2CreateSegmentShape(p_body, &p_shape_def, &result.info.segment);
+	return result;
 }
 
-ShapeInfo Box2DSegmentShape2D::get_shape_info(const Transform2D &p_transform) const {
-	ShapeInfo shape;
-	shape.type = ShapeInfo::Type::SEGMENT;
+ShapeGeometry Box2DSegmentShape2D::get_shape_info(const Transform2D &p_transform) const {
+	ShapeGeometry shape;
+	shape.type = ShapeGeometry::Type::SEGMENT;
 	if (!make_segment(p_transform, data, shape.segment)) {
-		return ShapeInfo::invalid();
+		return ShapeGeometry::invalid();
 	}
 	return shape;
 }

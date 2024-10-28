@@ -1,6 +1,7 @@
 #pragma once
 
 #include "box2d/box2d.h"
+#include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 
@@ -8,10 +9,10 @@ using namespace godot;
 
 extern float BOX2D_PIXELS_PER_METER;
 
-/// This mask bit is used by queries only.
-const uint64_t COMMON_MASK_BIT = 0x8000000000000000ULL;
+/// Mask bit used with all bodies. This is used by queries only.
+const uint64_t BODY_MASK_BIT = 0x8000000000000000ULL;
 
-/// This mask bit is for areas only.
+/// Mask bit used with all areas. This is used by queries only.
 const uint64_t AREA_MASK_BIT = 0x4000000000000000ULL;
 
 _FORCE_INLINE_ void box2d_set_pixels_per_meter(float p_value) {
@@ -42,7 +43,8 @@ _FORCE_INLINE_ b2Transform to_box2d(Transform2D p_transform) {
 	return b2Transform{ to_box2d(p_transform.get_origin()), b2MakeRot(p_transform.get_rotation()) };
 }
 
-struct ShapeInfo {
+/// Represents a Box2D shape geometry type.
+struct ShapeGeometry {
 	enum Type {
 		INVALID,
 		CIRCLE,
@@ -50,22 +52,166 @@ struct ShapeInfo {
 		SEGMENT,
 		POLYGON,
 		CHAIN_SEGMENT,
-		CHAIN_ID,
 	};
 
 	Type type = Type::INVALID;
+
 	union {
 		b2Capsule capsule;
 		b2Circle circle;
 		b2Polygon polygon;
 		b2Segment segment;
 		b2ChainSegment chainSegment;
-		b2ChainId chainId;
 	};
 
-	static ShapeInfo invalid() {
+	_FORCE_INLINE_ bool is_valid() {
+		return type != Type::INVALID;
+	}
+
+	static ShapeGeometry invalid() {
 		return {};
 	}
+};
+
+/// A shape or chain id.
+struct ShapeID {
+	enum Type {
+		INVALID,
+		DEFAULT,
+		CHAIN,
+	};
+
+	Type type = Type::INVALID;
+
+	b2ShapeId shape_id = b2_nullShapeId;
+	b2ChainId chain_id = b2_nullChainId;
+
+	ShapeID() = default;
+
+	ShapeID(b2ShapeId p_shape_id) {
+		type = Type::DEFAULT;
+		shape_id = p_shape_id;
+	}
+
+	ShapeID(b2ChainId p_chain_id) {
+		type = Type::CHAIN;
+		chain_id = p_chain_id;
+	}
+
+	_FORCE_INLINE_ bool is_valid() {
+		return type != Type::INVALID;
+	}
+
+	static ShapeID invalid() {
+		return {};
+	}
+};
+
+struct ShapeIdAndGeometry {
+	ShapeID id = ShapeID::invalid();
+	ShapeGeometry info = ShapeGeometry::invalid();
+};
+
+/// Range for iterating body shapes.
+class BodyShapeRange {
+public:
+	BodyShapeRange(b2BodyId body_id) :
+			body_id(body_id) {
+		shape_count = b2Body_GetShapeCount(body_id);
+		shape_ids = new b2ShapeId[shape_count];
+		b2Body_GetShapes(body_id, shape_ids, shape_count);
+	}
+
+	~BodyShapeRange() {
+		delete[] shape_ids;
+	}
+
+	class Iterator {
+	public:
+		Iterator(b2ShapeId *ids, int index) :
+				shape_ids(ids), index(index) {}
+
+		b2ShapeId operator*() const {
+			return shape_ids[index];
+		}
+
+		Iterator &operator++() {
+			++index;
+			return *this;
+		}
+
+		bool operator!=(const Iterator &other) const {
+			return index != other.index;
+		}
+
+	private:
+		b2ShapeId *shape_ids;
+		int index;
+	};
+
+	Iterator begin() const {
+		return Iterator(shape_ids, 0);
+	}
+
+	Iterator end() const {
+		return Iterator(shape_ids, shape_count);
+	}
+
+private:
+	b2BodyId body_id;
+	b2ShapeId *shape_ids;
+	int shape_count;
+};
+
+/// Range for iterating chain segment shapes.
+class ChainSegmentRange {
+public:
+	ChainSegmentRange(b2ChainId chain_id) :
+			chain_id(chain_id) {
+		segment_count = b2Chain_GetSegmentCount(chain_id);
+		shape_ids = new b2ShapeId[segment_count];
+		b2Chain_GetSegments(chain_id, shape_ids, segment_count);
+	}
+
+	~ChainSegmentRange() {
+		delete[] shape_ids;
+	}
+
+	class Iterator {
+	public:
+		Iterator(b2ShapeId *ids, int index) :
+				shape_ids(ids), index(index) {}
+
+		b2ShapeId operator*() const {
+			return shape_ids[index];
+		}
+
+		Iterator &operator++() {
+			++index;
+			return *this;
+		}
+
+		bool operator!=(const Iterator &other) const {
+			return index != other.index;
+		}
+
+	private:
+		b2ShapeId *shape_ids;
+		int index;
+	};
+
+	Iterator begin() const {
+		return Iterator(shape_ids, 0);
+	}
+
+	Iterator end() const {
+		return Iterator(shape_ids, segment_count);
+	}
+
+private:
+	b2ChainId chain_id;
+	b2ShapeId *shape_ids;
+	int segment_count;
 };
 
 struct ShapeCollidePoint {
@@ -80,15 +226,15 @@ struct ShapeCollideResult {
 };
 
 ShapeCollideResult box2d_collide_shapes(
-		const ShapeInfo &p_shape_a,
+		const ShapeGeometry &p_shape_a,
 		const b2Transform &xfa,
-		const ShapeInfo &p_shape_b,
+		const ShapeGeometry &p_shape_b,
 		const b2Transform &xf,
 		bool p_swapped = false);
 
 void box2d_cast_shape(
 		const b2WorldId &p_world,
-		const ShapeInfo &p_shape,
+		const ShapeGeometry &p_shape,
 		const b2Transform &p_transform,
 		const b2Vec2 &p_motion,
 		const b2QueryFilter &p_filter,
@@ -97,8 +243,10 @@ void box2d_cast_shape(
 
 void box2d_overlap_shape(
 		const b2WorldId &p_world,
-		const ShapeInfo &p_shape,
+		const ShapeGeometry &p_shape,
 		const b2Transform &p_transform,
 		const b2QueryFilter &p_filter,
 		b2OverlapResultFcn *fcn,
 		void *context);
+
+ShapeGeometry get_shape_info_from_id(const b2ShapeId &p_shape);

@@ -116,6 +116,15 @@ bool Box2DPhysicsServer2D::_space_is_active(const RID &p_space) const {
 	return active_spaces.has(space);
 }
 
+void Box2DPhysicsServer2D::_space_set_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param, float p_value) {
+	WARN_PRINT("Box2D: Godot space parameters are not used by Box2D. Any values set will be ignored.");
+}
+
+float Box2DPhysicsServer2D::_space_get_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param) const {
+	WARN_PRINT("Box2D: Godot space parameters are not used by Box2D.");
+	return 0.0;
+}
+
 PhysicsDirectSpaceState2D *Box2DPhysicsServer2D::_space_get_direct_state(const RID &p_space) {
 	Box2DSpace2D *space = space_owner.get_or_null(p_space);
 	ERR_FAIL_NULL_V(space, {});
@@ -142,14 +151,14 @@ int32_t Box2DPhysicsServer2D::_space_get_contact_count(const RID &p_space) const
 
 // Area API
 RID Box2DPhysicsServer2D::_area_create() {
-	Box2DBody2D *body = memnew(Box2DBody2D);
+	Box2DArea2D *body = memnew(Box2DArea2D);
 	RID rid = area_owner.make_rid(body);
 	body->set_rid(rid);
 	return rid;
 }
 
 void Box2DPhysicsServer2D::_area_set_space(const RID &p_area, const RID &p_space) {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND(!area);
 
 	Box2DSpace2D *space = nullptr;
@@ -162,7 +171,7 @@ void Box2DPhysicsServer2D::_area_set_space(const RID &p_area, const RID &p_space
 }
 
 RID Box2DPhysicsServer2D::_area_get_space(const RID &p_area) const {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND_V(!area, RID());
 
 	Box2DSpace2D *space = area->get_space();
@@ -194,67 +203,67 @@ void Box2DPhysicsServer2D::_area_set_shape(const RID &p_area, int32_t p_shape_id
 }
 
 void Box2DPhysicsServer2D::_area_set_shape_transform(const RID &p_area, int32_t p_shape_idx, const Transform2D &p_transform) {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND(!area);
 	area->set_shape_transform(p_shape_idx, p_transform);
 }
 
 void Box2DPhysicsServer2D::_area_set_shape_disabled(const RID &p_area, int32_t p_shape_idx, bool p_disabled) {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND(!area);
 	area->set_shape_disabled(p_shape_idx, p_disabled);
 }
 
 int32_t Box2DPhysicsServer2D::_area_get_shape_count(const RID &p_area) const {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND_V(!area, 0);
 	return area->get_shape_count();
 }
 
 RID Box2DPhysicsServer2D::_area_get_shape(const RID &p_area, int32_t p_shape_idx) const {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND_V(!area, RID());
 	return area->get_shape_rid(p_shape_idx);
 }
 
 Transform2D Box2DPhysicsServer2D::_area_get_shape_transform(const RID &p_area, int32_t p_shape_idx) const {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND_V(!area, Transform2D());
 	return area->get_shape_transform(p_shape_idx);
 }
 
 void Box2DPhysicsServer2D::_area_remove_shape(const RID &p_area, int32_t p_shape_idx) {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND(!area);
 	area->remove_shape(p_shape_idx);
 }
 
 void Box2DPhysicsServer2D::_area_clear_shapes(const RID &p_area) {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND(!area);
 	area->clear_shapes();
 }
 
 void Box2DPhysicsServer2D::_area_attach_object_instance_id(const RID &p_area, uint64_t p_id) {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND(!area);
 	area->set_instance_id(ObjectID(p_id));
 }
 
 uint64_t Box2DPhysicsServer2D::_area_get_object_instance_id(const RID &p_area) const {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND_V(!area, ObjectID());
 	return area->get_canvas_instance_id();
 }
 
 void Box2DPhysicsServer2D::_area_attach_canvas_instance_id(const RID &p_area, uint64_t p_id) {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND(!area);
 	area->set_canvas_instance_id(ObjectID(p_id));
 }
 
 uint64_t Box2DPhysicsServer2D::_area_get_canvas_instance_id(const RID &p_area) const {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND_V(!area, ObjectID());
 	return area->get_canvas_instance_id();
 }
@@ -263,12 +272,10 @@ void Box2DPhysicsServer2D::_area_set_param(
 		const RID &p_area,
 		AreaParameter p_param,
 		const Variant &p_value) {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
 }
 
 void Box2DPhysicsServer2D::_area_set_transform(const RID &p_area, const Transform2D &p_transform) {
-	Box2DBody2D *area = area_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_COND(!area);
 	area->set_transform(p_transform);
 }
@@ -489,10 +496,10 @@ void Box2DPhysicsServer2D::_body_set_param(const RID &p_body, PhysicsServer2D::B
 			body->set_gravity_scale(p_value);
 			break;
 		case BodyParameter::BODY_PARAM_LINEAR_DAMP_MODE:
-			ERR_FAIL_COND("Box2D: Linear damp mode is not supported");
+			body->set_linear_damp_mode((BodyDampMode)(int)p_value);
 			break;
 		case BodyParameter::BODY_PARAM_ANGULAR_DAMP_MODE:
-			ERR_FAIL_COND("Box2D: Angular damp mode is not supported");
+			body->set_angular_damp_mode((BodyDampMode)(int)p_value);
 			break;
 		case BodyParameter::BODY_PARAM_LINEAR_DAMP:
 			body->set_linear_damping(p_value);
@@ -521,9 +528,9 @@ Variant Box2DPhysicsServer2D::_body_get_param(const RID &p_body, PhysicsServer2D
 		case BodyParameter::BODY_PARAM_GRAVITY_SCALE:
 			return body->get_gravity_scale();
 		case BodyParameter::BODY_PARAM_LINEAR_DAMP_MODE:
-			ERR_FAIL_COND_V("Box2D: Linear damp mode is not supported", {});
+			return body->get_linear_damp_mode();
 		case BodyParameter::BODY_PARAM_ANGULAR_DAMP_MODE:
-			ERR_FAIL_COND_V("Box2D: Angular damp mode is not supported", {});
+			return body->get_angular_damp_mode();
 		case BodyParameter::BODY_PARAM_LINEAR_DAMP:
 			return body->get_linear_damping();
 		case BodyParameter::BODY_PARAM_ANGULAR_DAMP:

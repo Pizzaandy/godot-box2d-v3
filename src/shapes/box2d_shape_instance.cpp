@@ -14,7 +14,7 @@ void Box2DShapeInstance::set_shape(Box2DShape2D *p_shape) {
 	p_shape->add_instance(this);
 }
 
-void Box2DShapeInstance::build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) {
+void Box2DShapeInstance::build(b2BodyId p_body, const Transform2D &p_local_transform, b2ShapeDef p_shape_def) {
 	destroy();
 
 	if (disabled) {
@@ -22,23 +22,25 @@ void Box2DShapeInstance::build(b2BodyId p_body, const Transform2D &p_transform, 
 	}
 
 	ERR_FAIL_COND(!shape);
-	shape_id = shape->build(p_body, p_transform, p_shape_def);
 
-	if (shape_id.type == ShapeID::CHAIN) {
-		ChainSegmentRange range(shape_id.chain_id);
-		for (b2ShapeId id : range) {
-			b2Shape_SetUserData(id, this);
-		}
-	} else {
-		b2Shape_SetUserData(shape_id.shape_id, this);
-	}
+	p_shape_def.userData = this;
+
+	ShapeIdAndGeometry result = shape->add_to_body(p_body, p_local_transform, p_shape_def);
+
+	shape_id = result.id;
+	shape_info = result.info;
 }
 
 void Box2DShapeInstance::destroy() {
-	if (b2Shape_IsValid(shape_id.shape_id)) {
-		b2DestroyShape(shape_id.shape_id, false);
-	} else if (b2Chain_IsValid(shape_id.chain_id)) {
-		b2DestroyChain(shape_id.chain_id);
+	if (shape_id.type == ShapeID::Type::CHAIN) {
+		if (b2Chain_IsValid(shape_id.chain_id)) {
+			b2DestroyChain(shape_id.chain_id);
+		}
+	} else if (shape_id.type == ShapeID::Type::DEFAULT) {
+		if (b2Shape_IsValid(shape_id.shape_id)) {
+			b2DestroyShape(shape_id.shape_id, false);
+		}
 	}
-	shape_id = {};
+
+	shape_id = ShapeID::invalid();
 }

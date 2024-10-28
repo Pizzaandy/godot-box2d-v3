@@ -2,14 +2,13 @@
 
 #include "../box2d_globals.h"
 #include "../box2d_project_settings.h"
-#include "../shapes/box2d_concave_polygon_shape_2d.h"
 #include "../shapes/box2d_shape_2d.h"
 #include "../shapes/box2d_shape_instance.h"
-#include "../spaces/box2d_space_2d.h"
-#include "body_shape_range.h"
-#include "chain_segment_range.h"
+#include "../spaces/box2d_query_collectors.h"
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
+
+class Box2DSpace2D;
 
 class Box2DCollisionObject2D {
 public:
@@ -26,9 +25,9 @@ public:
 	PhysicsServer2D::BodyMode get_mode() const { return mode; }
 
 	void set_collision_layer(uint32_t p_layer);
-	uint32_t get_collision_layer() { return layer; }
+	uint32_t get_collision_layer() { return shape_def.filter.categoryBits; }
 	void set_collision_mask(uint32_t p_mask);
-	uint32_t get_collision_mask() { return mask; }
+	uint32_t get_collision_mask() { return shape_def.filter.maskBits; }
 
 	void set_transform(const Transform2D &p_transform, bool p_move_kinematic = false);
 	Transform2D get_transform() const { return current_transform; }
@@ -50,6 +49,8 @@ public:
 	void set_canvas_instance_id(const ObjectID &p_canvas_instance_id) { canvas_instance_id = p_canvas_instance_id; }
 	ObjectID get_canvas_instance_id() const { return canvas_instance_id; }
 
+	void get_overlaps(int32_t p_max_overlaps);
+
 	virtual void shapes_changed() {};
 
 protected:
@@ -63,9 +64,6 @@ protected:
 	Transform2D current_transform;
 	LocalVector<Box2DShapeInstance *> shapes;
 	PhysicsServer2D::BodyMode mode = PhysicsServer2D::BodyMode::BODY_MODE_STATIC;
-
-	uint32_t layer;
-	uint32_t mask;
 
 	b2BodyDef body_def = b2DefaultBodyDef();
 	b2ShapeDef shape_def = b2DefaultShapeDef();

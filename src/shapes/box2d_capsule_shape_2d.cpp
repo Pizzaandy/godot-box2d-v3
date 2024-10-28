@@ -1,20 +1,22 @@
 #include "box2d_capsule_shape_2d.h"
 
-ShapeID Box2DCapsuleShape2D::build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
-	b2Capsule capsule;
+ShapeIdAndGeometry Box2DCapsuleShape2D::add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
+	ShapeIdAndGeometry result;
 
-	if (!make_capsule(p_transform, data, capsule)) {
-		return ShapeID::invalid();
+	result.info = get_shape_info(p_transform);
+	if (!result.info.is_valid()) {
+		return result;
 	}
 
-	return b2CreateCapsuleShape(p_body, &p_shape_def, &capsule);
+	result.id = b2CreateCapsuleShape(p_body, &p_shape_def, &result.info.capsule);
+	return result;
 }
 
-ShapeInfo Box2DCapsuleShape2D::get_shape_info(const Transform2D &p_transform) const {
-	ShapeInfo shape;
-	shape.type = ShapeInfo::Type::CIRCLE;
+ShapeGeometry Box2DCapsuleShape2D::get_shape_info(const Transform2D &p_transform) const {
+	ShapeGeometry shape;
+	shape.type = ShapeGeometry::Type::CAPSULE;
 	if (!make_capsule(p_transform, data, shape.capsule)) {
-		return ShapeInfo::invalid();
+		return ShapeGeometry::invalid();
 	}
 	return shape;
 }

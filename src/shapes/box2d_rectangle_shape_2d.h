@@ -5,8 +5,8 @@
 
 class Box2DRectangleShape2D : public Box2DShape2D {
 public:
-	ShapeID build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const override;
-	ShapeInfo get_shape_info(const Transform2D &p_transform) const override;
+	ShapeIdAndGeometry add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const override;
+	ShapeGeometry get_shape_info(const Transform2D &p_transform) const override;
 
 	static bool make_rectangle(const Transform2D &p_transform, const Variant &p_data, b2Polygon &p_box);
 };

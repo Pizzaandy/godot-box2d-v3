@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../bodies/box2d_area_2d.h"
 #include "../bodies/box2d_body_2d.h"
 #include "../box2d_globals.h"
 #include "../box2d_project_settings.h"
@@ -28,8 +29,8 @@ public:
 	RID _space_create() override;
 	void _space_set_active(const RID &p_space, bool p_active) override;
 	bool _space_is_active(const RID &p_space) const override;
-	void _space_set_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param, float p_value) override {}
-	//float _space_get_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param) const override {}
+	void _space_set_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param, float p_value) override;
+	float _space_get_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param) const override;
 	PhysicsDirectSpaceState2D *_space_get_direct_state(const RID &p_space) override;
 	void _space_set_debug_contacts(const RID &p_space, int32_t p_max_contacts) override;
 	PackedVector2Array _space_get_contacts(const RID &p_space) const override;
@@ -126,6 +127,25 @@ public:
 	void _body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) override {};
 	// virtual bool _body_collide_shape(const RID &p_body, int32_t p_body_shape, const RID &p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, void *p_results, int32_t p_result_max, int32_t *p_result_count) override;
 	void _body_set_pickable(const RID &p_body, bool p_pickable) override {};
+	//virtual PhysicsDirectBodyState2D *_body_get_direct_state(const RID &p_body);
+	//virtual bool _body_test_motion(const RID &p_body, const Transform2D &p_from, const Vector2 &p_motion, float p_margin, bool p_collide_separation_ray, bool p_recovery_as_collision, PhysicsServer2DExtensionMotionResult *p_result) const;
+
+	// virtual RID _joint_create();
+	// virtual void _joint_clear(const RID &p_joint);
+	// virtual void _joint_set_param(const RID &p_joint, PhysicsServer2D::JointParam p_param, float p_value);
+	// virtual float _joint_get_param(const RID &p_joint, PhysicsServer2D::JointParam p_param) const;
+	// virtual void _joint_disable_collisions_between_bodies(const RID &p_joint, bool p_disable);
+	// virtual bool _joint_is_disabled_collisions_between_bodies(const RID &p_joint) const;
+	// virtual void _joint_make_pin(const RID &p_joint, const Vector2 &p_anchor, const RID &p_body_a, const RID &p_body_b);
+	// virtual void _joint_make_groove(const RID &p_joint, const Vector2 &p_a_groove1, const Vector2 &p_a_groove2, const Vector2 &p_b_anchor, const RID &p_body_a, const RID &p_body_b);
+	// virtual void _joint_make_damped_spring(const RID &p_joint, const Vector2 &p_anchor_a, const Vector2 &p_anchor_b, const RID &p_body_a, const RID &p_body_b);
+	// virtual void _pin_joint_set_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag, bool p_enabled);
+	// virtual bool _pin_joint_get_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag) const;
+	// virtual void _pin_joint_set_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param, float p_value);
+	// virtual float _pin_joint_get_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param) const;
+	// virtual void _damped_spring_joint_set_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param, float p_value);
+	// virtual float _damped_spring_joint_get_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param) const;
+	// virtual PhysicsServer2D::JointType _joint_get_type(const RID &p_joint) const;
 
 	void _free_rid(const RID &p_rid) override;
 	void _set_active(bool p_active) override;
@@ -150,7 +170,7 @@ private:
 	bool flushing_queries;
 	mutable RID_PtrOwner<Box2DSpace2D> space_owner;
 	mutable RID_PtrOwner<Box2DBody2D> body_owner;
-	mutable RID_PtrOwner<Box2DBody2D> area_owner;
+	mutable RID_PtrOwner<Box2DArea2D> area_owner;
 	mutable RID_PtrOwner<Box2DShape2D> shape_owner;
 
 	HashSet<Box2DSpace2D *> active_spaces;

@@ -1,4 +1,5 @@
 #include "box2d_body_2d.h"
+#include "../spaces/box2d_space_2d.h"
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -282,6 +283,44 @@ Box2DDirectBodyState2D *Box2DBody2D::get_direct_state() {
 	return direct_state;
 }
 
+void Box2DBody2D::set_linear_damp_mode(PhysicsServer2D::BodyDampMode p_mode) {
+	linear_damp_mode = p_mode;
+}
+
+void Box2DBody2D::set_angular_damp_mode(PhysicsServer2D::BodyDampMode p_mode) {
+	angular_damp_mode = p_mode;
+}
+
 void Box2DBody2D::shapes_changed() {
 	update_mass();
+}
+
+void Box2DBody2D::apply_area_overrides() {
+	if (!body_exists || mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
+		return;
+	}
+
+	if (area_overrides.total_gravity != Vector2()) {
+		b2Body_ApplyForceToCenter(body_id, to_box2d(area_overrides.total_gravity), true);
+	}
+
+	if (area_overrides.total_linear_damp != body_def.linearDamping) {
+		b2Body_SetLinearDamping(body_id, area_overrides.total_linear_damp);
+	} else {
+		b2Body_SetLinearDamping(body_id, body_def.linearDamping);
+	}
+
+	if (area_overrides.total_angular_damp != body_def.angularDamping) {
+		b2Body_SetAngularDamping(body_id, area_overrides.total_angular_damp);
+	} else {
+		b2Body_SetLinearDamping(body_id, body_def.angularDamping);
+	}
+
+	area_overrides.total_gravity = space->get_default_gravity();
+	area_overrides.total_linear_damp = body_def.linearDamping;
+	area_overrides.total_angular_damp = body_def.angularDamping;
+}
+
+bool Box2DBody2D::is_locked() const {
+	return !body_exists || !space || space->locked;
 }

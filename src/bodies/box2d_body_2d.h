@@ -7,6 +7,12 @@ class Box2DDirectBodyState2D;
 
 class Box2DBody2D : public Box2DCollisionObject2D {
 public:
+	struct AreaOverrideAccumulator {
+		Vector2 total_gravity = Vector2();
+		float total_linear_damp = 0.0;
+		float total_angular_damp = 0.0;
+	};
+
 	Box2DBody2D();
 	~Box2DBody2D();
 
@@ -72,19 +78,37 @@ public:
 	Box2DDirectBodyState2D *get_direct_state();
 	void set_state_sync_callback(const Callable &p_callable) { body_state_callback = p_callable; }
 
+	void set_linear_damp_mode(PhysicsServer2D::BodyDampMode p_mode);
+	PhysicsServer2D::BodyDampMode get_linear_damp_mode() const { return linear_damp_mode; }
+
+	void set_angular_damp_mode(PhysicsServer2D::BodyDampMode p_mode);
+	PhysicsServer2D::BodyDampMode get_angular_damp_mode() const { return angular_damp_mode; }
+
+	void add_constant_force(const Vector2 &p_force);
+	void add_constant_torque(float p_torque);
+
 	void update_mass();
 	void shapes_changed() override;
 
+	void apply_area_overrides();
+
+	AreaOverrideAccumulator area_overrides;
+
 private:
-	bool is_locked() const { return !body_exists || !space || space->locked; }
+	bool is_locked() const;
 
 	Box2DDirectBodyState2D *direct_state = nullptr;
 
-	bool sleeping = false;
-
-	Callable body_state_callback;
 	HashSet<RID> exceptions;
-	float character_collision_priority = 0.0;
+
+	Vector2 constant_force;
+	float constant_torque;
+
+	PhysicsServer2D::BodyDampMode linear_damp_mode = PhysicsServer2D::BODY_DAMP_MODE_COMBINE;
+	PhysicsServer2D::BodyDampMode angular_damp_mode = PhysicsServer2D::BODY_DAMP_MODE_COMBINE;
+
+	bool sleeping = false;
+	Callable body_state_callback;
 
 	float mass = 1.0;
 	b2MassData mass_data = b2MassData{ 0 };
@@ -92,6 +116,8 @@ private:
 	Vector2 center_of_mass = Vector2();
 	bool override_inertia = false;
 	float inertia = 0.0;
+
+	float character_collision_priority = 0.0;
 
 	bool queried_contacts = false;
 	int contact_count = 0;

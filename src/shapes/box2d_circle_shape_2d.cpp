@@ -1,20 +1,22 @@
 #include "box2d_circle_shape_2d.h"
 
-ShapeID Box2DCircleShape2D::build(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
-	b2Circle circle;
+ShapeIdAndGeometry Box2DCircleShape2D::add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
+	ShapeIdAndGeometry result;
 
-	if (!make_circle(p_transform, data, circle)) {
-		return ShapeID::invalid();
+	result.info = get_shape_info(p_transform);
+	if (!result.info.is_valid()) {
+		return result;
 	}
 
-	return b2CreateCircleShape(p_body, &p_shape_def, &circle);
+	result.id = b2CreateCircleShape(p_body, &p_shape_def, &result.info.circle);
+	return result;
 }
 
-ShapeInfo Box2DCircleShape2D::get_shape_info(const Transform2D &p_transform) const {
-	ShapeInfo shape;
-	shape.type = ShapeInfo::Type::CIRCLE;
+ShapeGeometry Box2DCircleShape2D::get_shape_info(const Transform2D &p_transform) const {
+	ShapeGeometry shape;
+	shape.type = ShapeGeometry::Type::CIRCLE;
 	if (!make_circle(p_transform, data, shape.circle)) {
-		return ShapeInfo::invalid();
+		return ShapeGeometry::invalid();
 	}
 	return shape;
 }

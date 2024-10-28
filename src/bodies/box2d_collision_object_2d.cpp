@@ -1,4 +1,6 @@
 #include "box2d_collision_object_2d.h"
+
+#include "../spaces/box2d_space_2d.h"
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -7,7 +9,7 @@ void Box2DCollisionObject2D::queue_delete() {
 	if (!space) {
 		return;
 	}
-	space->delete_after_sync.push_back(this);
+	space->queue_delete(this);
 }
 
 void Box2DCollisionObject2D::destroy_body() {
@@ -92,7 +94,6 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 
 void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 	shape_def.filter.categoryBits = p_layer;
-	layer = p_layer;
 
 	if (!body_exists) {
 		return;
@@ -105,8 +106,7 @@ void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 }
 
 void Box2DCollisionObject2D::set_collision_mask(uint32_t p_mask) {
-	shape_def.filter.maskBits = p_mask | COMMON_MASK_BIT;
-	mask = p_mask;
+	shape_def.filter.maskBits = p_mask | BODY_MASK_BIT;
 
 	if (!body_exists) {
 		return;
@@ -260,4 +260,32 @@ Transform2D Box2DCollisionObject2D::get_shape_transform(int p_index) const {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), Transform2D());
 	Box2DShapeInstance *shape = shapes[p_index];
 	return shape->transform;
+}
+
+void Box2DCollisionObject2D::get_overlaps(int32_t p_max_overlaps) {
+	ShapeOverlapCollector collector(p_max_overlaps, QueryFilter());
+
+	for (Box2DShapeInstance *instance : shapes) {
+		if (instance->disabled) {
+			continue;
+		}
+
+		if (instance->shape_id.type == ShapeID::Type::CHAIN) {
+			// handle chain shape overlap
+			continue;
+		}
+
+		ShapeGeometry shape_info = instance->shape_info;
+		if (!shape_info.is_valid()) {
+			continue;
+		}
+
+		b2QueryFilter filter = b2DefaultQueryFilter();
+		filter.categoryBits = shape_def.filter.categoryBits;
+		filter.maskBits = shape_def.filter.maskBits;
+
+		box2d_overlap_shape(space->get_world_id(), shape_info, to_box2d(current_transform), filter, overlap_callback, &collector);
+	}
+
+	// do something with overlaps
 }

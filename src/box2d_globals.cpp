@@ -3,105 +3,105 @@
 float BOX2D_PIXELS_PER_METER = 1;
 
 ShapeCollideResult box2d_collide_shapes(
-		const ShapeInfo &p_shape_a,
+		const ShapeGeometry &p_shape_a,
 		const b2Transform &xfa,
-		const ShapeInfo &p_shape_b,
+		const ShapeGeometry &p_shape_b,
 		const b2Transform &xfb,
 		bool p_swapped) {
-	ShapeInfo::Type type_a = p_shape_a.type;
-	ShapeInfo::Type type_b = p_shape_b.type;
+	ShapeGeometry::Type type_a = p_shape_a.type;
+	ShapeGeometry::Type type_b = p_shape_b.type;
 
 	b2Manifold manifold;
 	ShapeCollideResult result;
 
 	switch (type_a) {
-		case ShapeInfo::Type::CAPSULE:
+		case ShapeGeometry::Type::CAPSULE:
 			switch (type_b) {
-				case ShapeInfo::Type::CAPSULE:
+				case ShapeGeometry::Type::CAPSULE:
 					manifold = b2CollideCapsules(&p_shape_a.capsule, xfa, &p_shape_b.capsule, xfb);
 					break;
-				case ShapeInfo::Type::CIRCLE:
+				case ShapeGeometry::Type::CIRCLE:
 					manifold = b2CollideCapsuleAndCircle(&p_shape_a.capsule, xfa, &p_shape_b.circle, xfb);
 					break;
-				case ShapeInfo::Type::POLYGON:
+				case ShapeGeometry::Type::POLYGON:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case ShapeInfo::Type::SEGMENT:
+				case ShapeGeometry::Type::SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case ShapeInfo::Type::CHAIN_SEGMENT:
+				case ShapeGeometry::Type::CHAIN_SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
 				default:
 					return {};
 			}
 			break;
-		case ShapeInfo::Type::CIRCLE:
+		case ShapeGeometry::Type::CIRCLE:
 			switch (type_b) {
-				case ShapeInfo::Type::CAPSULE:
+				case ShapeGeometry::Type::CAPSULE:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case ShapeInfo::Type::CIRCLE:
+				case ShapeGeometry::Type::CIRCLE:
 					manifold = b2CollideCircles(&p_shape_a.circle, xfa, &p_shape_b.circle, xfb);
 					break;
-				case ShapeInfo::Type::POLYGON:
+				case ShapeGeometry::Type::POLYGON:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case ShapeInfo::Type::SEGMENT:
+				case ShapeGeometry::Type::SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case ShapeInfo::Type::CHAIN_SEGMENT:
+				case ShapeGeometry::Type::CHAIN_SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
 				default:
 					return {};
 			}
 			break;
-		case ShapeInfo::Type::POLYGON:
+		case ShapeGeometry::Type::POLYGON:
 			switch (type_b) {
-				case ShapeInfo::Type::CAPSULE:
+				case ShapeGeometry::Type::CAPSULE:
 					manifold = b2CollidePolygonAndCapsule(&p_shape_a.polygon, xfa, &p_shape_b.capsule, xfb);
 					break;
-				case ShapeInfo::Type::CIRCLE:
+				case ShapeGeometry::Type::CIRCLE:
 					manifold = b2CollidePolygonAndCircle(&p_shape_a.polygon, xfa, &p_shape_b.circle, xfb);
 					break;
-				case ShapeInfo::Type::POLYGON:
+				case ShapeGeometry::Type::POLYGON:
 					manifold = b2CollidePolygons(&p_shape_a.polygon, xfa, &p_shape_b.polygon, xfb);
 					break;
-				case ShapeInfo::Type::SEGMENT:
+				case ShapeGeometry::Type::SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
-				case ShapeInfo::Type::CHAIN_SEGMENT:
+				case ShapeGeometry::Type::CHAIN_SEGMENT:
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
 				default:
 					return {};
 			}
 			break;
-		case ShapeInfo::Type::SEGMENT:
+		case ShapeGeometry::Type::SEGMENT:
 			switch (type_b) {
-				case ShapeInfo::Type::CAPSULE:
+				case ShapeGeometry::Type::CAPSULE:
 					manifold = b2CollideSegmentAndCapsule(&p_shape_a.segment, xfa, &p_shape_b.capsule, xfb);
 					break;
-				case ShapeInfo::Type::CIRCLE:
+				case ShapeGeometry::Type::CIRCLE:
 					manifold = b2CollideSegmentAndCircle(&p_shape_a.segment, xfa, &p_shape_b.circle, xfb);
 					break;
-				case ShapeInfo::Type::POLYGON:
+				case ShapeGeometry::Type::POLYGON:
 					manifold = b2CollideSegmentAndPolygon(&p_shape_a.segment, xfa, &p_shape_b.polygon, xfb);
 					break;
-				case ShapeInfo::Type::SEGMENT:
+				case ShapeGeometry::Type::SEGMENT:
 					return {};
-				case ShapeInfo::Type::CHAIN_SEGMENT:
+				case ShapeGeometry::Type::CHAIN_SEGMENT:
 					return {};
 				default:
 					return {};
 			}
 			break;
-		case ShapeInfo::Type::CHAIN_SEGMENT:
+		case ShapeGeometry::Type::CHAIN_SEGMENT:
 			switch (type_b) {
-				case ShapeInfo::Type::CAPSULE:
+				case ShapeGeometry::Type::CAPSULE:
 					manifold = b2CollideChainSegmentAndCapsule(&p_shape_a.chainSegment, xfa, &p_shape_b.capsule, xfb, { 0 });
 					break;
-				case ShapeInfo::Type::CIRCLE:
+				case ShapeGeometry::Type::CIRCLE:
 					manifold = b2CollideChainSegmentAndCircle(&p_shape_a.chainSegment, xfa, &p_shape_b.circle, xfb);
 					break;
-				case ShapeInfo::Type::POLYGON:
+				case ShapeGeometry::Type::POLYGON:
 					manifold = b2CollideChainSegmentAndPolygon(&p_shape_a.chainSegment, xfa, &p_shape_b.polygon, xfb, { 0 });
 					break;
-				case ShapeInfo::Type::SEGMENT:
+				case ShapeGeometry::Type::SEGMENT:
 					return {};
-				case ShapeInfo::Type::CHAIN_SEGMENT:
+				case ShapeGeometry::Type::CHAIN_SEGMENT:
 					return {};
 				default:
 					return {};
@@ -133,37 +133,38 @@ ShapeCollideResult box2d_collide_shapes(
 
 void box2d_cast_shape(
 		const b2WorldId &p_world,
-		const ShapeInfo &p_shape,
+		const ShapeGeometry &p_shape,
 		const b2Transform &p_transform,
 		const b2Vec2 &p_motion,
 		const b2QueryFilter &p_filter,
 		b2CastResultFcn *fcn,
 		void *context) {
-	b2Capsule capsule;
-
 	switch (p_shape.type) {
-		case ShapeInfo::Type::CAPSULE:
+		case ShapeGeometry::Type::CAPSULE:
 			b2World_CastCapsule(p_world, &p_shape.capsule, p_transform, p_motion, p_filter, fcn, context);
 			return;
-		case ShapeInfo::Type::CIRCLE:
+		case ShapeGeometry::Type::CIRCLE:
 			b2World_CastCircle(p_world, &p_shape.circle, p_transform, p_motion, p_filter, fcn, context);
 			return;
-		case ShapeInfo::Type::POLYGON:
+		case ShapeGeometry::Type::POLYGON:
 			b2World_CastPolygon(p_world, &p_shape.polygon, p_transform, p_motion, p_filter, fcn, context);
 			return;
-		case ShapeInfo::Type::SEGMENT:
+		case ShapeGeometry::Type::SEGMENT: {
 			b2Capsule capsule;
 			capsule.center1 = p_shape.segment.point1;
 			capsule.center2 = p_shape.segment.point2;
 			capsule.radius = 0.0;
 			b2World_CastCapsule(p_world, &capsule, p_transform, p_motion, p_filter, fcn, context);
 			return;
-		case ShapeInfo::Type::CHAIN_SEGMENT:
+		}
+		case ShapeGeometry::Type::CHAIN_SEGMENT: {
+			b2Capsule capsule;
 			capsule.center1 = p_shape.chainSegment.segment.point1;
 			capsule.center2 = p_shape.chainSegment.segment.point2;
 			capsule.radius = 0.0;
 			b2World_CastCapsule(p_world, &capsule, p_transform, p_motion, p_filter, fcn, context);
 			return;
+		}
 		default:
 			return;
 	}
@@ -171,36 +172,81 @@ void box2d_cast_shape(
 
 void box2d_overlap_shape(
 		const b2WorldId &p_world,
-		const ShapeInfo &p_shape,
+		const ShapeGeometry &p_shape,
 		const b2Transform &p_transform,
 		const b2QueryFilter &p_filter,
 		b2OverlapResultFcn *fcn,
 		void *context) {
-	b2Capsule capsule;
-
 	switch (p_shape.type) {
-		case ShapeInfo::Type::CAPSULE:
+		case ShapeGeometry::Type::CAPSULE:
 			b2World_OverlapCapsule(p_world, &p_shape.capsule, p_transform, p_filter, fcn, context);
 			return;
-		case ShapeInfo::Type::CIRCLE:
+		case ShapeGeometry::Type::CIRCLE:
 			b2World_OverlapCircle(p_world, &p_shape.circle, p_transform, p_filter, fcn, context);
 			return;
-		case ShapeInfo::Type::POLYGON:
+		case ShapeGeometry::Type::POLYGON:
 			b2World_OverlapPolygon(p_world, &p_shape.polygon, p_transform, p_filter, fcn, context);
 			return;
-		case ShapeInfo::Type::SEGMENT:
+		case ShapeGeometry::Type::SEGMENT: {
+			b2Capsule capsule;
 			capsule.center1 = p_shape.segment.point1;
 			capsule.center2 = p_shape.segment.point2;
 			capsule.radius = 0.0;
 			b2World_OverlapCapsule(p_world, &capsule, p_transform, p_filter, fcn, context);
 			return;
-		case ShapeInfo::Type::CHAIN_SEGMENT:
+		}
+		case ShapeGeometry::Type::CHAIN_SEGMENT: {
+			b2Capsule capsule;
 			capsule.center1 = p_shape.chainSegment.segment.point1;
 			capsule.center2 = p_shape.chainSegment.segment.point2;
 			capsule.radius = 0.0;
 			b2World_OverlapCapsule(p_world, &capsule, p_transform, p_filter, fcn, context);
 			return;
+		}
 		default:
 			return;
 	}
+}
+
+// void box2d_overlap_chain(
+// 		const b2WorldId &p_world,
+// 		const b2ChainId &p_chain_id,
+// 		const b2Transform &p_transform,
+// 		const b2QueryFilter &p_filter,
+// 		b2OverlapResultFcn *fcn,
+// 		void *context) {
+// 	b2Capsule capsule;
+// }
+
+ShapeGeometry get_shape_info_from_id(const b2ShapeId &p_shape) {
+	b2ShapeType type = b2Shape_GetType(p_shape);
+
+	ShapeGeometry shape_info;
+
+	switch (type) {
+		case b2_circleShape:
+			shape_info.type = ShapeGeometry::Type::CIRCLE;
+			shape_info.circle = b2Shape_GetCircle(p_shape);
+			break;
+		case b2_capsuleShape:
+			shape_info.type = ShapeGeometry::Type::CAPSULE;
+			shape_info.capsule = b2Shape_GetCapsule(p_shape);
+			break;
+		case b2_polygonShape:
+			shape_info.type = ShapeGeometry::Type::POLYGON;
+			shape_info.polygon = b2Shape_GetPolygon(p_shape);
+			break;
+		case b2_segmentShape:
+			shape_info.type = ShapeGeometry::Type::SEGMENT;
+			shape_info.segment = b2Shape_GetSegment(p_shape);
+			break;
+		case b2_chainSegmentShape:
+			shape_info.type = ShapeGeometry::Type::CHAIN_SEGMENT;
+			shape_info.chainSegment = b2Shape_GetChainSegment(p_shape);
+			break;
+		default:
+			return ShapeGeometry::invalid();
+	}
+
+	return shape_info;
 }

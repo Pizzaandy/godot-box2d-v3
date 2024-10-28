@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../bodies/box2d_area_2d.h"
 #include "../box2d_globals.h"
 #include "box2d_physics_direct_space_state_2d.h"
 #include <godot_cpp/templates/local_vector.hpp>
@@ -17,6 +18,8 @@ public:
 
 	void step(float p_step);
 
+	int get_mask_tasks() const { return max_tasks; }
+
 	void sync_state();
 
 	RID get_rid() const { return rid; }
@@ -30,19 +33,46 @@ public:
 	float get_last_step() const { return last_step; }
 
 	int get_debug_contact_count() { return debug_contact_count; };
+
 	PackedVector2Array &get_debug_contacts() { return debug_contacts; };
+
 	void set_max_debug_contacts(int p_count) { debug_contacts.resize(p_count); }
+
 	void add_debug_contact(Vector2 p_contact) {
 		if (debug_contact_count < debug_contacts.size()) {
 			debug_contacts[debug_contact_count++] = p_contact;
 		}
 	}
 
-	int max_tasks = -1;
+	void set_default_gravity(Vector2 p_gravity);
+	Vector2 get_default_gravity() { return default_gravity; }
+
+	void add_active_area(Box2DArea2D *p_area) {
+		active_areas.push_back(p_area);
+		active_areas.sort_custom<AreaPriorityCompare>();
+	}
+
+	void remove_active_area(Box2DArea2D *p_area) {
+		active_areas.erase(p_area);
+		active_areas.sort_custom<AreaPriorityCompare>();
+	}
+
+	void queue_delete(void *p_item) {
+		delete_after_sync.push_back(p_item);
+	}
+
 	bool locked = false;
-	LocalVector<void *> delete_after_sync;
 
 private:
+	struct AreaPriorityCompare {
+		_FORCE_INLINE_ bool operator()(const Box2DArea2D *lhs, const Box2DArea2D *rhs) const {
+			return lhs->get_priority() > rhs->get_priority();
+		}
+	};
+
+	LocalVector<Box2DArea2D *> active_areas;
+	LocalVector<void *> delete_after_sync;
+
 	b2WorldId world_id = b2_nullWorldId;
 	RID rid;
 	Box2DDirectSpaceState2D *direct_state = nullptr;
@@ -50,5 +80,7 @@ private:
 	b2ContactEvents contact_events;
 	PackedVector2Array debug_contacts;
 	int debug_contact_count = 0;
+	int max_tasks = -1;
 	int substeps = 4;
+	Vector2 default_gravity = Vector2();
 };

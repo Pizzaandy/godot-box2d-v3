@@ -30,7 +30,7 @@ int32_t Box2DDirectSpaceState2D::_intersect_point(
 	b2Transform transform = b2Transform_identity;
 	transform.p = to_box2d(p_position);
 
-	ShapeOverlapCollector collector(p_max_results, QueryFilter(this));
+	ShapeOverlapCollector collector(p_max_results, SpaceStateQueryFilter(this));
 
 	b2World_OverlapPoint(world, to_box2d(Vector2()), transform, filter, overlap_callback, &collector);
 
@@ -64,12 +64,12 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 	b2QueryFilter filter = make_filter(p_collision_mask);
 
 	if (p_hit_from_inside) {
-		ShapeOverlapCollector collector(1, QueryFilter(this));
+		ShapeOverlapCollector collector(1, SpaceStateQueryFilter(this));
 		b2World_OverlapPoint(world, to_box2d(p_from), b2Transform_identity, filter, overlap_callback, &collector);
 
 		if (collector.overlaps.size() > 0) {
 			ShapeOverlap overlap = collector.overlaps[0];
-			ERR_FAIL_COND_V(overlap.shape->index < 0, 0);
+			ERR_FAIL_COND_V(overlap.shape->index < 0, false);
 
 			p_result->position = p_from;
 			p_result->normal = Vector2();
@@ -83,7 +83,7 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 		}
 	}
 
-	NearestCastHitCollector collector(QueryFilter(this));
+	NearestCastHitCollector collector(SpaceStateQueryFilter(this));
 	b2World_CastRay(world, to_box2d(p_from), to_box2d(p_to - p_from), filter, cast_callback_nearest, &collector);
 
 	if (!collector.hit) {
@@ -126,8 +126,8 @@ int32_t Box2DDirectSpaceState2D::_intersect_shape(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, 0);
 
-	ShapeInfo shape_info = shape->get_shape_info(p_transform);
-	CastHitCollector collector(p_max_results, QueryFilter(this));
+	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
+	CastHitCollector collector(p_max_results, SpaceStateQueryFilter(this));
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
 
 	for (CastHit hit : collector.hits) {
@@ -164,8 +164,8 @@ bool Box2DDirectSpaceState2D::_cast_motion(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, false);
 
-	ShapeInfo shape_info = shape->get_shape_info(p_transform);
-	NearestCastHitCollector collector(QueryFilter(this));
+	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
+	NearestCastHitCollector collector(SpaceStateQueryFilter(this));
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_nearest, &collector);
 
 	if (!collector.hit) {
@@ -204,8 +204,8 @@ bool Box2DDirectSpaceState2D::_collide_shape(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, false);
 
-	CastHitCollector collector(p_max_results, QueryFilter(this));
-	ShapeInfo shape_info = shape->get_shape_info(p_transform);
+	CastHitCollector collector(p_max_results, SpaceStateQueryFilter(this));
+	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
 
 	if (!collector.hit) {
@@ -239,7 +239,7 @@ bool Box2DDirectSpaceState2D::_rest_info(
 		bool p_collide_with_bodies,
 		bool p_collide_with_areas,
 		PhysicsServer2DExtensionShapeRestInfo *p_rest_info) {
-	ERR_FAIL_COND_V(!space, {});
+	ERR_FAIL_COND_V(!space, false);
 
 	b2WorldId world = space->get_world_id();
 	b2QueryFilter filter = make_filter(p_collision_mask);
@@ -247,8 +247,8 @@ bool Box2DDirectSpaceState2D::_rest_info(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, false);
 
-	ShapeInfo shape_info = shape->get_shape_info(p_transform);
-	ShapeOverlapCollector collector(8, QueryFilter(this));
+	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
+	ShapeOverlapCollector collector(8, SpaceStateQueryFilter(this));
 	box2d_overlap_shape(world, shape_info, b2Transform_identity, filter, overlap_callback, &collector);
 
 	if (collector.overlaps.size() == 0) {
@@ -259,7 +259,7 @@ bool Box2DDirectSpaceState2D::_rest_info(
 		ShapeCollideResult result = box2d_collide_shapes(
 				shape_info,
 				b2Transform_identity,
-				get_shape_info(overlap.shape_id),
+				get_shape_info_from_id(overlap.shape_id),
 				to_box2d(overlap.body->get_transform()),
 				false);
 
@@ -293,8 +293,9 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 	Vector2 motion = params->get_motion();
 	Transform2D start = params->get_transform();
 
-	ShapeInfo shape_info = shape->get_shape_info(start);
-	NearestCastHitCollector collector(QueryFilter(this));
+	ShapeGeometry shape_info = shape->get_shape_info(start);
+
+	NearestCastHitCollector collector(ArrayQueryFilter(params->get_exclude()));
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(motion), filter, cast_callback_nearest, &collector);
 
 	if (!collector.hit) {
@@ -334,8 +335,8 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 	Vector2 motion = params->get_motion();
 	Transform2D start = params->get_transform();
 
-	ShapeInfo shape_info = shape->get_shape_info(start);
-	CastHitCollector collector(p_max_results, QueryFilter(this));
+	ShapeGeometry shape_info = shape->get_shape_info(start);
+	CastHitCollector collector(p_max_results, ArrayQueryFilter(params->get_exclude()));
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(motion), filter, cast_callback_all, &collector);
 
 	if (!collector.hit) {

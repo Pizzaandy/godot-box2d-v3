@@ -31,7 +31,7 @@ void group_task_function(void *p_userdata, uint32_t worker_index) {
 void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t minRange, void *taskContext, void *userContext) {
 	Box2DSpace2D *space = static_cast<Box2DSpace2D *>(userContext);
 
-	int32_t taskCount = CLAMP(itemCount / minRange, 1, space->max_tasks);
+	int32_t taskCount = CLAMP(itemCount / minRange, 1, space->get_mask_tasks());
 
 	Box2DTaskData *taskData = new Box2DTaskData{ task, itemCount, taskCount, taskContext };
 
@@ -95,6 +95,7 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 
 Box2DSpace2D::Box2DSpace2D() {
 	substeps = Box2DProjectSettings::get_substeps();
+	default_gravity = Box2DProjectSettings::get_default_gravity();
 
 	int hardware_thread_count = OS::get_singleton()->get_processor_count();
 	int max_thread_count = Box2DProjectSettings::get_max_threads();
@@ -108,7 +109,7 @@ Box2DSpace2D::Box2DSpace2D() {
 	max_tasks = CLAMP(max_tasks, 1, 8);
 
 	b2WorldDef world_def = b2DefaultWorldDef();
-	world_def.gravity = to_box2d(Box2DProjectSettings::get_default_gravity());
+	world_def.gravity = to_box2d(default_gravity);
 
 	world_def.workerCount = max_tasks;
 	world_def.userTaskContext = this;
@@ -150,18 +151,8 @@ void Box2DSpace2D::sync_state() {
 		body->sync_state(event->transform, event->fellAsleep);
 	}
 
-	// b2SensorEvents sensor_events = b2World_GetSensorEvents(world_id);
-
-	// for (int i = 0; i < sensor_events.beginCount; ++i) {
-	// 	const b2SensorBeginTouchEvent *begin_event = sensor_events.beginEvents + i;
-	// }
-
-	// for (int i = 0; i < sensor_events.endCount; ++i) {
-	// 	const b2SensorEndTouchEvent *end_event = sensor_events.endEvents + i;
-	// }
-
-	for (void *body : delete_after_sync) {
-		memdelete(body);
+	for (void *collision_object : delete_after_sync) {
+		memdelete(collision_object);
 	}
 
 	delete_after_sync.clear();
@@ -172,4 +163,9 @@ Box2DDirectSpaceState2D *Box2DSpace2D::get_direct_state() {
 		direct_state = memnew(Box2DDirectSpaceState2D(this));
 	}
 	return direct_state;
+}
+
+void Box2DSpace2D::set_default_gravity(Vector2 p_gravity) {
+	default_gravity = p_gravity;
+	b2World_SetGravity(world_id, to_box2d(default_gravity));
 }
