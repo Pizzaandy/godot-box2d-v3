@@ -3,7 +3,8 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-Box2DBody2D::Box2DBody2D() {
+Box2DBody2D::Box2DBody2D() :
+		step_list(this) {
 	shape_def.enablePreSolveEvents = true;
 }
 
@@ -127,39 +128,39 @@ void Box2DBody2D::set_angular_damping(float p_damping) {
 }
 
 void Box2DBody2D::apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position) {
-	ERR_FAIL_COND(is_locked());
+	ERR_FAIL_COND(!body_exists);
 	Vector2 point = current_transform.get_origin() + p_position;
 	b2Body_ApplyLinearImpulse(body_id, to_box2d(p_impulse), to_box2d(point), true);
 }
 
 void Box2DBody2D::apply_impulse_center(const Vector2 &p_impulse) {
-	ERR_FAIL_COND(is_locked());
+	ERR_FAIL_COND(!body_exists);
 	b2Body_ApplyLinearImpulseToCenter(body_id, to_box2d(p_impulse), true);
 }
 
 void Box2DBody2D::apply_torque(float p_torque) {
-	ERR_FAIL_COND(is_locked());
+	ERR_FAIL_COND(!body_exists);
 	b2Body_ApplyTorque(body_id, p_torque, true);
 }
 
 void Box2DBody2D::apply_torque_impulse(float p_impulse) {
-	ERR_FAIL_COND(is_locked());
+	ERR_FAIL_COND(!body_exists);
 	b2Body_ApplyAngularImpulse(body_id, p_impulse, true);
 }
 
 void Box2DBody2D::apply_force(const Vector2 &p_force, const Vector2 &p_position) {
-	ERR_FAIL_COND(is_locked());
+	ERR_FAIL_COND(!body_exists);
 	Vector2 point = current_transform.get_origin() + p_position;
 	b2Body_ApplyForce(body_id, to_box2d(p_force), to_box2d(point), true);
 }
 
-void Box2DBody2D::apply_force_center(const Vector2 &p_force) {
-	ERR_FAIL_COND(is_locked());
+void Box2DBody2D::apply_central_force(const Vector2 &p_force) {
+	ERR_FAIL_COND(!body_exists);
 	b2Body_ApplyForceToCenter(body_id, to_box2d(p_force), true);
 }
 
 void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
-	ERR_FAIL_COND(is_locked());
+	ERR_FAIL_COND(!body_exists);
 	b2Body_SetLinearVelocity(body_id, to_box2d(p_velocity));
 }
 
@@ -169,7 +170,7 @@ Vector2 Box2DBody2D::get_linear_velocity() const {
 }
 
 Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
-	ERR_FAIL_COND_V(is_locked(), Vector2());
+	ERR_FAIL_COND_V(!body_exists, Vector2());
 
 	Vector2 linear = to_godot(b2Body_GetLinearVelocity(body_id));
 	float angular = b2Body_GetAngularVelocity(body_id);
@@ -180,12 +181,12 @@ Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
 }
 
 void Box2DBody2D::set_angular_velocity(float p_velocity) {
-	ERR_FAIL_COND(is_locked());
+	ERR_FAIL_COND(!body_exists);
 	b2Body_SetAngularVelocity(body_id, (float)p_velocity);
 }
 
 float Box2DBody2D::get_angular_velocity() const {
-	ERR_FAIL_COND_V(is_locked(), 0.0);
+	ERR_FAIL_COND_V(!body_exists, 0.0);
 	float angular_velocity = b2Body_GetAngularVelocity(body_id);
 	return angular_velocity;
 }
@@ -198,6 +199,8 @@ void Box2DBody2D::sync_state(const b2Transform &p_transform, bool fell_asleep) {
 	queried_contacts = false;
 
 	sleeping = fell_asleep;
+
+	// TODO: optimize
 	current_transform.set_origin(to_godot(p_transform.p));
 	current_transform.set_rotation_scale_and_skew(
 			b2Rot_GetAngle(p_transform.q),
@@ -291,8 +294,76 @@ void Box2DBody2D::set_angular_damp_mode(PhysicsServer2D::BodyDampMode p_mode) {
 	angular_damp_mode = p_mode;
 }
 
+void Box2DBody2D::add_constant_force(const Vector2 &p_force, const Vector2 &p_position) {
+	constant_force += p_force;
+
+	// The torque applied from a constant force does not change if the center of mass is updated later.
+	// This seems wrong, but it's consistent with Godot Physics
+	constant_torque += (p_position - get_center_of_mass()).cross(p_force);
+
+	update_step_list();
+}
+
+void Box2DBody2D::add_constant_central_force(const Vector2 &p_force) {
+	constant_force += p_force;
+	update_step_list();
+}
+
+void Box2DBody2D::add_constant_torque(float p_torque) {
+	constant_torque += p_torque;
+	update_step_list();
+}
+
+void Box2DBody2D::set_constant_force(const Vector2 &p_force) {
+	constant_force = p_force;
+	update_step_list();
+}
+
+void Box2DBody2D::set_constant_torque(float p_torque) {
+	constant_torque = p_torque;
+	update_step_list();
+}
+
+void Box2DBody2D::update_step_list() {
+	if (!space) {
+		return;
+	}
+
+	bool has_constant_forces = !Math::is_zero_approx(constant_torque) || !constant_force.is_zero_approx();
+	bool is_dynamic = mode > PhysicsServer2D::BODY_MODE_KINEMATIC;
+
+	bool active = has_constant_forces && is_dynamic;
+
+	if (active) {
+		if (!step_list.in_list()) {
+			space->body_add_to_step_list(&step_list);
+		}
+	} else {
+		step_list.remove_from_list();
+	}
+}
+
+void Box2DBody2D::step() {
+	ERR_FAIL_COND(!body_exists);
+
+	if (!Math::is_zero_approx(constant_torque)) {
+		apply_torque(constant_torque);
+	}
+	if (!constant_force.is_zero_approx()) {
+		apply_central_force(constant_force);
+	}
+}
+
 void Box2DBody2D::shapes_changed() {
 	update_mass();
+}
+
+void Box2DBody2D::on_body_created() {
+	update_step_list();
+}
+
+void Box2DBody2D::on_destroy_body() {
+	step_list.remove_from_list();
 }
 
 void Box2DBody2D::apply_area_overrides() {
@@ -300,7 +371,7 @@ void Box2DBody2D::apply_area_overrides() {
 		return;
 	}
 
-	if (area_overrides.total_gravity != Vector2()) {
+	if (!area_overrides.total_gravity.is_zero_approx()) {
 		b2Body_ApplyForceToCenter(body_id, to_box2d(area_overrides.total_gravity), true);
 	}
 
@@ -316,11 +387,7 @@ void Box2DBody2D::apply_area_overrides() {
 		b2Body_SetLinearDamping(body_id, body_def.angularDamping);
 	}
 
-	area_overrides.total_gravity = space->get_default_gravity();
+	area_overrides.total_gravity = Vector2();
 	area_overrides.total_linear_damp = body_def.linearDamping;
 	area_overrides.total_angular_damp = body_def.angularDamping;
-}
-
-bool Box2DBody2D::is_locked() const {
-	return !body_exists || !space || space->locked;
 }

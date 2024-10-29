@@ -35,6 +35,10 @@ public:
 	int get_priority() const { return priority; }
 	void set_priority(float p_priority) { priority = p_priority; }
 
+	bool operator<(const Box2DArea2D &other) const {
+		return get_priority() < other.get_priority();
+	}
+
 private:
 	int priority = 0;
 

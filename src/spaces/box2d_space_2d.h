@@ -4,6 +4,7 @@
 #include "../box2d_globals.h"
 #include "box2d_physics_direct_space_state_2d.h"
 #include <godot_cpp/templates/local_vector.hpp>
+#include <godot_cpp/templates/self_list.hpp>
 #include <godot_cpp/variant/packed_vector2_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
 
@@ -47,14 +48,16 @@ public:
 	void set_default_gravity(Vector2 p_gravity);
 	Vector2 get_default_gravity() { return default_gravity; }
 
-	void add_active_area(Box2DArea2D *p_area) {
-		active_areas.push_back(p_area);
-		active_areas.sort_custom<AreaPriorityCompare>();
+	void area_add_to_step_list(Box2DArea2D *p_area) {
+		areas_to_step.ordered_insert(p_area);
 	}
 
-	void remove_active_area(Box2DArea2D *p_area) {
-		active_areas.erase(p_area);
-		active_areas.sort_custom<AreaPriorityCompare>();
+	void area_remove_from_step_list(Box2DArea2D *p_area) {
+		areas_to_step.erase(p_area);
+	}
+
+	void body_add_to_step_list(SelfList<Box2DBody2D> *p_body) {
+		bodies_to_step.add(p_body);
 	}
 
 	void queue_delete(void *p_item) {
@@ -64,13 +67,8 @@ public:
 	bool locked = false;
 
 private:
-	struct AreaPriorityCompare {
-		_FORCE_INLINE_ bool operator()(const Box2DArea2D *lhs, const Box2DArea2D *rhs) const {
-			return lhs->get_priority() > rhs->get_priority();
-		}
-	};
-
-	LocalVector<Box2DArea2D *> active_areas;
+	SelfList<Box2DBody2D>::List bodies_to_step;
+	LocalVector<Box2DArea2D *> areas_to_step;
 	LocalVector<void *> delete_after_sync;
 
 	b2WorldId world_id = b2_nullWorldId;

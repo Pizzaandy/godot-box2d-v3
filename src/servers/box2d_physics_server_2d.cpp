@@ -32,6 +32,10 @@ Box2DPhysicsServer2D *Box2DPhysicsServer2D::get_singleton() {
 	return instance;
 }
 
+void Box2DPhysicsServer2D::queue_delete(void *p_object) {
+	delete_after_step.push_back(p_object);
+}
+
 // Shape API
 RID Box2DPhysicsServer2D::_world_boundary_shape_create() {
 	ERR_PRINT_ONCE("Box2D: World boundary shape is not yet supported. This feature is planned for v3.1.");
@@ -159,12 +163,12 @@ RID Box2DPhysicsServer2D::_area_create() {
 
 void Box2DPhysicsServer2D::_area_set_space(const RID &p_area, const RID &p_space) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 
 	Box2DSpace2D *space = nullptr;
 	if (p_space.is_valid()) {
 		space = space_owner.get_or_null(p_space);
-		ERR_FAIL_COND(!space);
+		ERR_FAIL_NULL(space);
 	}
 
 	area->set_space(space);
@@ -172,7 +176,7 @@ void Box2DPhysicsServer2D::_area_set_space(const RID &p_area, const RID &p_space
 
 RID Box2DPhysicsServer2D::_area_get_space(const RID &p_area) const {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND_V(!area, RID());
+	ERR_FAIL_NULL_V(area, RID());
 
 	Box2DSpace2D *space = area->get_space();
 	if (!space) {
@@ -184,87 +188,87 @@ RID Box2DPhysicsServer2D::_area_get_space(const RID &p_area) const {
 
 void Box2DPhysicsServer2D::_area_add_shape(const RID &p_area, const RID &p_shape, const Transform2D &p_transform, bool p_disabled) {
 	Box2DBody2D *area = body_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 
 	Box2DShape2D *shape = shape_owner.get_or_null(p_shape);
-	ERR_FAIL_COND(!shape);
+	ERR_FAIL_NULL(shape);
 
 	area->add_shape(shape, p_transform, p_disabled);
 }
 
 void Box2DPhysicsServer2D::_area_set_shape(const RID &p_area, int32_t p_shape_idx, const RID &p_shape) {
 	Box2DBody2D *area = body_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 
 	Box2DShape2D *shape = shape_owner.get_or_null(p_shape);
-	ERR_FAIL_COND(!shape);
+	ERR_FAIL_NULL(shape);
 
 	area->set_shape(p_shape_idx, shape);
 }
 
 void Box2DPhysicsServer2D::_area_set_shape_transform(const RID &p_area, int32_t p_shape_idx, const Transform2D &p_transform) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 	area->set_shape_transform(p_shape_idx, p_transform);
 }
 
 void Box2DPhysicsServer2D::_area_set_shape_disabled(const RID &p_area, int32_t p_shape_idx, bool p_disabled) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 	area->set_shape_disabled(p_shape_idx, p_disabled);
 }
 
 int32_t Box2DPhysicsServer2D::_area_get_shape_count(const RID &p_area) const {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND_V(!area, 0);
+	ERR_FAIL_NULL_V(area, 0);
 	return area->get_shape_count();
 }
 
 RID Box2DPhysicsServer2D::_area_get_shape(const RID &p_area, int32_t p_shape_idx) const {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND_V(!area, RID());
+	ERR_FAIL_NULL_V(area, RID());
 	return area->get_shape_rid(p_shape_idx);
 }
 
 Transform2D Box2DPhysicsServer2D::_area_get_shape_transform(const RID &p_area, int32_t p_shape_idx) const {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND_V(!area, Transform2D());
+	ERR_FAIL_NULL_V(area, Transform2D());
 	return area->get_shape_transform(p_shape_idx);
 }
 
 void Box2DPhysicsServer2D::_area_remove_shape(const RID &p_area, int32_t p_shape_idx) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 	area->remove_shape(p_shape_idx);
 }
 
 void Box2DPhysicsServer2D::_area_clear_shapes(const RID &p_area) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 	area->clear_shapes();
 }
 
 void Box2DPhysicsServer2D::_area_attach_object_instance_id(const RID &p_area, uint64_t p_id) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 	area->set_instance_id(ObjectID(p_id));
 }
 
 uint64_t Box2DPhysicsServer2D::_area_get_object_instance_id(const RID &p_area) const {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND_V(!area, ObjectID());
+	ERR_FAIL_NULL_V(area, ObjectID());
 	return area->get_canvas_instance_id();
 }
 
 void Box2DPhysicsServer2D::_area_attach_canvas_instance_id(const RID &p_area, uint64_t p_id) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 	area->set_canvas_instance_id(ObjectID(p_id));
 }
 
 uint64_t Box2DPhysicsServer2D::_area_get_canvas_instance_id(const RID &p_area) const {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND_V(!area, ObjectID());
+	ERR_FAIL_NULL_V(area, ObjectID());
 	return area->get_canvas_instance_id();
 }
 
@@ -276,7 +280,7 @@ void Box2DPhysicsServer2D::_area_set_param(
 
 void Box2DPhysicsServer2D::_area_set_transform(const RID &p_area, const Transform2D &p_transform) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
-	ERR_FAIL_COND(!area);
+	ERR_FAIL_NULL(area);
 	area->set_transform(p_transform);
 }
 
@@ -290,12 +294,12 @@ RID Box2DPhysicsServer2D::_body_create() {
 
 void Box2DPhysicsServer2D::_body_set_space(const RID &p_body, const RID &p_space) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 
 	Box2DSpace2D *space = nullptr;
 	if (p_space.is_valid()) {
 		space = space_owner.get_or_null(p_space);
-		ERR_FAIL_COND(!space);
+		ERR_FAIL_NULL(space);
 	}
 
 	body->set_space(space);
@@ -303,7 +307,7 @@ void Box2DPhysicsServer2D::_body_set_space(const RID &p_body, const RID &p_space
 
 RID Box2DPhysicsServer2D::_body_get_space(const RID &p_body) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, RID());
+	ERR_FAIL_NULL_V(body, RID());
 
 	Box2DSpace2D *space = body->get_space();
 	if (!space) {
@@ -315,106 +319,106 @@ RID Box2DPhysicsServer2D::_body_get_space(const RID &p_body) const {
 
 void Box2DPhysicsServer2D::_body_set_mode(const RID &p_body, BodyMode p_mode) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 
 	body->set_mode(p_mode);
 }
 
 PhysicsServer2D::BodyMode Box2DPhysicsServer2D::_body_get_mode(const RID &p_body) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, BODY_MODE_STATIC);
+	ERR_FAIL_NULL_V(body, BODY_MODE_STATIC);
 	return body->get_mode();
 }
 
 void Box2DPhysicsServer2D::_body_add_shape(const RID &p_body, const RID &p_shape, const Transform2D &p_transform, bool p_disabled) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 
 	Box2DShape2D *shape = shape_owner.get_or_null(p_shape);
-	ERR_FAIL_COND(!shape);
+	ERR_FAIL_NULL(shape);
 
 	body->add_shape(shape, p_transform, p_disabled);
 }
 
 void Box2DPhysicsServer2D::_body_set_shape(const RID &p_body, int32_t p_shape_idx, const RID &p_shape) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 
 	Box2DShape2D *shape = shape_owner.get_or_null(p_shape);
-	ERR_FAIL_COND(!shape);
+	ERR_FAIL_NULL(shape);
 
 	body->set_shape(p_shape_idx, shape);
 }
 
 void Box2DPhysicsServer2D::_body_set_shape_transform(const RID &p_body, int32_t p_shape_idx, const Transform2D &p_transform) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->set_shape_transform(p_shape_idx, p_transform);
 }
 
 int32_t Box2DPhysicsServer2D::_body_get_shape_count(const RID &p_body) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, 0);
+	ERR_FAIL_NULL_V(body, 0);
 	return body->get_shape_count();
 }
 
 RID Box2DPhysicsServer2D::_body_get_shape(const RID &p_body, int32_t p_shape_idx) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, RID());
+	ERR_FAIL_NULL_V(body, RID());
 	return body->get_shape_rid(p_shape_idx);
 }
 
 Transform2D Box2DPhysicsServer2D::_body_get_shape_transform(const RID &p_body, int32_t p_shape_idx) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, Transform2D());
+	ERR_FAIL_NULL_V(body, Transform2D());
 	return body->get_shape_transform(p_shape_idx);
 }
 
 void Box2DPhysicsServer2D::_body_set_shape_disabled(const RID &p_body, int32_t p_shape_idx, bool p_disabled) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	return body->set_shape_disabled(p_shape_idx, p_disabled);
 }
 
 void Box2DPhysicsServer2D::_body_set_shape_as_one_way_collision(const RID &p_body, int32_t p_shape_idx, bool p_enable, float p_margin) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	return body->set_shape_one_way_collision(p_shape_idx, p_enable, p_margin);
 }
 
 void Box2DPhysicsServer2D::_body_remove_shape(const RID &p_body, int32_t p_shape_idx) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->remove_shape(p_shape_idx);
 }
 
 void Box2DPhysicsServer2D::_body_clear_shapes(const RID &p_body) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->clear_shapes();
 }
 
 void Box2DPhysicsServer2D::_body_attach_object_instance_id(const RID &p_body, uint64_t p_id) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	return body->set_instance_id(ObjectID(p_id));
 }
 
 uint64_t Box2DPhysicsServer2D::_body_get_object_instance_id(const RID &p_body) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, ObjectID());
+	ERR_FAIL_NULL_V(body, ObjectID());
 	return body->get_instance_id();
 }
 
 void Box2DPhysicsServer2D::_body_attach_canvas_instance_id(const RID &p_body, uint64_t p_id) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	return body->set_canvas_instance_id(ObjectID(p_id));
 }
 
 uint64_t Box2DPhysicsServer2D::_body_get_canvas_instance_id(const RID &p_body) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, ObjectID());
+	ERR_FAIL_NULL_V(body, ObjectID());
 	return body->get_canvas_instance_id();
 }
 
@@ -425,56 +429,56 @@ void Box2DPhysicsServer2D::_body_set_continuous_collision_detection_mode(const R
 	}
 
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 
 	body->set_bullet(p_mode == CCDMode::CCD_MODE_CAST_SHAPE);
 }
 
 PhysicsServer2D::CCDMode Box2DPhysicsServer2D::_body_get_continuous_collision_detection_mode(const RID &p_body) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, CCDMode::CCD_MODE_DISABLED);
+	ERR_FAIL_NULL_V(body, CCDMode::CCD_MODE_DISABLED);
 	return body->get_bullet() ? CCDMode::CCD_MODE_DISABLED : CCDMode::CCD_MODE_CAST_SHAPE;
 }
 
 void Box2DPhysicsServer2D::_body_set_collision_layer(const RID &p_body, uint32_t p_layer) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->set_collision_layer(p_layer);
 }
 
 uint32_t Box2DPhysicsServer2D::_body_get_collision_layer(const RID &p_body) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, 0);
+	ERR_FAIL_NULL_V(body, 0);
 	return body->get_collision_layer();
 }
 
 void Box2DPhysicsServer2D::_body_set_collision_mask(const RID &p_body, uint32_t p_mask) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->set_collision_mask(p_mask);
 }
 
 uint32_t Box2DPhysicsServer2D::_body_get_collision_mask(const RID &p_body) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, 0);
+	ERR_FAIL_NULL_V(body, 0);
 	return body->get_collision_mask();
 }
 
 void Box2DPhysicsServer2D::_body_set_collision_priority(const RID &p_body, float p_priority) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->set_character_collision_priority(p_priority);
 }
 
 float Box2DPhysicsServer2D::_body_get_collision_priority(const RID &p_body) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, 0.0);
+	ERR_FAIL_NULL_V(body, 0.0);
 	return body->get_character_collision_priority();
 }
 
 void Box2DPhysicsServer2D::_body_set_param(const RID &p_body, PhysicsServer2D::BodyParameter p_param, const Variant &p_value) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 
 	switch (p_param) {
 		case BodyParameter::BODY_PARAM_BOUNCE:
@@ -512,7 +516,7 @@ void Box2DPhysicsServer2D::_body_set_param(const RID &p_body, PhysicsServer2D::B
 
 Variant Box2DPhysicsServer2D::_body_get_param(const RID &p_body, PhysicsServer2D::BodyParameter p_param) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, Variant());
+	ERR_FAIL_NULL_V(body, Variant());
 
 	switch (p_param) {
 		case BodyParameter::BODY_PARAM_BOUNCE:
@@ -542,12 +546,12 @@ Variant Box2DPhysicsServer2D::_body_get_param(const RID &p_body, PhysicsServer2D
 
 void Box2DPhysicsServer2D::_body_reset_mass_properties(const RID &p_body) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 }
 
 void Box2DPhysicsServer2D::_body_set_state(const RID &p_body, PhysicsServer2D::BodyState p_state, const Variant &p_value) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 
 	switch (p_state) {
 		case BodyState::BODY_STATE_TRANSFORM:
@@ -568,7 +572,7 @@ void Box2DPhysicsServer2D::_body_set_state(const RID &p_body, PhysicsServer2D::B
 
 Variant Box2DPhysicsServer2D::_body_get_state(const RID &p_body, PhysicsServer2D::BodyState p_state) const {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND_V(!body, Variant());
+	ERR_FAIL_NULL_V(body, Variant());
 
 	switch (p_state) {
 		case BodyState::BODY_STATE_TRANSFORM:
@@ -588,43 +592,95 @@ Variant Box2DPhysicsServer2D::_body_get_state(const RID &p_body, PhysicsServer2D
 
 void Box2DPhysicsServer2D::_body_apply_central_impulse(const RID &p_body, const Vector2 &p_impulse) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->apply_impulse_center(p_impulse);
 }
 
 void Box2DPhysicsServer2D::_body_apply_torque_impulse(const RID &p_body, float p_impulse) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->apply_torque_impulse(p_impulse);
 }
 
 void Box2DPhysicsServer2D::_body_apply_impulse(const RID &p_body, const Vector2 &p_impulse, const Vector2 &p_position) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->apply_impulse(p_impulse, p_position);
 }
 
 void Box2DPhysicsServer2D::_body_apply_central_force(const RID &p_body, const Vector2 &p_force) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
-	body->apply_force_center(p_force);
+	ERR_FAIL_NULL(body);
+	body->apply_central_force(p_force);
 }
 
 void Box2DPhysicsServer2D::_body_apply_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->apply_force(p_force, p_position);
 }
 
 void Box2DPhysicsServer2D::_body_apply_torque(const RID &p_body, float p_torque) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	body->apply_torque(p_torque);
+}
+
+void Box2DPhysicsServer2D::_body_add_constant_central_force(const RID &p_body, const Vector2 &p_force) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->add_constant_central_force(p_force);
+}
+
+void Box2DPhysicsServer2D::_body_add_constant_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->add_constant_force(p_force, p_position);
+}
+
+void Box2DPhysicsServer2D::_body_add_constant_torque(const RID &p_body, float p_torque) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->add_constant_torque(p_torque);
+}
+
+void Box2DPhysicsServer2D::_body_set_constant_force(const RID &p_body, const Vector2 &p_force) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_constant_force(p_force);
+}
+
+Vector2 Box2DPhysicsServer2D::_body_get_constant_force(const RID &p_body) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, Vector2());
+	return body->get_constant_force();
+}
+
+void Box2DPhysicsServer2D::_body_set_constant_torque(const RID &p_body, float p_torque) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_constant_torque(p_torque);
+}
+
+float Box2DPhysicsServer2D::_body_get_constant_torque(const RID &p_body) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, 0.0);
+	return body->get_constant_torque();
+}
+
+void Box2DPhysicsServer2D::_body_set_axis_velocity(const RID &p_body, const Vector2 &p_axis_velocity) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	Vector2 axis = p_axis_velocity.normalized();
+	Vector2 linear_velocity = body->get_linear_velocity();
+	linear_velocity -= axis * axis.dot(linear_velocity);
+	linear_velocity += p_axis_velocity;
+	body->set_linear_velocity(linear_velocity);
 }
 
 void Box2DPhysicsServer2D::_body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
-	ERR_FAIL_COND(!body);
+	ERR_FAIL_NULL(body);
 	return body->set_state_sync_callback(p_callable);
 }
 
@@ -632,29 +688,22 @@ void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 	if (shape_owner.owns(p_rid)) {
 		Box2DShape2D *shape = shape_owner.get_or_null(p_rid);
 		shape_owner.free(p_rid);
-		memdelete(shape);
+		queue_delete(shape);
 	} else if (body_owner.owns(p_rid)) {
 		Box2DBody2D *body = body_owner.get_or_null(p_rid);
 		body_owner.free(p_rid);
-		body->queue_delete();
-	}
-	// else if (area_owner.owns(p_rid)) {
-	// 	Box2DArea2D *area = area_owner.get_or_null(p_rid);
-
-	// 	area->set_space(nullptr);
-
-	// 	while (area->get_shape_count()) {
-	// 		area->remove_shape(0);
-	// 	}
-
-	// 	area_owner.free(p_rid);
-	// 	memdelete(area);
-	// }
-	else if (space_owner.owns(p_rid)) {
+		body->destroy_body();
+		queue_delete(body);
+	} else if (area_owner.owns(p_rid)) {
+		Box2DArea2D *area = area_owner.get_or_null(p_rid);
+		area_owner.free(p_rid);
+		area->destroy_body();
+		queue_delete(area);
+	} else if (space_owner.owns(p_rid)) {
 		Box2DSpace2D *space = space_owner.get_or_null(p_rid);
 		active_spaces.erase(space);
 		space_owner.free(p_rid);
-		memdelete(space);
+		queue_delete(space);
 	}
 	// else if (joint_owner.owns(p_rid)) {
 	// 	Box2DJoint2D *joint = joint_owner.get_or_null(p_rid);
@@ -683,6 +732,12 @@ void Box2DPhysicsServer2D::_step(float p_step) {
 	for (Box2DSpace2D *active_space : active_spaces) {
 		active_space->step((float)p_step);
 	}
+
+	for (void *p_object : delete_after_step) {
+		memdelete(p_object);
+	}
+
+	delete_after_step.clear();
 }
 
 void Box2DPhysicsServer2D::_flush_queries() {

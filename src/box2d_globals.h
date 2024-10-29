@@ -68,7 +68,7 @@ struct ShapeGeometry {
 		return type != Type::INVALID;
 	}
 
-	static ShapeGeometry invalid() {
+	_FORCE_INLINE_ static ShapeGeometry invalid() {
 		return {};
 	}
 };
@@ -83,8 +83,10 @@ struct ShapeID {
 
 	Type type = Type::INVALID;
 
-	b2ShapeId shape_id = b2_nullShapeId;
-	b2ChainId chain_id = b2_nullChainId;
+	union {
+		b2ShapeId shape_id;
+		b2ChainId chain_id;
+	};
 
 	ShapeID() = default;
 
@@ -102,7 +104,7 @@ struct ShapeID {
 		return type != Type::INVALID;
 	}
 
-	static ShapeID invalid() {
+	_FORCE_INLINE_ static ShapeID invalid() {
 		return {};
 	}
 };

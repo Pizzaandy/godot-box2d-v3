@@ -16,6 +16,9 @@ class Box2DPhysicsServer2D : public PhysicsServer2DExtension {
 	GDCLASS(Box2DPhysicsServer2D, PhysicsServer2DExtension);
 
 public:
+	static Box2DPhysicsServer2D *get_singleton();
+	void queue_delete(void *p_object);
+
 	RID _world_boundary_shape_create() override;
 	RID _separation_ray_shape_create() override;
 	RID _segment_shape_create() override;
@@ -106,14 +109,14 @@ public:
 	void _body_apply_central_force(const RID &p_body, const Vector2 &p_force) override;
 	void _body_apply_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
 	void _body_apply_torque(const RID &p_body, float p_torque) override;
-	// virtual void _body_add_constant_central_force(const RID &p_body, const Vector2 &p_force) override;
-	// virtual void _body_add_constant_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
-	// virtual void _body_add_constant_torque(const RID &p_body, double p_torque) override;
-	// virtual void _body_set_constant_force(const RID &p_body, const Vector2 &p_force) override;
-	Vector2 _body_get_constant_force(const RID &p_body) const override { return Vector2(); }
-	// virtual void _body_set_constant_torque(const RID &p_body, double p_torque) override;
-	float _body_get_constant_torque(const RID &p_body) const override { return 0.0; }
-	// virtual void _body_set_axis_velocity(const RID &p_body, const Vector2 &p_axis_velocity) override;
+	void _body_add_constant_central_force(const RID &p_body, const Vector2 &p_force) override;
+	void _body_add_constant_force(const RID &p_body, const Vector2 &p_force, const Vector2 &p_position) override;
+	void _body_add_constant_torque(const RID &p_body, float p_torque) override;
+	void _body_set_constant_force(const RID &p_body, const Vector2 &p_force) override;
+	Vector2 _body_get_constant_force(const RID &p_body) const override;
+	virtual void _body_set_constant_torque(const RID &p_body, float p_torque) override;
+	float _body_get_constant_torque(const RID &p_body) const override;
+	void _body_set_axis_velocity(const RID &p_body, const Vector2 &p_axis_velocity) override;
 	// virtual void _body_add_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
 	// virtual void _body_remove_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
 	// virtual TypedArray<RID> _body_get_collision_exceptions(const RID &p_body) const override;
@@ -160,7 +163,7 @@ public:
 
 	Box2DPhysicsServer2D();
 	~Box2DPhysicsServer2D();
-	static Box2DPhysicsServer2D *get_singleton();
+
 	Box2DShape2D *get_shape(const RID &p_rid) const { return shape_owner.get_or_null(p_rid); }
 
 private:
@@ -168,6 +171,9 @@ private:
 
 	bool active = true;
 	bool flushing_queries;
+
+	LocalVector<void *> delete_after_step;
+
 	mutable RID_PtrOwner<Box2DSpace2D> space_owner;
 	mutable RID_PtrOwner<Box2DBody2D> body_owner;
 	mutable RID_PtrOwner<Box2DArea2D> area_owner;

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://dh5toih2pg8nh"]
+[gd_scene load_steps=6 format=3 uid="uid://dh5toih2pg8nh"]
 
 [ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="1_ua41v"]
 
@@ -11,6 +11,9 @@ size = Vector2(451.025, 24.4965)
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_xnqn8"]
 radius = 81.0
 height = 304.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vkp8a"]
+size = Vector2(172.015, 167.265)
 
 [node name="BodyProperties" type="Node2D"]
 
@@ -32,11 +35,20 @@ position = Vector2(861, 634)
 zoom = Vector2(1, 1)
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
-position = Vector2(923, 376)
-rotation = 0.804732
+position = Vector2(998, 384)
+rotation = 1.5107
 center_of_mass_mode = 1
-center_of_mass = Vector2(0, 100)
+center_of_mass = Vector2(0, 150)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
 position = Vector2(-31.9467, 30.3218)
 shape = SubResource("CapsuleShape2D_xnqn8")
+
+[node name="RigidBody2D2" type="RigidBody2D" parent="."]
+position = Vector2(270, 443)
+rotation = -0.530987
+constant_torque = 5.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D2"]
+position = Vector2(3.8147e-06, 9.53674e-07)
+shape = SubResource("RectangleShape2D_vkp8a")

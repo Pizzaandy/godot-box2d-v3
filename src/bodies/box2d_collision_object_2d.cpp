@@ -4,16 +4,13 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-void Box2DCollisionObject2D::queue_delete() {
-	destroy_body();
-	if (!space) {
-		return;
-	}
-	space->queue_delete(this);
+Box2DCollisionObject2D::~Box2DCollisionObject2D() {
+	ERR_FAIL_COND_MSG(body_exists, "Box2D: Collision object was freed without destroying its Box2D body. This is a bug!");
 }
 
 void Box2DCollisionObject2D::destroy_body() {
-	if (body_exists && b2Body_IsValid(body_id)) {
+	if (b2Body_IsValid(body_id)) {
+		on_destroy_body();
 		b2DestroyBody(body_id);
 	}
 
@@ -40,12 +37,14 @@ void Box2DCollisionObject2D::set_space(Box2DSpace2D *p_space) {
 	body_def.position = to_box2d(current_transform.get_origin());
 	body_def.rotation = b2MakeRot(current_transform.get_rotation());
 
+	body_def.userData = this;
 	body_id = b2CreateBody(space->get_world_id(), &body_def);
-	b2Body_SetUserData(body_id, this);
 
 	body_exists = true;
 
 	rebuild_all_shapes();
+
+	on_body_created();
 }
 
 void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
@@ -262,9 +261,7 @@ Transform2D Box2DCollisionObject2D::get_shape_transform(int p_index) const {
 	return shape->transform;
 }
 
-void Box2DCollisionObject2D::get_overlaps(int32_t p_max_overlaps) {
-	ShapeOverlapCollector collector(p_max_overlaps, QueryFilter());
-
+int Box2DCollisionObject2D::get_overlaps(ShapeOverlapCollector &p_collector) {
 	for (Box2DShapeInstance *instance : shapes) {
 		if (instance->disabled) {
 			continue;
@@ -284,8 +281,8 @@ void Box2DCollisionObject2D::get_overlaps(int32_t p_max_overlaps) {
 		filter.categoryBits = shape_def.filter.categoryBits;
 		filter.maskBits = shape_def.filter.maskBits;
 
-		box2d_overlap_shape(space->get_world_id(), shape_info, to_box2d(current_transform), filter, overlap_callback, &collector);
+		box2d_overlap_shape(space->get_world_id(), shape_info, to_box2d(current_transform), filter, overlap_callback, &p_collector);
 	}
 
-	// do something with overlaps
+	return p_collector.overlaps.size();
 }

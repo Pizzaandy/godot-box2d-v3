@@ -83,7 +83,7 @@ void Box2DDirectBodyState2D::_apply_torque_impulse(float p_torque) {
 }
 
 void Box2DDirectBodyState2D::_apply_central_force(const Vector2 &p_force) {
-	body->apply_force_center(p_force);
+	body->apply_central_force(p_force);
 }
 
 void Box2DDirectBodyState2D::_apply_force(const Vector2 &p_force, const Vector2 &p_position) {

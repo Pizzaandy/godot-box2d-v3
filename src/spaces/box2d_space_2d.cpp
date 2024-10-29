@@ -129,13 +129,22 @@ Box2DSpace2D::~Box2DSpace2D() {
 	}
 
 	ERR_FAIL_COND(!b2World_IsValid(world_id));
-
 	b2DestroyWorld(world_id);
 	world_id = b2_nullWorldId;
 }
 
 void Box2DSpace2D::step(float p_step) {
 	locked = true;
+
+	for (SelfList<Box2DBody2D> *elem = bodies_to_step.first(); elem; elem = elem->next()) {
+		Box2DBody2D *body = elem->self();
+		body->step();
+	}
+
+	for (Box2DArea2D *area : areas_to_step) {
+		area->step();
+	}
+
 	b2World_Step(world_id, p_step, substeps);
 	locked = false;
 
@@ -150,12 +159,6 @@ void Box2DSpace2D::sync_state() {
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(event->userData);
 		body->sync_state(event->transform, event->fellAsleep);
 	}
-
-	for (void *collision_object : delete_after_sync) {
-		memdelete(collision_object);
-	}
-
-	delete_after_sync.clear();
 }
 
 Box2DDirectSpaceState2D *Box2DSpace2D::get_direct_state() {

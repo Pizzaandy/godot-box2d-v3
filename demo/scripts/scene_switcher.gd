@@ -1,7 +1,7 @@
 extends ItemList
 
 var current_scene = null
-@onready var settings_container: SettingsPanelFinder = $"../../../SettingsRoot/Panel/SettingsContainer"
+@onready var settings_container: SettingsPanelFinder = $"../../../Panel/SettingsContainer"
 
 func _on_item_selected(index: int) -> void:
 	var scene_name := get_item_text(index)

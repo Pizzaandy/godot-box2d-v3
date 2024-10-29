@@ -21,23 +21,15 @@ item_1/text = "Body Properties"
 item_2/text = "Queries"
 script = ExtResource("1_45eq1")
 
-[node name="SettingsRoot" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="Panel" type="PanelContainer" parent="SettingsRoot"]
-layout_mode = 1
+[node name="Panel" type="PanelContainer" parent="."]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = 1680.0
-offset_right = 1880.0
+offset_left = -200.0
 offset_bottom = 300.0
 grow_horizontal = 0
 
-[node name="SettingsContainer" type="MarginContainer" parent="SettingsRoot/Panel"]
+[node name="SettingsContainer" type="MarginContainer" parent="Panel"]
 layout_mode = 2
 script = ExtResource("2_bwc4w")
 

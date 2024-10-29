@@ -2,6 +2,7 @@
 
 #include "box2d_collision_object_2d.h"
 #include "box2d_direct_body_state_2d.h"
+#include <godot_cpp/templates/self_list.hpp>
 
 class Box2DDirectBodyState2D;
 
@@ -11,6 +12,7 @@ public:
 		Vector2 total_gravity = Vector2();
 		float total_linear_damp = 0.0;
 		float total_angular_damp = 0.0;
+		bool ignore_remaining = false;
 	};
 
 	Box2DBody2D();
@@ -42,7 +44,7 @@ public:
 	void apply_torque(float p_torque);
 	void apply_torque_impulse(float p_impulse);
 	void apply_force(const Vector2 &p_force, const Vector2 &p_position);
-	void apply_force_center(const Vector2 &p_force);
+	void apply_central_force(const Vector2 &p_force);
 
 	void set_linear_velocity(const Vector2 &p_velocity);
 	Vector2 get_linear_velocity() const;
@@ -84,25 +86,37 @@ public:
 	void set_angular_damp_mode(PhysicsServer2D::BodyDampMode p_mode);
 	PhysicsServer2D::BodyDampMode get_angular_damp_mode() const { return angular_damp_mode; }
 
-	void add_constant_force(const Vector2 &p_force);
+	void add_constant_force(const Vector2 &p_force, const Vector2 &p_position);
+	void add_constant_central_force(const Vector2 &p_force);
 	void add_constant_torque(float p_torque);
+	void set_constant_force(const Vector2 &p_force);
+	void set_constant_torque(float p_torque);
+
+	Vector2 get_constant_force() const { return constant_force; }
+	float get_constant_torque() const { return constant_torque; }
+
+	void update_step_list();
+	void step();
 
 	void update_mass();
+
 	void shapes_changed() override;
+	void on_body_created() override;
+	void on_destroy_body() override;
 
 	void apply_area_overrides();
 
 	AreaOverrideAccumulator area_overrides;
 
 private:
-	bool is_locked() const;
-
 	Box2DDirectBodyState2D *direct_state = nullptr;
 
 	HashSet<RID> exceptions;
 
-	Vector2 constant_force;
-	float constant_torque;
+	SelfList<Box2DBody2D> step_list;
+	bool has_active_forces = false;
+	Vector2 constant_force = Vector2();
+	float constant_torque = 0.0;
 
 	PhysicsServer2D::BodyDampMode linear_damp_mode = PhysicsServer2D::BODY_DAMP_MODE_COMBINE;
 	PhysicsServer2D::BodyDampMode angular_damp_mode = PhysicsServer2D::BODY_DAMP_MODE_COMBINE;
