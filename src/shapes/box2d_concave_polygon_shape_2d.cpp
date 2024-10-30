@@ -16,7 +16,7 @@ ShapeIdAndGeometry Box2DConcavePolygonShape2D::add_to_body(b2BodyId p_body, cons
 		arr.reverse();
 	}
 
-	b2Vec2 *points = new b2Vec2[point_count];
+	b2Vec2 *points = memnew_arr(b2Vec2, point_count);
 
 	for (int i = 0; i < point_count; i++) {
 		points[i] = to_box2d(p_transform.xform(arr[i]));
@@ -34,7 +34,7 @@ ShapeIdAndGeometry Box2DConcavePolygonShape2D::add_to_body(b2BodyId p_body, cons
 
 	result.id = b2CreateChain(p_body, &chain_def);
 
-	delete[] points;
+	memdelete_arr(points);
 
 	return result;
 }

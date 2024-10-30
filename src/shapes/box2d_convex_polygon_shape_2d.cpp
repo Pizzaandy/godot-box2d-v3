@@ -38,7 +38,7 @@ bool Box2DConvexPolygonShape2D::make_polygon(const Transform2D &p_transform, con
 		ERR_FAIL_COND_V(arr.is_empty(), false);
 
 		point_count = arr.size();
-		points = new b2Vec2[point_count];
+		points = memnew_arr(b2Vec2, point_count);
 		for (int i = 0; i < point_count; i++) {
 			points[i] = to_box2d(p_transform.xform(arr[i]));
 		}
@@ -52,7 +52,7 @@ bool Box2DConvexPolygonShape2D::make_polygon(const Transform2D &p_transform, con
 		ERR_FAIL_COND_V(arr.size() % 4 == 0, false);
 
 		point_count = arr.size() / 4;
-		points = new b2Vec2[point_count];
+		points = memnew_arr(b2Vec2, point_count);
 		for (int i = 0; i < point_count; i += 2) {
 			points[i] = to_box2d(p_transform.xform(Vector2(arr[i], arr[i + 1])));
 		}
@@ -67,7 +67,7 @@ bool Box2DConvexPolygonShape2D::make_polygon(const Transform2D &p_transform, con
 
 	b2Hull hull = b2ComputeHull(points, point_count);
 
-	delete[] points;
+	memdelete_arr(points);
 
 	ERR_FAIL_COND_V_MSG(hull.count == 0, false, "Box2D: Failed to compute convex hull for polygon");
 

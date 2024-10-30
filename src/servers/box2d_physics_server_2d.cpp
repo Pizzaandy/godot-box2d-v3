@@ -678,6 +678,36 @@ void Box2DPhysicsServer2D::_body_set_axis_velocity(const RID &p_body, const Vect
 	body->set_linear_velocity(linear_velocity);
 }
 
+void Box2DPhysicsServer2D::_body_add_collision_exception(const RID &p_body, const RID &p_excepted_body) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->add_collision_exception(p_excepted_body);
+}
+
+void Box2DPhysicsServer2D::_body_remove_collision_exception(const RID &p_body, const RID &p_excepted_body) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->remove_collision_exception(p_excepted_body);
+}
+
+TypedArray<RID> Box2DPhysicsServer2D::_body_get_collision_exceptions(const RID &p_body) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, {});
+	return body->get_collision_exceptions();
+}
+
+void Box2DPhysicsServer2D::_body_set_max_contacts_reported(const RID &p_body, int32_t p_amount) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_max_contacts_reported(p_amount);
+}
+
+int32_t Box2DPhysicsServer2D::_body_get_max_contacts_reported(const RID &p_body) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, 0);
+	return body->get_max_contacts_reported();
+}
+
 void Box2DPhysicsServer2D::_body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL(body);

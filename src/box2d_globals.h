@@ -120,12 +120,12 @@ public:
 	BodyShapeRange(b2BodyId body_id) :
 			body_id(body_id) {
 		shape_count = b2Body_GetShapeCount(body_id);
-		shape_ids = new b2ShapeId[shape_count];
+		shape_ids = memnew_arr(b2ShapeId, shape_count);
 		b2Body_GetShapes(body_id, shape_ids, shape_count);
 	}
 
 	~BodyShapeRange() {
-		delete[] shape_ids;
+		memdelete_arr(shape_ids);
 	}
 
 	class Iterator {
@@ -171,12 +171,12 @@ public:
 	ChainSegmentRange(b2ChainId chain_id) :
 			chain_id(chain_id) {
 		segment_count = b2Chain_GetSegmentCount(chain_id);
-		shape_ids = new b2ShapeId[segment_count];
+		shape_ids = memnew_arr(b2ShapeId, segment_count);
 		b2Chain_GetSegments(chain_id, shape_ids, segment_count);
 	}
 
 	~ChainSegmentRange() {
-		delete[] shape_ids;
+		memdelete_arr(shape_ids);
 	}
 
 	class Iterator {

@@ -220,22 +220,124 @@ void Box2DBody2D::sync_state(const b2Transform &p_transform, bool fell_asleep) {
 	}
 }
 
+/// Lazily update contacts. This will only run when the user queries contact info once per step.
 void Box2DBody2D::update_contacts() {
 	if (!body_exists || queried_contacts) {
 		return;
 	}
 
-	delete[] contact_data;
-	contact_count = b2Body_GetContactCapacity(body_id);
-	contact_data = new b2ContactData[contact_count];
-	b2Body_GetContactData(body_id, contact_data, contact_count);
+	contacts.clear();
+
+	if (max_contact_count <= 0) {
+		return;
+	}
+
+	int contact_count = b2Body_GetContactCapacity(body_id);
+	b2ContactData *data = memnew_arr(b2ContactData, contact_count);
+	b2Body_GetContactData(body_id, data, contact_count);
+
+	for (int i = 0; i < contact_count; i++) {
+		b2ContactData b2_contact = data[i];
+
+		Box2DShapeInstance *local_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(b2_contact.shapeIdA));
+		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(b2_contact.shapeIdB));
+		Box2DBody2D *other_body = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(b2_contact.shapeIdB)));
+
+		for (int point_index = 0; point_index < b2_contact.manifold.pointCount; point_index++) {
+			b2ManifoldPoint point = b2_contact.manifold.points[point_index];
+
+			Contact contact;
+			contact.local_position = to_godot(b2Body_GetWorldPoint(body_id, point.anchorA));
+			contact.local_normal = to_godot(b2_contact.manifold.normal).normalized();
+			contact.depth = -to_godot(point.separation);
+			contact.local_shape = local_shape->index;
+			contact.collider_position = other_body->get_transform().get_origin();
+			contact.collider_shape = other_shape->index;
+			contact.collider_instance_id = other_body->get_instance_id();
+			contact.collider = other_body->get_rid();
+			contact.collider_velocity = other_body->get_velocity_at_local_point(to_godot(point.anchorB));
+
+			Vector2 normal = contact.local_normal;
+			Vector2 tangent = normal.orthogonal();
+			contact.impulse = (normal * point.normalImpulse) + (tangent * point.tangentImpulse);
+
+			contacts.push_back(contact);
+
+			if (contacts.size() >= max_contact_count) {
+				break;
+			}
+		}
+
+		if (contacts.size() >= max_contact_count) {
+			break;
+		}
+	}
+
+	memdelete_arr(data);
+
 	queried_contacts = true;
 }
 
 int32_t Box2DBody2D::get_contact_count() {
 	ERR_FAIL_COND_V(!body_exists, 0);
 	update_contacts();
-	return contact_count;
+	return contacts.size();
+}
+
+Vector2 Box2DBody2D::get_contact_local_position(int p_contact_idx) {
+	ERR_FAIL_COND_V(!body_exists, Vector2());
+	update_contacts();
+	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
+	return contacts[p_contact_idx].local_position;
+}
+
+Vector2 Box2DBody2D::get_contact_local_normal(int p_contact_idx) {
+	ERR_FAIL_COND_V(!body_exists, Vector2());
+	update_contacts();
+	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
+	return contacts[p_contact_idx].local_normal;
+}
+
+int Box2DBody2D::get_contact_local_shape(int p_contact_idx) {
+	ERR_FAIL_COND_V(!body_exists, -1);
+	update_contacts();
+	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), -1);
+	return contacts[p_contact_idx].local_shape;
+}
+
+RID Box2DBody2D::get_contact_collider(int p_contact_idx) {
+	ERR_FAIL_COND_V(!body_exists, RID());
+	update_contacts();
+	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), RID());
+	return contacts[p_contact_idx].collider;
+}
+
+Vector2 Box2DBody2D::get_contact_collider_position(int p_contact_idx) {
+	ERR_FAIL_COND_V(!body_exists, Vector2());
+	update_contacts();
+	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
+	return contacts[p_contact_idx].collider_position;
+}
+
+uint64_t Box2DBody2D::get_contact_collider_id(int p_contact_idx) {
+	ERR_FAIL_COND_V(!body_exists, -1);
+	update_contacts();
+	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), -1);
+	return contacts[p_contact_idx].collider_instance_id;
+}
+
+int Box2DBody2D::get_contact_collider_shape(int p_contact_idx) {
+	ERR_FAIL_COND_V(!body_exists, -1);
+	update_contacts();
+	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), -1);
+	return contacts[p_contact_idx].collider_shape;
+}
+
+Vector2 Box2DBody2D::get_contact_impulse(int p_contact_idx) {
+	ERR_FAIL_COND_V(!body_exists, Vector2());
+	update_contacts();
+	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
+	return contacts[p_contact_idx].impulse;
 }
 
 void Box2DBody2D::add_collision_exception(RID p_rid) {
@@ -244,6 +346,19 @@ void Box2DBody2D::add_collision_exception(RID p_rid) {
 
 void Box2DBody2D::remove_collision_exception(RID p_rid) {
 	exceptions.erase(p_rid);
+}
+
+TypedArray<RID> Box2DBody2D::get_collision_exceptions() const {
+	TypedArray<RID> result;
+	result.resize(exceptions.size());
+
+	int index = 0;
+	for (RID rid : exceptions) {
+		result[index] = rid;
+		index++;
+	}
+
+	return result;
 }
 
 void Box2DBody2D::set_shape_one_way_collision(int p_index, bool p_one_way, float p_margin) {

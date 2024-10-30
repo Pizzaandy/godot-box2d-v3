@@ -117,11 +117,11 @@ public:
 	virtual void _body_set_constant_torque(const RID &p_body, float p_torque) override;
 	float _body_get_constant_torque(const RID &p_body) const override;
 	void _body_set_axis_velocity(const RID &p_body, const Vector2 &p_axis_velocity) override;
-	// virtual void _body_add_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
-	// virtual void _body_remove_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
-	// virtual TypedArray<RID> _body_get_collision_exceptions(const RID &p_body) const override;
-	// virtual void _body_set_max_contacts_reported(const RID &p_body, int32_t p_amount) override;
-	// virtual int32_t _body_get_max_contacts_reported(const RID &p_body) const;
+	void _body_add_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
+	void _body_remove_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
+	TypedArray<RID> _body_get_collision_exceptions(const RID &p_body) const override;
+	void _body_set_max_contacts_reported(const RID &p_body, int32_t p_amount) override;
+	int32_t _body_get_max_contacts_reported(const RID &p_body) const;
 	// virtual void _body_set_contacts_reported_depth_threshold(const RID &p_body, double p_threshold) override;
 	// virtual double _body_get_contacts_reported_depth_threshold(const RID &p_body) const override;
 	// virtual void _body_set_omit_force_integration(const RID &p_body, bool p_enable) override;

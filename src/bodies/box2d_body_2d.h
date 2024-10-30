@@ -8,6 +8,19 @@ class Box2DDirectBodyState2D;
 
 class Box2DBody2D : public Box2DCollisionObject2D {
 public:
+	struct Contact {
+		Vector2 local_position;
+		Vector2 local_normal;
+		float depth = 0.0;
+		int local_shape = 0;
+		Vector2 collider_position;
+		int collider_shape = 0;
+		ObjectID collider_instance_id;
+		RID collider;
+		Vector2 collider_velocity;
+		Vector2 impulse;
+	};
+
 	struct AreaOverrideAccumulator {
 		Vector2 total_gravity = Vector2();
 		float total_linear_damp = 0.0;
@@ -58,17 +71,21 @@ public:
 	void update_contacts();
 
 	int32_t get_contact_count();
-	// Vector2 get_contact_local_position(int p_contact_idx) const;
-	// Vector2 get_contact_local_normal(int p_contact_idx) const;
-	// int get_contact_local_shape(int p_contact_idx) const;
-	// RID get_contact_collider(int p_contact_idx) const;
-	// Vector2 get_contact_collider_position(int p_contact_idx) const;
-	// uint64_t get_contact_collider_id(int p_contact_idx) const;
-	// int get_contact_collider_shape(int p_contact_idx) const;
-	// Vector2 get_contact_impulse(int p_contact_idx) const;
+	void set_max_contacts_reported(int32_t p_max_count) { max_contact_count = p_max_count; }
+	int32_t get_max_contacts_reported() const { return max_contact_count; }
+
+	Vector2 get_contact_local_position(int p_contact_idx);
+	Vector2 get_contact_local_normal(int p_contact_idx);
+	int get_contact_local_shape(int p_contact_idx);
+	RID get_contact_collider(int p_contact_idx);
+	Vector2 get_contact_collider_position(int p_contact_idx);
+	uint64_t get_contact_collider_id(int p_contact_idx);
+	int get_contact_collider_shape(int p_contact_idx);
+	Vector2 get_contact_impulse(int p_contact_idx);
 
 	void add_collision_exception(RID p_rid);
 	void remove_collision_exception(RID p_rid);
+	TypedArray<RID> get_collision_exceptions() const;
 	bool is_collision_exception(RID p_rid) const { return exceptions.has(p_rid); }
 
 	float get_character_collision_priority() const { return character_collision_priority; }
@@ -134,6 +151,6 @@ private:
 	float character_collision_priority = 0.0;
 
 	bool queried_contacts = false;
-	int contact_count = 0;
-	b2ContactData *contact_data = nullptr;
+	int max_contact_count = 0;
+	LocalVector<Contact> contacts;
 };
