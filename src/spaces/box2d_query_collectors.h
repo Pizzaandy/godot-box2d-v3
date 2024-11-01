@@ -88,6 +88,15 @@ struct CastHitCollector {
 
 	CastHitCollector(int p_max_results, QueryFilter &p_filter) :
 			max_results(p_max_results), filter(p_filter) {}
+
+	bool contains_id(const b2ShapeId &id) {
+		for (CastHit hit : hits) {
+			if (B2_ID_EQUALS(hit.shape_id, id)) {
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 bool overlap_callback(b2ShapeId shapeId, void *context);
