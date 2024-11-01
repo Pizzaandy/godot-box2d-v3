@@ -305,7 +305,7 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 
 	ShapeGeometry shape_info = shape->get_shape_info(start);
 
-	ArrayQueryFilter query_filter(params->get_exclude());
+	ArrayQueryFilter query_filter(&params->get_exclude());
 	NearestCastHitCollector collector(&query_filter);
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(motion), filter, cast_callback_nearest, &collector);
 
@@ -348,7 +348,7 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 
 	ShapeGeometry shape_info = shape->get_shape_info(start);
 
-	ArrayQueryFilter query_filter(params->get_exclude());
+	ArrayQueryFilter query_filter(&params->get_exclude());
 	CastHitCollector collector(p_max_results, &query_filter);
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(motion), filter, cast_callback_all, &collector);
 

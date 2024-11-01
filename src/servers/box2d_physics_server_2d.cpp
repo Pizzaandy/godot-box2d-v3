@@ -509,6 +509,8 @@ void Box2DPhysicsServer2D::_body_set_param(const RID &p_body, PhysicsServer2D::B
 		case BodyParameter::BODY_PARAM_ANGULAR_DAMP:
 			body->set_angular_damping(p_value);
 			break;
+		default:
+			break;
 	}
 }
 
@@ -537,9 +539,9 @@ Variant Box2DPhysicsServer2D::_body_get_param(const RID &p_body, PhysicsServer2D
 			return body->get_linear_damping();
 		case BodyParameter::BODY_PARAM_ANGULAR_DAMP:
 			return body->get_angular_damping();
+		default:
+			return Variant();
 	}
-
-	return Variant();
 }
 
 void Box2DPhysicsServer2D::_body_reset_mass_properties(const RID &p_body) {
@@ -565,6 +567,8 @@ void Box2DPhysicsServer2D::_body_set_state(const RID &p_body, PhysicsServer2D::B
 			break;
 		case BodyState::BODY_STATE_CAN_SLEEP:
 			break;
+		default:
+			break;
 	}
 }
 
@@ -583,9 +587,9 @@ Variant Box2DPhysicsServer2D::_body_get_state(const RID &p_body, PhysicsServer2D
 			return body->is_sleeping();
 		case BodyState::BODY_STATE_CAN_SLEEP:
 			return true;
+		default:
+			return Variant();
 	}
-
-	return Variant();
 }
 
 void Box2DPhysicsServer2D::_body_apply_central_impulse(const RID &p_body, const Vector2 &p_impulse) {
@@ -753,6 +757,8 @@ void Box2DPhysicsServer2D::_joint_set_param(const RID &p_joint, PhysicsServer2D:
 		case JOINT_PARAM_MAX_FORCE:
 			joint->set_max_force(p_value);
 			break;
+		default:
+			break;
 	}
 }
 
@@ -770,9 +776,9 @@ float Box2DPhysicsServer2D::_joint_get_param(const RID &p_joint, PhysicsServer2D
 		case JOINT_PARAM_MAX_FORCE:
 			return joint->get_max_force();
 			break;
+		default:
+			ERR_FAIL_V(0.0);
 	}
-
-	ERR_FAIL_V(0.0);
 }
 
 void Box2DPhysicsServer2D::_joint_disable_collisions_between_bodies(const RID &p_joint, bool p_disable) {
@@ -817,6 +823,8 @@ void Box2DPhysicsServer2D::_pin_joint_set_flag(const RID &p_joint, PhysicsServer
 		case PhysicsServer2D::PIN_JOINT_FLAG_MOTOR_ENABLED:
 			pin_joint->set_motor_enabled(p_enabled);
 			break;
+		default:
+			break;
 	}
 }
 
@@ -831,9 +839,9 @@ bool Box2DPhysicsServer2D::_pin_joint_get_flag(const RID &p_joint, PhysicsServer
 			return pin_joint->get_limit_enabled();
 		case PhysicsServer2D::PIN_JOINT_FLAG_MOTOR_ENABLED:
 			return pin_joint->get_motor_enabled();
+		default:
+			ERR_FAIL_V(false);
 	}
-
-	ERR_FAIL_V(false);
 }
 
 void Box2DPhysicsServer2D::_pin_joint_set_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param, float p_value) {
@@ -854,6 +862,8 @@ void Box2DPhysicsServer2D::_pin_joint_set_param(const RID &p_joint, PhysicsServe
 			break;
 		case PhysicsServer2D::PIN_JOINT_SOFTNESS:
 			return;
+		default:
+			return;
 	}
 }
 
@@ -873,9 +883,9 @@ float Box2DPhysicsServer2D::_pin_joint_get_param(const RID &p_joint, PhysicsServ
 			return pin_joint->get_motor_speed();
 		case PhysicsServer2D::PIN_JOINT_SOFTNESS:
 			return 0.0;
+		default:
+			ERR_FAIL_V(0.0);
 	}
-
-	ERR_FAIL_V(0.0);
 }
 
 void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {

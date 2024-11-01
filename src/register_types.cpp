@@ -28,8 +28,8 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level) {
 		case MODULE_INITIALIZATION_LEVEL_SCENE: {
 			Box2DProjectSettings::register_settings();
 		} break;
-		default: {
-		} break;
+		default:
+			break;
 	}
 }
 
