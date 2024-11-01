@@ -56,10 +56,10 @@ struct CastHit {
 struct ShapeOverlapCollector {
 	int max_results = 0;
 	Vector<ShapeOverlap> overlaps;
-	QueryFilter filter;
+	QueryFilter *filter;
 
-	ShapeOverlapCollector(int p_max_results, QueryFilter &p_context) :
-			filter(p_context),
+	ShapeOverlapCollector(int p_max_results, QueryFilter *p_filter) :
+			filter(p_filter),
 			max_results(p_max_results) {}
 
 	bool contains_id(const b2ShapeId &id) {
@@ -74,19 +74,19 @@ struct ShapeOverlapCollector {
 
 struct NearestCastHitCollector {
 	CastHit nearest_hit;
-	QueryFilter filter;
+	QueryFilter *filter;
 	bool hit = false;
-	NearestCastHitCollector(QueryFilter &p_filter) :
+	NearestCastHitCollector(QueryFilter *p_filter) :
 			filter(p_filter) {}
 };
 
 struct CastHitCollector {
 	int max_results = 0;
-	QueryFilter filter;
+	QueryFilter *filter;
 	bool hit = false;
 	Vector<CastHit> hits;
 
-	CastHitCollector(int p_max_results, QueryFilter &p_filter) :
+	CastHitCollector(int p_max_results, QueryFilter *p_filter) :
 			max_results(p_max_results), filter(p_filter) {}
 
 	bool contains_id(const b2ShapeId &id) {
