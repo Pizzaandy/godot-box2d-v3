@@ -26,14 +26,14 @@ private:
 class ArrayQueryFilter : public QueryFilter {
 public:
 	bool is_excluded(const RID &p_body) override {
-		return exclude->has(p_body);
+		return exclude.has(p_body);
 	}
 
-	ArrayQueryFilter(TypedArray<RID> *p_exclude) :
+	ArrayQueryFilter(TypedArray<RID> p_exclude) :
 			exclude(p_exclude) {}
 
 private:
-	TypedArray<RID> *exclude;
+	TypedArray<RID> exclude;
 };
 
 /// Overlap query result
