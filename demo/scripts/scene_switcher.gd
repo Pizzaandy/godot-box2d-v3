@@ -3,6 +3,15 @@ extends ItemList
 var current_scene = null
 @onready var settings_container: SettingsPanelFinder = $"../../../Panel/SettingsContainer"
 
+func _ready() -> void:
+	var root_files = DirAccess.get_files_at("res://")
+	for filename in root_files:
+		if not filename.ends_with(".tscn"):
+			continue
+		var name = filename.get_file().trim_suffix(".tscn")
+		add_item(name)
+
+
 func _on_item_selected(index: int) -> void:
 	var scene_name := get_item_text(index)
 	goto_scene(scene_name)

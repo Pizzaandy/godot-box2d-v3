@@ -7,6 +7,8 @@
 #include "../shapes/box2d_rectangle_shape_2d.h"
 #include "../shapes/box2d_segment_shape_2d.h"
 
+#include "../joints/box2d_pin_joint_2d.h"
+
 namespace {
 constexpr char PHYSICS_SERVER_NAME[] = "Box2DPhysicsServer2D";
 }
@@ -714,6 +716,172 @@ void Box2DPhysicsServer2D::_body_set_state_sync_callback(const RID &p_body, cons
 	return body->set_state_sync_callback(p_callable);
 }
 
+PhysicsDirectBodyState2D *Box2DPhysicsServer2D::_body_get_direct_state(const RID &p_body) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, nullptr);
+	return body->get_direct_state();
+}
+
+// Joint API
+RID Box2DPhysicsServer2D::_joint_create() {
+	Box2DJoint2D *joint = memnew(Box2DJoint2D);
+	RID joint_rid = joint_owner.make_rid(joint);
+	joint->set_rid(joint_rid);
+	return joint_rid;
+}
+
+void Box2DPhysicsServer2D::_joint_clear(const RID &p_joint) {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL(joint);
+
+	if (joint->get_type() != JOINT_TYPE_MAX) {
+		Box2DJoint2D *empty_joint = memnew(Box2DJoint2D);
+		empty_joint->set_rid(joint->get_rid());
+
+		memdelete(joint);
+		joint_owner.replace(p_joint, empty_joint);
+	}
+}
+
+void Box2DPhysicsServer2D::_joint_set_param(const RID &p_joint, PhysicsServer2D::JointParam p_param, float p_value) {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL(joint);
+
+	switch (p_param) {
+		case JOINT_PARAM_BIAS:
+			joint->set_bias(p_value);
+			break;
+		case JOINT_PARAM_MAX_BIAS:
+			joint->set_max_bias(p_value);
+			break;
+		case JOINT_PARAM_MAX_FORCE:
+			joint->set_max_force(p_value);
+			break;
+	}
+}
+
+float Box2DPhysicsServer2D::_joint_get_param(const RID &p_joint, PhysicsServer2D::JointParam p_param) const {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL_V(joint, 0.0);
+
+	switch (p_param) {
+		case JOINT_PARAM_BIAS:
+			return joint->get_bias();
+			break;
+		case JOINT_PARAM_MAX_BIAS:
+			return joint->get_max_bias();
+			break;
+		case JOINT_PARAM_MAX_FORCE:
+			return joint->get_max_force();
+			break;
+	}
+
+	ERR_FAIL_V(0.0);
+}
+
+void Box2DPhysicsServer2D::_joint_disable_collisions_between_bodies(const RID &p_joint, bool p_disable) {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL(joint);
+	joint->disable_collisions_between_bodies(p_disable);
+}
+
+bool Box2DPhysicsServer2D::_joint_is_disabled_collisions_between_bodies(const RID &p_joint) const {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL_V(joint, false);
+	return joint->is_disabled_collisions_between_bodies();
+}
+
+void Box2DPhysicsServer2D::_joint_make_pin(const RID &p_joint, const Vector2 &p_anchor, const RID &p_body_a, const RID &p_body_b) {
+	Box2DJoint2D *old_joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL(old_joint);
+
+	Box2DBody2D *body_a = body_owner.get_or_null(p_body_a);
+	ERR_FAIL_NULL(body_a);
+
+	Box2DBody2D *body_b = body_owner.get_or_null(p_body_b);
+	ERR_FAIL_COND(body_a == body_b);
+
+	Box2DJoint2D *new_joint = memnew(Box2DPinJoint2D(p_anchor, body_a, body_b));
+	new_joint->copy_settings_from(old_joint);
+	joint_owner.replace(p_joint, new_joint);
+
+	memdelete(old_joint);
+}
+
+void Box2DPhysicsServer2D::_pin_joint_set_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag, bool p_enabled) {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL(joint);
+	ERR_FAIL_COND(joint->get_type() != JOINT_TYPE_PIN);
+
+	Box2DPinJoint2D *pin_joint = static_cast<Box2DPinJoint2D *>(joint);
+	switch (p_flag) {
+		case PhysicsServer2D::PIN_JOINT_FLAG_ANGULAR_LIMIT_ENABLED:
+			pin_joint->set_limit_enabled(p_enabled);
+			break;
+		case PhysicsServer2D::PIN_JOINT_FLAG_MOTOR_ENABLED:
+			pin_joint->set_motor_enabled(p_enabled);
+			break;
+	}
+}
+
+bool Box2DPhysicsServer2D::_pin_joint_get_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag) const {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL_V(joint, false);
+	ERR_FAIL_COND_V(joint->get_type() != JOINT_TYPE_PIN, false);
+
+	Box2DPinJoint2D *pin_joint = static_cast<Box2DPinJoint2D *>(joint);
+	switch (p_flag) {
+		case PhysicsServer2D::PIN_JOINT_FLAG_ANGULAR_LIMIT_ENABLED:
+			return pin_joint->get_limit_enabled();
+		case PhysicsServer2D::PIN_JOINT_FLAG_MOTOR_ENABLED:
+			return pin_joint->get_motor_enabled();
+	}
+
+	ERR_FAIL_V(false);
+}
+
+void Box2DPhysicsServer2D::_pin_joint_set_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param, float p_value) {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL(joint);
+	ERR_FAIL_COND(joint->get_type() != JOINT_TYPE_PIN);
+
+	Box2DPinJoint2D *pin_joint = static_cast<Box2DPinJoint2D *>(joint);
+	switch (p_param) {
+		case PhysicsServer2D::PIN_JOINT_LIMIT_UPPER:
+			pin_joint->set_upper_limit(p_value);
+			break;
+		case PhysicsServer2D::PIN_JOINT_LIMIT_LOWER:
+			pin_joint->set_lower_limit(p_value);
+			break;
+		case PhysicsServer2D::PIN_JOINT_MOTOR_TARGET_VELOCITY:
+			pin_joint->set_motor_speed(p_value);
+			break;
+		case PhysicsServer2D::PIN_JOINT_SOFTNESS:
+			return;
+	}
+}
+
+float Box2DPhysicsServer2D::_pin_joint_get_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param) const {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL_V(joint, 0.0);
+	ERR_FAIL_COND_V(joint->get_type() != JOINT_TYPE_PIN, 0.0);
+
+	Box2DPinJoint2D *pin_joint = static_cast<Box2DPinJoint2D *>(joint);
+	switch (p_param) {
+		case PhysicsServer2D::PIN_JOINT_LIMIT_UPPER:
+			return pin_joint->get_upper_limit();
+		case PhysicsServer2D::PIN_JOINT_LIMIT_LOWER:
+			return pin_joint->get_lower_limit();
+			break;
+		case PhysicsServer2D::PIN_JOINT_MOTOR_TARGET_VELOCITY:
+			return pin_joint->get_motor_speed();
+		case PhysicsServer2D::PIN_JOINT_SOFTNESS:
+			return 0.0;
+	}
+
+	ERR_FAIL_V(0.0);
+}
+
 void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 	if (shape_owner.owns(p_rid)) {
 		Box2DShape2D *shape = shape_owner.get_or_null(p_rid);
@@ -734,14 +902,11 @@ void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 		active_spaces.erase(space);
 		space_owner.free(p_rid);
 		queue_delete(space);
-	}
-	// else if (joint_owner.owns(p_rid)) {
-	// 	Box2DJoint2D *joint = joint_owner.get_or_null(p_rid);
-
-	// 	joint_owner.free(p_rid);
-	// 	memdelete(joint);
-	// }
-	else {
+	} else if (joint_owner.owns(p_rid)) {
+		Box2DJoint2D *joint = joint_owner.get_or_null(p_rid);
+		joint_owner.free(p_rid);
+		memdelete(joint);
+	} else {
 		ERR_FAIL_MSG("Attempted to free invalid RID.");
 	}
 }

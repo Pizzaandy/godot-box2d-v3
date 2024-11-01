@@ -72,7 +72,15 @@ Run the following command to download:
 env = SConscript("godot-cpp/SConstruct", {"env": env, "customs": customs})
 
 env.Append(CPPPATH=["src/"])
-sources = [Glob("src/*.cpp"), Glob("src/servers/*.cpp"), Glob("src/spaces/*.cpp"), Glob("src/shapes/*.cpp"), Glob("src/bodies/*.cpp")]
+
+sources = [
+    Glob("src/*.cpp"),
+    Glob("src/servers/*.cpp"),
+    Glob("src/spaces/*.cpp"),
+    Glob("src/shapes/*.cpp"),
+    Glob("src/bodies/*.cpp"),
+    Glob("src/joints/*.cpp")
+]
 
 # Add box2d as static library
 env.Append(CPPDEFINES=["BOX2D_ENABLE_SIMD"])
@@ -81,12 +89,6 @@ env.Append(CPPDEFINES=["BOX2D_ENABLE_SIMD"])
 # if platform.machine() in ["x86_64", "AMD64"]:
 #     env.Append(CPPDEFINES=["BOX2D_AVX2"])
 #     use_avx2 = True
-
-if env["target"] == "template_release":
-    if env["CC"] == "cl":
-        env.Append(CCFLAGS=["/O2"])
-    else:
-        env.Append(CCFLAGS=["-O2"])
 
 if env["CC"] == "cl":
     env.Append(CFLAGS=["/std:c11", "/experimental:c11atomics"])

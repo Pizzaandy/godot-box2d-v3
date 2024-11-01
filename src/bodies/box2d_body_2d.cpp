@@ -5,7 +5,9 @@
 
 Box2DBody2D::Box2DBody2D() :
 		step_list(this) {
-	shape_def.enablePreSolveEvents = true;
+	if (Box2DProjectSettings::get_presolve_enabled()) {
+		shape_def.enablePreSolveEvents = true;
+	}
 }
 
 Box2DBody2D::~Box2DBody2D() {

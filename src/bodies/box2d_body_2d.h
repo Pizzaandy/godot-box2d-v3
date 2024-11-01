@@ -31,6 +31,8 @@ public:
 	Box2DBody2D();
 	~Box2DBody2D();
 
+	b2BodyId get_body_id() const { return body_id; }
+
 	void set_bullet(bool p_bullet);
 	bool get_bullet() const { return body_def.isBullet; }
 

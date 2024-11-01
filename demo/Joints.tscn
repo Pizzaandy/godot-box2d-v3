@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://chjjbg4uqmayi"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7hk3i"]
+size = Vector2(634, 132)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_tnpra"]
+radius = 38.0
+height = 270.0
+
+[node name="Joints" type="Node2D"]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+position = Vector2(644, 184)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(-4, -1)
+shape = SubResource("RectangleShape2D_7hk3i")
+
+[node name="RigidBody2D" type="RigidBody2D" parent="."]
+position = Vector2(331, 316)
+rotation = 0.789654
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+shape = SubResource("CapsuleShape2D_tnpra")
+
+[node name="PinJoint2D" type="PinJoint2D" parent="."]
+position = Vector2(438, 249)
+node_a = NodePath("../StaticBody2D")
+node_b = NodePath("../RigidBody2D")

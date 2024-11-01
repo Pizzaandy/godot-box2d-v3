@@ -1,14 +1,17 @@
 #pragma once
 
-#include "../bodies/box2d_area_2d.h"
-#include "../bodies/box2d_body_2d.h"
-#include "../box2d_globals.h"
-#include "../box2d_project_settings.h"
-#include "../spaces/box2d_space_2d.h"
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/physics_server2d_extension.hpp>
 #include <godot_cpp/templates/hash_set.hpp>
 #include <godot_cpp/templates/rid_owner.hpp>
+
+#include "../bodies/box2d_area_2d.h"
+#include "../bodies/box2d_body_2d.h"
+#include "../joints/box2d_joint_2d.h"
+#include "../spaces/box2d_space_2d.h"
+
+#include "../box2d_globals.h"
+#include "../box2d_project_settings.h"
 
 using namespace godot;
 
@@ -130,25 +133,28 @@ public:
 	void _body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) override {};
 	// virtual bool _body_collide_shape(const RID &p_body, int32_t p_body_shape, const RID &p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, void *p_results, int32_t p_result_max, int32_t *p_result_count) override;
 	void _body_set_pickable(const RID &p_body, bool p_pickable) override {};
-	//virtual PhysicsDirectBodyState2D *_body_get_direct_state(const RID &p_body);
+	PhysicsDirectBodyState2D *_body_get_direct_state(const RID &p_body);
 	//virtual bool _body_test_motion(const RID &p_body, const Transform2D &p_from, const Vector2 &p_motion, float p_margin, bool p_collide_separation_ray, bool p_recovery_as_collision, PhysicsServer2DExtensionMotionResult *p_result) const;
 
-	// virtual RID _joint_create();
-	// virtual void _joint_clear(const RID &p_joint);
-	// virtual void _joint_set_param(const RID &p_joint, PhysicsServer2D::JointParam p_param, float p_value);
-	// virtual float _joint_get_param(const RID &p_joint, PhysicsServer2D::JointParam p_param) const;
-	// virtual void _joint_disable_collisions_between_bodies(const RID &p_joint, bool p_disable);
-	// virtual bool _joint_is_disabled_collisions_between_bodies(const RID &p_joint) const;
-	// virtual void _joint_make_pin(const RID &p_joint, const Vector2 &p_anchor, const RID &p_body_a, const RID &p_body_b);
-	// virtual void _joint_make_groove(const RID &p_joint, const Vector2 &p_a_groove1, const Vector2 &p_a_groove2, const Vector2 &p_b_anchor, const RID &p_body_a, const RID &p_body_b);
-	// virtual void _joint_make_damped_spring(const RID &p_joint, const Vector2 &p_anchor_a, const Vector2 &p_anchor_b, const RID &p_body_a, const RID &p_body_b);
-	// virtual void _pin_joint_set_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag, bool p_enabled);
-	// virtual bool _pin_joint_get_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag) const;
-	// virtual void _pin_joint_set_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param, float p_value);
-	// virtual float _pin_joint_get_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param) const;
-	// virtual void _damped_spring_joint_set_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param, float p_value);
-	// virtual float _damped_spring_joint_get_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param) const;
-	// virtual PhysicsServer2D::JointType _joint_get_type(const RID &p_joint) const;
+	RID _joint_create() override;
+	void _joint_clear(const RID &p_joint) override;
+	void _joint_set_param(const RID &p_joint, PhysicsServer2D::JointParam p_param, float p_value) override;
+	float _joint_get_param(const RID &p_joint, PhysicsServer2D::JointParam p_param) const override;
+	void _joint_disable_collisions_between_bodies(const RID &p_joint, bool p_disable) override;
+	bool _joint_is_disabled_collisions_between_bodies(const RID &p_joint) const override;
+	void _joint_make_pin(const RID &p_joint, const Vector2 &p_anchor, const RID &p_body_a, const RID &p_body_b) override;
+
+	// virtual void _joint_make_groove(const RID &p_joint, const Vector2 &p_a_groove1, const Vector2 &p_a_groove2, const Vector2 &p_b_anchor, const RID &p_body_a, const RID &p_body_b) override;
+	// virtual void _joint_make_damped_spring(const RID &p_joint, const Vector2 &p_anchor_a, const Vector2 &p_anchor_b, const RID &p_body_a, const RID &p_body_b) override;
+
+	void _pin_joint_set_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag, bool p_enabled) override;
+	bool _pin_joint_get_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag) const override;
+	void _pin_joint_set_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param, float p_value) override;
+	float _pin_joint_get_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param) const override;
+
+	// virtual void _damped_spring_joint_set_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param, float p_value) override;
+	// virtual float _damped_spring_joint_get_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param) const override;
+	//PhysicsServer2D::JointType _joint_get_type(const RID &p_joint) const override;
 
 	void _free_rid(const RID &p_rid) override;
 	void _set_active(bool p_active) override;
@@ -178,6 +184,7 @@ private:
 	mutable RID_PtrOwner<Box2DBody2D> body_owner;
 	mutable RID_PtrOwner<Box2DArea2D> area_owner;
 	mutable RID_PtrOwner<Box2DShape2D> shape_owner;
+	mutable RID_PtrOwner<Box2DJoint2D> joint_owner;
 
 	HashSet<Box2DSpace2D *> active_spaces;
 
