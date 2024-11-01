@@ -12,7 +12,7 @@ class Box2DShapeInstance;
 /// Builder class for shapes.
 class Box2DShape2D {
 public:
-	~Box2DShape2D();
+	virtual ~Box2DShape2D();
 
 	virtual ShapeIdAndGeometry add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const = 0;
 
