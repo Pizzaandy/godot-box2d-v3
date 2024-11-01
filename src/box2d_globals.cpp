@@ -90,15 +90,19 @@ ShapeCollideResult box2d_collide_shapes(
 			break;
 		case ShapeGeometry::Type::CHAIN_SEGMENT:
 			switch (type_b) {
-				case ShapeGeometry::Type::CAPSULE:
-					manifold = b2CollideChainSegmentAndCapsule(&p_shape_a.chainSegment, xfa, &p_shape_b.capsule, xfb, { 0 });
+				case ShapeGeometry::Type::CAPSULE: {
+					b2DistanceCache cache{ 0 };
+					manifold = b2CollideChainSegmentAndCapsule(&p_shape_a.chainSegment, xfa, &p_shape_b.capsule, xfb, &cache);
 					break;
+				}
 				case ShapeGeometry::Type::CIRCLE:
 					manifold = b2CollideChainSegmentAndCircle(&p_shape_a.chainSegment, xfa, &p_shape_b.circle, xfb);
 					break;
-				case ShapeGeometry::Type::POLYGON:
-					manifold = b2CollideChainSegmentAndPolygon(&p_shape_a.chainSegment, xfa, &p_shape_b.polygon, xfb, { 0 });
+				case ShapeGeometry::Type::POLYGON: {
+					b2DistanceCache cache{ 0 };
+					manifold = b2CollideChainSegmentAndPolygon(&p_shape_a.chainSegment, xfa, &p_shape_b.polygon, xfb, &cache);
 					break;
+				}
 				case ShapeGeometry::Type::SEGMENT:
 					return {};
 				case ShapeGeometry::Type::CHAIN_SEGMENT:

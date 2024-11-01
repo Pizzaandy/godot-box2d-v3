@@ -204,7 +204,8 @@ bool Box2DDirectSpaceState2D::_collide_shape(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, false);
 
-	CastHitCollector collector(p_max_results, SpaceStateQueryFilter(this));
+	SpaceStateQueryFilter query_filter(this);
+	CastHitCollector collector(p_max_results, query_filter);
 	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
 
@@ -248,7 +249,9 @@ bool Box2DDirectSpaceState2D::_rest_info(
 	ERR_FAIL_COND_V(!shape, false);
 
 	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
-	ShapeOverlapCollector collector(8, SpaceStateQueryFilter(this));
+
+	SpaceStateQueryFilter query_filter(this);
+	ShapeOverlapCollector collector(8, query_filter);
 	box2d_overlap_shape(world, shape_info, b2Transform_identity, filter, overlap_callback, &collector);
 
 	if (collector.overlaps.size() == 0) {
@@ -295,7 +298,8 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 
 	ShapeGeometry shape_info = shape->get_shape_info(start);
 
-	NearestCastHitCollector collector(ArrayQueryFilter(params->get_exclude()));
+	ArrayQueryFilter query_filter(params->get_exclude());
+	NearestCastHitCollector collector(query_filter);
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(motion), filter, cast_callback_nearest, &collector);
 
 	if (!collector.hit) {
@@ -336,7 +340,9 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 	Transform2D start = params->get_transform();
 
 	ShapeGeometry shape_info = shape->get_shape_info(start);
-	CastHitCollector collector(p_max_results, ArrayQueryFilter(params->get_exclude()));
+
+	ArrayQueryFilter query_filter(params->get_exclude());
+	CastHitCollector collector(p_max_results, query_filter);
 	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(motion), filter, cast_callback_all, &collector);
 
 	if (!collector.hit) {
