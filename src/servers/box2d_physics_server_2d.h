@@ -20,7 +20,6 @@ class Box2DPhysicsServer2D : public PhysicsServer2DExtension {
 
 public:
 	static Box2DPhysicsServer2D *get_singleton();
-	void queue_delete(void *p_object);
 
 	RID _world_boundary_shape_create() override;
 	RID _separation_ray_shape_create() override;
@@ -124,7 +123,7 @@ public:
 	void _body_remove_collision_exception(const RID &p_body, const RID &p_excepted_body) override;
 	TypedArray<RID> _body_get_collision_exceptions(const RID &p_body) const override;
 	void _body_set_max_contacts_reported(const RID &p_body, int32_t p_amount) override;
-	int32_t _body_get_max_contacts_reported(const RID &p_body) const;
+	int32_t _body_get_max_contacts_reported(const RID &p_body) const override;
 	// virtual void _body_set_contacts_reported_depth_threshold(const RID &p_body, double p_threshold) override;
 	// virtual double _body_get_contacts_reported_depth_threshold(const RID &p_body) const override;
 	// virtual void _body_set_omit_force_integration(const RID &p_body, bool p_enable) override;
@@ -133,7 +132,7 @@ public:
 	void _body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) override {};
 	// virtual bool _body_collide_shape(const RID &p_body, int32_t p_body_shape, const RID &p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, void *p_results, int32_t p_result_max, int32_t *p_result_count) override;
 	void _body_set_pickable(const RID &p_body, bool p_pickable) override {};
-	PhysicsDirectBodyState2D *_body_get_direct_state(const RID &p_body);
+	PhysicsDirectBodyState2D *_body_get_direct_state(const RID &p_body) override;
 	//virtual bool _body_test_motion(const RID &p_body, const Transform2D &p_from, const Vector2 &p_motion, float p_margin, bool p_collide_separation_ray, bool p_recovery_as_collision, PhysicsServer2DExtensionMotionResult *p_result) const;
 
 	RID _joint_create() override;
@@ -178,7 +177,9 @@ private:
 	bool active = true;
 	bool flushing_queries;
 
-	LocalVector<void *> delete_after_step;
+	LocalVector<Box2DBody2D *> bodies_to_delete;
+	LocalVector<Box2DShape2D *> shapes_to_delete;
+	LocalVector<Box2DArea2D *> areas_to_delete;
 
 	mutable RID_PtrOwner<Box2DSpace2D> space_owner;
 	mutable RID_PtrOwner<Box2DBody2D> body_owner;

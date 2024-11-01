@@ -26,7 +26,7 @@ _FORCE_INLINE_ Vector2 to_godot(const b2Vec2 p_vec) {
 
 _FORCE_INLINE_ b2Vec2 to_box2d(const Vector2 p_vec) {
 	float scale = 1 / BOX2D_PIXELS_PER_METER;
-	return scale * b2Vec2{ p_vec.x, p_vec.y };
+	return scale * b2Vec2{ (float)p_vec.x, (float)p_vec.y };
 }
 
 _FORCE_INLINE_ float to_box2d(float p_length) {

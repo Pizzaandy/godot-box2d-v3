@@ -34,10 +34,6 @@ Box2DPhysicsServer2D *Box2DPhysicsServer2D::get_singleton() {
 	return instance;
 }
 
-void Box2DPhysicsServer2D::queue_delete(void *p_object) {
-	delete_after_step.push_back(p_object);
-}
-
 // Shape API
 RID Box2DPhysicsServer2D::_world_boundary_shape_create() {
 	ERR_PRINT_ONCE("Box2D: World boundary shape is not yet supported. This feature is planned for v3.1.");
@@ -886,22 +882,22 @@ void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 	if (shape_owner.owns(p_rid)) {
 		Box2DShape2D *shape = shape_owner.get_or_null(p_rid);
 		shape_owner.free(p_rid);
-		queue_delete(shape);
+		shapes_to_delete.push_back(shape);
 	} else if (body_owner.owns(p_rid)) {
 		Box2DBody2D *body = body_owner.get_or_null(p_rid);
 		body_owner.free(p_rid);
 		body->destroy_body();
-		queue_delete(body);
+		bodies_to_delete.push_back(body);
 	} else if (area_owner.owns(p_rid)) {
 		Box2DArea2D *area = area_owner.get_or_null(p_rid);
 		area_owner.free(p_rid);
 		area->destroy_body();
-		queue_delete(area);
+		areas_to_delete.push_back(area);
 	} else if (space_owner.owns(p_rid)) {
 		Box2DSpace2D *space = space_owner.get_or_null(p_rid);
 		active_spaces.erase(space);
 		space_owner.free(p_rid);
-		queue_delete(space);
+		memdelete(space);
 	} else if (joint_owner.owns(p_rid)) {
 		Box2DJoint2D *joint = joint_owner.get_or_null(p_rid);
 		joint_owner.free(p_rid);
@@ -928,11 +924,20 @@ void Box2DPhysicsServer2D::_step(float p_step) {
 		active_space->step((float)p_step);
 	}
 
-	for (void *p_object : delete_after_step) {
-		memdelete(p_object);
+	for (Box2DBody2D *p_body : bodies_to_delete) {
+		memdelete(p_body);
 	}
+	bodies_to_delete.clear();
 
-	delete_after_step.clear();
+	for (Box2DArea2D *p_area : areas_to_delete) {
+		memdelete(p_area);
+	}
+	areas_to_delete.clear();
+
+	for (Box2DShape2D *p_shape : shapes_to_delete) {
+		memdelete(p_shape);
+	}
+	shapes_to_delete.clear();
 }
 
 void Box2DPhysicsServer2D::_flush_queries() {
