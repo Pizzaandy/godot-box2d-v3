@@ -50,32 +50,27 @@ public:
 	virtual void _apply_force(const Vector2 &p_force, const Vector2 &p_position = Vector2()) override;
 	virtual void _apply_torque(float p_torque) override;
 
-	// virtual void _add_constant_central_force(const Vector2 &p_force) override;
-	// virtual void _add_constant_force(const Vector2 &p_force, const Vector2 &p_position = Vector2()) override;
-	// virtual void _add_constant_torque(double p_torque) override;
-
-	// virtual void _set_constant_force(const Vector2 &p_force) override;
-	// virtual Vector2 _get_constant_force() const override;
-
-	// virtual void _set_constant_torque(double p_torque) override;
-	// virtual double _get_constant_torque() const override;
+	virtual void _add_constant_central_force(const Vector2 &p_force) override;
+	virtual void _add_constant_force(const Vector2 &p_force, const Vector2 &p_position = Vector2()) override;
+	virtual void _add_constant_torque(float p_torque) override;
+	virtual void _set_constant_force(const Vector2 &p_force) override;
+	virtual Vector2 _get_constant_force() const override;
+	virtual void _set_constant_torque(float p_torque) override;
+	virtual float _get_constant_torque() const override;
 
 	virtual void _set_sleep_state(bool p_enable) override;
 	virtual bool _is_sleeping() const override;
 
 	virtual int _get_contact_count() const override;
-
-	// virtual Vector2 _get_contact_local_position(int p_contact_idx) const override;
-	// virtual Vector2 _get_contact_local_normal(int p_contact_idx) const override;
-	// virtual int _get_contact_local_shape(int p_contact_idx) const override;
-
-	// virtual RID _get_contact_collider(int p_contact_idx) const override;
-	// virtual Vector2 _get_contact_collider_position(int p_contact_idx) const override;
-	// virtual uint64_t _get_contact_collider_id(int p_contact_idx) const override;
-	// virtual int _get_contact_collider_shape(int p_contact_idx) const override;
-	// virtual Vector2 _get_contact_impulse(int p_contact_idx) const override;
-
-	//virtual Vector2 _get_contact_collider_velocity_at_position(int p_contact_idx) const override;
+	Vector2 _get_contact_local_position(int p_contact_idx) const override;
+	Vector2 _get_contact_local_normal(int p_contact_idx) const override;
+	int _get_contact_local_shape(int p_contact_idx) const override;
+	RID _get_contact_collider(int p_contact_idx) const override;
+	Vector2 _get_contact_collider_position(int p_contact_idx) const override;
+	uint64_t _get_contact_collider_id(int p_contact_idx) const override;
+	int _get_contact_collider_shape(int p_contact_idx) const override;
+	Vector2 _get_contact_impulse(int p_contact_idx) const override;
+	Vector2 _get_contact_collider_velocity_at_position(int p_contact_idx) const override;
 
 	virtual PhysicsDirectSpaceState2D *_get_space_state() override;
 

@@ -24,7 +24,6 @@ void Box2DShapeInstance::build(b2BodyId p_body, const Transform2D &p_local_trans
 	ERR_FAIL_COND(!shape);
 
 	p_shape_def.userData = this;
-
 	ShapeIdAndGeometry result = shape->add_to_body(p_body, p_local_transform, p_shape_def);
 
 	shape_id = result.id;

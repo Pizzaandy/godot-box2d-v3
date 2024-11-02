@@ -136,9 +136,8 @@ Box2DSpace2D::~Box2DSpace2D() {
 void Box2DSpace2D::step(float p_step) {
 	locked = true;
 
-	for (SelfList<Box2DBody2D> *elem = bodies_to_step.first(); elem; elem = elem->next()) {
-		Box2DBody2D *body = elem->self();
-		body->step();
+	for (Box2DBody2D *body : constant_force_list) {
+		body->apply_constant_forces();
 	}
 
 	for (Box2DArea2D *area : areas_to_step) {
@@ -153,6 +152,10 @@ void Box2DSpace2D::step(float p_step) {
 
 void Box2DSpace2D::sync_state() {
 	b2BodyEvents body_events = b2World_GetBodyEvents(world_id);
+
+	for (Box2DBody2D *body : force_integration_list) {
+		body->call_force_integration_callback();
+	}
 
 	for (int i = 0; i < body_events.moveCount; ++i) {
 		const b2BodyMoveEvent *event = body_events.moveEvents + i;

@@ -710,10 +710,28 @@ int32_t Box2DPhysicsServer2D::_body_get_max_contacts_reported(const RID &p_body)
 	return body->get_max_contacts_reported();
 }
 
+void Box2DPhysicsServer2D::_body_set_contacts_reported_depth_threshold(const RID &p_body, float p_threshold) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_contact_depth_threshold(p_threshold);
+}
+
+float Box2DPhysicsServer2D::_body_get_contacts_reported_depth_threshold(const RID &p_body) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, 0.0);
+	return body->get_contact_depth_threshold();
+}
+
 void Box2DPhysicsServer2D::_body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL(body);
 	return body->set_state_sync_callback(p_callable);
+}
+
+void Box2DPhysicsServer2D::_body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	return body->set_force_integration_callback(p_callable, p_userdata);
 }
 
 PhysicsDirectBodyState2D *Box2DPhysicsServer2D::_body_get_direct_state(const RID &p_body) {
@@ -769,13 +787,10 @@ float Box2DPhysicsServer2D::_joint_get_param(const RID &p_joint, PhysicsServer2D
 	switch (p_param) {
 		case JOINT_PARAM_BIAS:
 			return joint->get_bias();
-			break;
 		case JOINT_PARAM_MAX_BIAS:
 			return joint->get_max_bias();
-			break;
 		case JOINT_PARAM_MAX_FORCE:
 			return joint->get_max_force();
-			break;
 		default:
 			ERR_FAIL_V(0.0);
 	}
@@ -861,9 +876,9 @@ void Box2DPhysicsServer2D::_pin_joint_set_param(const RID &p_joint, PhysicsServe
 			pin_joint->set_motor_speed(p_value);
 			break;
 		case PhysicsServer2D::PIN_JOINT_SOFTNESS:
-			return;
+			break;
 		default:
-			return;
+			break;
 	}
 }
 

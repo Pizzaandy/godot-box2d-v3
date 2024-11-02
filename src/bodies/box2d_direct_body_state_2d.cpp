@@ -94,33 +94,33 @@ void Box2DDirectBodyState2D::_apply_torque(float p_torque) {
 	body->apply_torque(p_torque);
 }
 
-// void Box2DDirectBodyState2D::_add_constant_central_force(const Vector2 &p_force) {
-// 	body->add_constant_central_force(p_force);
-// }
+void Box2DDirectBodyState2D::_add_constant_central_force(const Vector2 &p_force) {
+	body->add_constant_central_force(p_force);
+}
 
-// void Box2DDirectBodyState2D::_add_constant_force(const Vector2 &p_force, const Vector2 &p_position) {
-// 	body->add_constant_force(p_force, p_position);
-// }
+void Box2DDirectBodyState2D::_add_constant_force(const Vector2 &p_force, const Vector2 &p_position) {
+	body->add_constant_force(p_force, p_position);
+}
 
-// void Box2DDirectBodyState2D::_add_constant_torque(double p_torque) {
-// 	body->add_constant_torque(p_torque);
-// }
+void Box2DDirectBodyState2D::_add_constant_torque(float p_torque) {
+	body->add_constant_torque(p_torque);
+}
 
-// void Box2DDirectBodyState2D::_set_constant_force(const Vector2 &p_force) {
-// 	body->set_constant_force(p_force);
-// }
+void Box2DDirectBodyState2D::_set_constant_force(const Vector2 &p_force) {
+	body->set_constant_force(p_force);
+}
 
-// Vector2 Box2DDirectBodyState2D::_get_constant_force() const {
-// 	return body->get_constant_force();
-// }
+Vector2 Box2DDirectBodyState2D::_get_constant_force() const {
+	return body->get_constant_force();
+}
 
-// void Box2DDirectBodyState2D::_set_constant_torque(double p_torque) {
-// 	body->set_constant_torque(p_torque);
-// }
+void Box2DDirectBodyState2D::_set_constant_torque(float p_torque) {
+	body->set_constant_torque(p_torque);
+}
 
-// double Box2DDirectBodyState2D::_get_constant_torque() const {
-// 	return body->get_constant_torque();
-// }
+float Box2DDirectBodyState2D::_get_constant_torque() const {
+	return body->get_constant_torque();
+}
 
 void Box2DDirectBodyState2D::_set_sleep_state(bool p_enable) {
 	// nope, sorry :)
@@ -134,50 +134,41 @@ int Box2DDirectBodyState2D::_get_contact_count() const {
 	return body->get_contact_count();
 }
 
-// Vector2 Box2DDirectBodyState2D::_get_contact_local_position(int p_contact_idx) const {
-// 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
-// 	return body->contacts[p_contact_idx].local_pos;
-// }
+Vector2 Box2DDirectBodyState2D::_get_contact_local_position(int p_contact_idx) const {
+	return body->get_contact_local_position(p_contact_idx);
+}
 
-// Vector2 Box2DDirectBodyState2D::_get_contact_local_normal(int p_contact_idx) const {
-// 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
-// 	return body->contacts[p_contact_idx].local_normal;
-// }
+Vector2 Box2DDirectBodyState2D::_get_contact_local_normal(int p_contact_idx) const {
+	return body->get_contact_local_normal(p_contact_idx);
+}
 
-// int Box2DDirectBodyState2D::_get_contact_local_shape(int p_contact_idx) const {
-// 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, -1);
-// 	return body->contacts[p_contact_idx].local_shape;
-// }
+int Box2DDirectBodyState2D::_get_contact_local_shape(int p_contact_idx) const {
+	return body->get_contact_local_shape(p_contact_idx);
+}
 
-// RID Box2DDirectBodyState2D::_get_contact_collider(int p_contact_idx) const {
-// 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, RID());
-// 	return body->contacts[p_contact_idx].collider;
-// }
+RID Box2DDirectBodyState2D::_get_contact_collider(int p_contact_idx) const {
+	return body->get_contact_collider(p_contact_idx);
+}
 
-// Vector2 Box2DDirectBodyState2D::_get_contact_collider_position(int p_contact_idx) const {
-// 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
-// 	return body->contacts[p_contact_idx].collider_pos;
-// }
+Vector2 Box2DDirectBodyState2D::_get_contact_collider_position(int p_contact_idx) const {
+	return body->get_contact_collider_position(p_contact_idx);
+}
 
-// uint64_t Box2DDirectBodyState2D::_get_contact_collider_id(int p_contact_idx) const {
-// 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, 0);
-// 	return body->contacts[p_contact_idx].collider_instance_id;
-// }
+uint64_t Box2DDirectBodyState2D::_get_contact_collider_id(int p_contact_idx) const {
+	return body->get_contact_collider_id(p_contact_idx);
+}
 
-// int Box2DDirectBodyState2D::_get_contact_collider_shape(int p_contact_idx) const {
-// 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, 0);
-// 	return body->contacts[p_contact_idx].collider_shape;
-// }
+int Box2DDirectBodyState2D::_get_contact_collider_shape(int p_contact_idx) const {
+	return body->get_contact_collider_shape(p_contact_idx);
+}
 
-// Vector2 Box2DDirectBodyState2D::_get_contact_impulse(int p_contact_idx) const {
-// 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
-// 	return body->contacts[p_contact_idx].impulse;
-// }
+Vector2 Box2DDirectBodyState2D::_get_contact_impulse(int p_contact_idx) const {
+	return body->get_contact_impulse(p_contact_idx);
+}
 
-// Vector2 Box2DDirectBodyState2D::_get_contact_collider_velocity_at_position(int p_contact_idx) const {
-// 	ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Vector2());
-// 	return body->contacts[p_contact_idx].collider_velocity_at_pos;
-// }
+Vector2 Box2DDirectBodyState2D::_get_contact_collider_velocity_at_position(int p_contact_idx) const {
+	return body->get_contact_collider_velocity_at_position(p_contact_idx);
+}
 
 PhysicsDirectSpaceState2D *Box2DDirectBodyState2D::_get_space_state() {
 	return body->get_space()->get_direct_state();

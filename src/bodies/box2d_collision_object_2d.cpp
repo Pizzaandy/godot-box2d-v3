@@ -151,8 +151,10 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 		b2Body_SetAwake(body_id, true);
 	}
 
-	if (current_transform.get_scale() != p_transform.get_scale() ||
-			current_transform.get_skew() != p_transform.get_skew()) {
+	bool scale_changed = !current_transform.get_scale().is_equal_approx(p_transform.get_scale());
+	bool skew_changed = !Math::is_equal_approx(current_transform.get_skew(), p_transform.get_skew());
+
+	if (scale_changed || skew_changed) {
 		current_transform = p_transform;
 		rebuild_all_shapes();
 	}

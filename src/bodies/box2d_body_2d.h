@@ -2,7 +2,6 @@
 
 #include "box2d_collision_object_2d.h"
 #include "box2d_direct_body_state_2d.h"
-#include <godot_cpp/templates/self_list.hpp>
 
 class Box2DDirectBodyState2D;
 
@@ -71,10 +70,11 @@ public:
 	void sync_state(const b2Transform &p_transform, bool is_sleeping);
 
 	void update_contacts();
-
 	int32_t get_contact_count();
 	void set_max_contacts_reported(int32_t p_max_count) { max_contact_count = p_max_count; }
 	int32_t get_max_contacts_reported() const { return max_contact_count; }
+	void set_contact_depth_threshold(float p_threshold) { contact_depth_threshold = p_threshold; }
+	float get_contact_depth_threshold() const { return contact_depth_threshold; }
 
 	Vector2 get_contact_local_position(int p_contact_idx);
 	Vector2 get_contact_local_normal(int p_contact_idx);
@@ -84,6 +84,7 @@ public:
 	uint64_t get_contact_collider_id(int p_contact_idx);
 	int get_contact_collider_shape(int p_contact_idx);
 	Vector2 get_contact_impulse(int p_contact_idx);
+	Vector2 get_contact_collider_velocity_at_position(int p_contact_idx);
 
 	void add_collision_exception(RID p_rid);
 	void remove_collision_exception(RID p_rid);
@@ -97,7 +98,9 @@ public:
 	bool get_shape_one_way_collision(int p_index);
 
 	Box2DDirectBodyState2D *get_direct_state();
+
 	void set_state_sync_callback(const Callable &p_callable) { body_state_callback = p_callable; }
+	void set_force_integration_callback(const Callable &p_callable, const Variant &p_user_data);
 
 	void set_linear_damp_mode(PhysicsServer2D::BodyDampMode p_mode);
 	PhysicsServer2D::BodyDampMode get_linear_damp_mode() const { return linear_damp_mode; }
@@ -114,8 +117,11 @@ public:
 	Vector2 get_constant_force() const { return constant_force; }
 	float get_constant_torque() const { return constant_torque; }
 
-	void update_step_list();
-	void step();
+	void update_constant_forces_list();
+	void apply_constant_forces();
+
+	void update_force_integration_list();
+	void call_force_integration_callback();
 
 	void update_mass();
 
@@ -132,8 +138,6 @@ private:
 
 	HashSet<RID> exceptions;
 
-	SelfList<Box2DBody2D> step_list;
-	bool has_active_forces = false;
 	Vector2 constant_force = Vector2();
 	float constant_torque = 0.0;
 
@@ -141,7 +145,13 @@ private:
 	PhysicsServer2D::BodyDampMode angular_damp_mode = PhysicsServer2D::BODY_DAMP_MODE_COMBINE;
 
 	bool sleeping = false;
+
+	bool in_constant_forces_list = false;
+	bool in_force_integration_list = false;
+
 	Callable body_state_callback;
+	Callable force_integration_callback;
+	Variant force_integration_user_data;
 
 	float mass = 1.0;
 	b2MassData mass_data = b2MassData{ 0 };
@@ -154,5 +164,6 @@ private:
 
 	bool queried_contacts = false;
 	int max_contact_count = 0;
+	float contact_depth_threshold = -100.0;
 	LocalVector<Contact> contacts;
 };

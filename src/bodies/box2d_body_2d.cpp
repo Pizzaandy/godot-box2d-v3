@@ -3,8 +3,7 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-Box2DBody2D::Box2DBody2D() :
-		step_list(this) {
+Box2DBody2D::Box2DBody2D() {
 	if (Box2DProjectSettings::get_presolve_enabled()) {
 		shape_def.enablePreSolveEvents = true;
 	}
@@ -234,9 +233,8 @@ void Box2DBody2D::update_contacts() {
 		return;
 	}
 
-	int contact_count = b2Body_GetContactCapacity(body_id);
-	b2ContactData *data = memnew_arr(b2ContactData, contact_count);
-	b2Body_GetContactData(body_id, data, contact_count);
+	b2ContactData *data = memnew_arr(b2ContactData, max_contact_count);
+	int contact_count = b2Body_GetContactData(body_id, data, max_contact_count);
 
 	for (int i = 0; i < contact_count; i++) {
 		b2ContactData b2_contact = data[i];
@@ -248,10 +246,16 @@ void Box2DBody2D::update_contacts() {
 		for (int point_index = 0; point_index < b2_contact.manifold.pointCount; point_index++) {
 			b2ManifoldPoint point = b2_contact.manifold.points[point_index];
 
+			float depth = -to_godot(point.separation);
+
+			if (depth < contact_depth_threshold) {
+				continue;
+			}
+
 			Contact contact;
-			contact.local_position = to_godot(b2Body_GetWorldPoint(body_id, point.anchorA));
+			contact.local_position = to_godot(point.point);
 			contact.local_normal = to_godot(b2_contact.manifold.normal).normalized();
-			contact.depth = -to_godot(point.separation);
+			contact.depth = depth;
 			contact.local_shape = local_shape->index;
 			contact.collider_position = other_body->get_transform().get_origin();
 			contact.collider_shape = other_shape->index;
@@ -342,6 +346,13 @@ Vector2 Box2DBody2D::get_contact_impulse(int p_contact_idx) {
 	return contacts[p_contact_idx].impulse;
 }
 
+Vector2 Box2DBody2D::get_contact_collider_velocity_at_position(int p_contact_idx) {
+	ERR_FAIL_COND_V(!body_exists, Vector2());
+	update_contacts();
+	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
+	return contacts[p_contact_idx].collider_velocity;
+}
+
 void Box2DBody2D::add_collision_exception(RID p_rid) {
 	exceptions.insert(p_rid);
 }
@@ -403,6 +414,12 @@ Box2DDirectBodyState2D *Box2DBody2D::get_direct_state() {
 	return direct_state;
 }
 
+void Box2DBody2D::set_force_integration_callback(const Callable &p_callable, const Variant &p_user_data) {
+	force_integration_callback = p_callable;
+	force_integration_user_data = p_user_data;
+	update_force_integration_list();
+}
+
 void Box2DBody2D::set_linear_damp_mode(PhysicsServer2D::BodyDampMode p_mode) {
 	linear_damp_mode = p_mode;
 }
@@ -418,56 +435,109 @@ void Box2DBody2D::add_constant_force(const Vector2 &p_force, const Vector2 &p_po
 	// This seems wrong, but it's consistent with Godot Physics
 	constant_torque += (p_position - get_center_of_mass()).cross(p_force);
 
-	update_step_list();
+	update_constant_forces_list();
 }
 
 void Box2DBody2D::add_constant_central_force(const Vector2 &p_force) {
 	constant_force += p_force;
-	update_step_list();
+	update_constant_forces_list();
 }
 
 void Box2DBody2D::add_constant_torque(float p_torque) {
 	constant_torque += p_torque;
-	update_step_list();
+	update_constant_forces_list();
 }
 
 void Box2DBody2D::set_constant_force(const Vector2 &p_force) {
 	constant_force = p_force;
-	update_step_list();
+	update_constant_forces_list();
 }
 
 void Box2DBody2D::set_constant_torque(float p_torque) {
 	constant_torque = p_torque;
-	update_step_list();
+	update_constant_forces_list();
 }
 
-void Box2DBody2D::update_step_list() {
+void Box2DBody2D::update_constant_forces_list() {
 	if (!space) {
 		return;
 	}
 
 	bool has_constant_forces = !Math::is_zero_approx(constant_torque) || !constant_force.is_zero_approx();
-	bool is_dynamic = mode > PhysicsServer2D::BODY_MODE_KINEMATIC;
 
-	bool active = has_constant_forces && is_dynamic;
-
-	if (active) {
-		if (!step_list.in_list()) {
-			space->body_add_to_step_list(&step_list);
+	if (has_constant_forces) {
+		if (!in_constant_forces_list) {
+			space->add_constant_force_body(this);
+			in_constant_forces_list = true;
 		}
 	} else {
-		step_list.remove_from_list();
+		if (in_constant_forces_list) {
+			space->remove_constant_force_body(this);
+			in_constant_forces_list = false;
+		}
 	}
 }
 
-void Box2DBody2D::step() {
+void Box2DBody2D::apply_constant_forces() {
 	ERR_FAIL_COND(!body_exists);
 
 	if (!Math::is_zero_approx(constant_torque)) {
 		apply_torque(constant_torque);
 	}
+
 	if (!constant_force.is_zero_approx()) {
 		apply_central_force(constant_force);
+	}
+}
+
+void Box2DBody2D::update_force_integration_list() {
+	if (!space) {
+		return;
+	}
+
+	if (force_integration_callback.is_valid()) {
+		if (!in_force_integration_list) {
+			space->add_force_integration_body(this);
+			in_force_integration_list = true;
+		}
+	} else {
+		if (in_force_integration_list) {
+			space->remove_force_integration_body(this);
+			in_force_integration_list = false;
+		}
+	}
+}
+
+void Box2DBody2D::call_force_integration_callback() {
+	if (!body_exists) {
+		return;
+	}
+
+	if (force_integration_callback.is_valid()) {
+		if (force_integration_user_data.get_type() != Variant::NIL) {
+			static thread_local Array arguments = []() {
+				Array array;
+				array.resize(2);
+				return array;
+			}();
+
+			arguments[0] = get_direct_state();
+			arguments[1] = force_integration_user_data;
+
+			force_integration_callback.callv(arguments);
+		} else {
+			static thread_local Array arguments = []() {
+				Array array;
+				array.resize(1);
+				return array;
+			}();
+
+			arguments[0] = get_direct_state();
+
+			force_integration_callback.callv(arguments);
+		}
+	} else {
+		ERR_FAIL_MSG("Invalid force integration callback");
 	}
 }
 
@@ -476,11 +546,20 @@ void Box2DBody2D::shapes_changed() {
 }
 
 void Box2DBody2D::on_body_created() {
-	update_step_list();
+	update_constant_forces_list();
+	update_force_integration_list();
 }
 
 void Box2DBody2D::on_destroy_body() {
-	step_list.remove_from_list();
+	if (in_constant_forces_list) {
+		space->remove_constant_force_body(this);
+		in_constant_forces_list = false;
+	}
+
+	if (in_force_integration_list) {
+		space->remove_force_integration_body(this);
+		in_force_integration_list = false;
+	}
 }
 
 void Box2DBody2D::apply_area_overrides() {

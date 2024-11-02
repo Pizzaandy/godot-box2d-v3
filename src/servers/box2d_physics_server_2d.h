@@ -124,12 +124,12 @@ public:
 	TypedArray<RID> _body_get_collision_exceptions(const RID &p_body) const override;
 	void _body_set_max_contacts_reported(const RID &p_body, int32_t p_amount) override;
 	int32_t _body_get_max_contacts_reported(const RID &p_body) const override;
-	// virtual void _body_set_contacts_reported_depth_threshold(const RID &p_body, double p_threshold) override;
-	// virtual double _body_get_contacts_reported_depth_threshold(const RID &p_body) const override;
+	void _body_set_contacts_reported_depth_threshold(const RID &p_body, float p_threshold) override;
+	float _body_get_contacts_reported_depth_threshold(const RID &p_body) const override;
 	// virtual void _body_set_omit_force_integration(const RID &p_body, bool p_enable) override;
 	// virtual bool _body_is_omitting_force_integration(const RID &p_body) const override;
 	void _body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) override;
-	void _body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) override {};
+	void _body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) override;
 	// virtual bool _body_collide_shape(const RID &p_body, int32_t p_body_shape, const RID &p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, void *p_results, int32_t p_result_max, int32_t *p_result_count) override;
 	void _body_set_pickable(const RID &p_body, bool p_pickable) override {};
 	PhysicsDirectBodyState2D *_body_get_direct_state(const RID &p_body) override;
