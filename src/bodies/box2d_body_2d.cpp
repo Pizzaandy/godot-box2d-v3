@@ -237,16 +237,21 @@ void Box2DBody2D::update_contacts() {
 	int contact_count = b2Body_GetContactData(body_id, data, max_contact_count);
 
 	for (int i = 0; i < contact_count; i++) {
-		b2ContactData b2_contact = data[i];
+		b2ContactData box2d_contact = data[i];
 
-		Box2DShapeInstance *local_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(b2_contact.shapeIdA));
-		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(b2_contact.shapeIdB));
-		Box2DBody2D *other_body = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(b2_contact.shapeIdB)));
+		Box2DShapeInstance *local_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(box2d_contact.shapeIdA));
+		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(box2d_contact.shapeIdB));
+		Box2DBody2D *other_body = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(box2d_contact.shapeIdB)));
 
-		for (int point_index = 0; point_index < b2_contact.manifold.pointCount; point_index++) {
-			b2ManifoldPoint point = b2_contact.manifold.points[point_index];
+		for (int point_index = 0; point_index < box2d_contact.manifold.pointCount; point_index++) {
+			b2ManifoldPoint point = box2d_contact.manifold.points[point_index];
 
 			float depth = -to_godot(point.separation);
+
+			if (contact_ignore_speculative && point.maxNormalImpulse <= 0.0) {
+				// contact is speculative
+				continue;
+			}
 
 			if (depth < contact_depth_threshold) {
 				continue;
@@ -254,7 +259,7 @@ void Box2DBody2D::update_contacts() {
 
 			Contact contact;
 			contact.local_position = to_godot(point.point);
-			contact.local_normal = to_godot(b2_contact.manifold.normal).normalized();
+			contact.local_normal = to_godot(box2d_contact.manifold.normal).normalized();
 			contact.depth = depth;
 			contact.local_shape = local_shape->index;
 			contact.collider_position = other_body->get_transform().get_origin();
@@ -459,9 +464,11 @@ void Box2DBody2D::set_constant_torque(float p_torque) {
 }
 
 void Box2DBody2D::update_constant_forces_list() {
-	if (!space) {
+	if (!body_exists) {
 		return;
 	}
+
+	ERR_FAIL_NULL(space);
 
 	bool has_constant_forces = !Math::is_zero_approx(constant_torque) || !constant_force.is_zero_approx();
 
@@ -491,9 +498,11 @@ void Box2DBody2D::apply_constant_forces() {
 }
 
 void Box2DBody2D::update_force_integration_list() {
-	if (!space) {
+	if (!body_exists) {
 		return;
 	}
+
+	ERR_FAIL_NULL(space);
 
 	if (force_integration_callback.is_valid()) {
 		if (!in_force_integration_list) {

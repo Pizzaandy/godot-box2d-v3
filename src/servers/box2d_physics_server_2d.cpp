@@ -941,23 +941,21 @@ void Box2DPhysicsServer2D::_init() {
 }
 
 void Box2DPhysicsServer2D::_step(float p_step) {
-	if (!active) {
-		return;
+	if (active) {
+		for (Box2DSpace2D *active_space : active_spaces) {
+			active_space->step((float)p_step);
+		}
 	}
-
-	for (Box2DSpace2D *active_space : active_spaces) {
-		active_space->step((float)p_step);
-	}
-
-	for (Box2DBody2D *p_body : bodies_to_delete) {
-		memdelete(p_body);
-	}
-	bodies_to_delete.clear();
 
 	for (Box2DArea2D *p_area : areas_to_delete) {
 		memdelete(p_area);
 	}
 	areas_to_delete.clear();
+
+	for (Box2DBody2D *p_body : bodies_to_delete) {
+		memdelete(p_body);
+	}
+	bodies_to_delete.clear();
 
 	for (Box2DShape2D *p_shape : shapes_to_delete) {
 		memdelete(p_shape);

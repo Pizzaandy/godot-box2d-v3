@@ -165,5 +165,7 @@ private:
 	bool queried_contacts = false;
 	int max_contact_count = 0;
 	float contact_depth_threshold = -100.0;
+	// TODO: expose
+	bool contact_ignore_speculative = true;
 	LocalVector<Contact> contacts;
 };
