@@ -15,6 +15,8 @@ struct Box2DTaskData {
 };
 
 void group_task_function(void *p_userdata, uint32_t worker_index) {
+	TracyZoneScoped("Box2D Group Task");
+
 	Box2DTaskData *data = static_cast<Box2DTaskData *>(p_userdata);
 
 	int32_t items_per_task = data->item_count / data->task_count;
@@ -35,7 +37,7 @@ void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t min
 
 	Box2DTaskData *taskData = new Box2DTaskData{ task, itemCount, taskCount, taskContext };
 
-	taskData->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, taskData, taskCount, taskCount, false);
+	taskData->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, taskData, taskCount, taskCount, true);
 
 	return taskData;
 }

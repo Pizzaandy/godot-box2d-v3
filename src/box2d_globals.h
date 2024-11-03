@@ -5,6 +5,13 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 
+#ifdef TRACY_ENABLE
+#include "../tracy/public/tracy/Tracy.hpp"
+#define TracyZoneScoped(name) ZoneScopedN(name)
+#else
+#define TracyZoneScoped(name)
+#endif
+
 using namespace godot;
 
 extern float BOX2D_PIXELS_PER_METER;

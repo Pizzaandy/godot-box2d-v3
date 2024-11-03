@@ -6,3 +6,7 @@
 	path = box2d
 	url = https://github.com/erincatto/box2d
 	ignore = dirty
+[submodule "tracy"]
+	path = tracy
+	url = https://github.com/wolfpld/tracy
+	ignore = dirty

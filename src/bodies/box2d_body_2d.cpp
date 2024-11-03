@@ -201,7 +201,7 @@ void Box2DBody2D::sync_state(const b2Transform &p_transform, bool fell_asleep) {
 
 	sleeping = fell_asleep;
 
-	// TODO: optimize
+	// TODO: optimize?
 	current_transform.set_origin(to_godot(p_transform.p));
 	current_transform.set_rotation_scale_and_skew(
 			b2Rot_GetAngle(p_transform.q),
@@ -209,6 +209,8 @@ void Box2DBody2D::sync_state(const b2Transform &p_transform, bool fell_asleep) {
 			current_transform.get_skew());
 
 	if (body_state_callback.is_valid()) {
+		TracyZoneScoped("Body State Callback");
+
 		static thread_local Array arguments = []() {
 			Array array;
 			array.resize(1);

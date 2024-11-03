@@ -941,6 +941,8 @@ void Box2DPhysicsServer2D::_init() {
 }
 
 void Box2DPhysicsServer2D::_step(float p_step) {
+	TracyZoneScoped("Step");
+
 	if (active) {
 		for (Box2DSpace2D *active_space : active_spaces) {
 			active_space->step((float)p_step);
@@ -961,9 +963,15 @@ void Box2DPhysicsServer2D::_step(float p_step) {
 		memdelete(p_shape);
 	}
 	shapes_to_delete.clear();
+
+#ifdef TRACY_ENABLE
+	FrameMark;
+#endif
 }
 
 void Box2DPhysicsServer2D::_flush_queries() {
+	TracyZoneScoped("Flush Queries");
+
 	if (!active) {
 		return;
 	}

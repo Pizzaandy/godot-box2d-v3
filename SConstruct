@@ -39,6 +39,9 @@ opts.Add(
         validator=validate_parent_dir,
     )
 )
+
+opts.Add(BoolVariable("tracy_enabled", "Enable tracy profiler", False))
+
 opts.Update(localEnv)
 
 Help(opts.GenerateHelpText(localEnv))
@@ -81,6 +84,10 @@ sources = [
     Glob("src/bodies/*.cpp"),
     Glob("src/joints/*.cpp")
 ]
+
+if env["tracy_enabled"]:
+    env.Append(CPPDEFINES=["TRACY_ENABLE", "TRACY_ON_DEMAND", "TRACY_DELAYED_INIT", "TRACY_MANUAL_LIFETIME"])
+    sources.append("tracy/public/TracyClient.cpp")
 
 # Add box2d as static library
 env.Append(CPPDEFINES=["BOX2D_ENABLE_SIMD"])
