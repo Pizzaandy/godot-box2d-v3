@@ -3,7 +3,7 @@
 ShapeIdAndGeometry Box2DRectangleShape2D::add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
 	ShapeIdAndGeometry result;
 
-	result.info = get_shape_info(p_transform);
+	result.info = get_shape_geometry(p_transform);
 	if (!result.info.is_valid()) {
 		return result;
 	}
@@ -12,7 +12,7 @@ ShapeIdAndGeometry Box2DRectangleShape2D::add_to_body(b2BodyId p_body, const Tra
 	return result;
 }
 
-ShapeGeometry Box2DRectangleShape2D::get_shape_info(const Transform2D &p_transform) const {
+ShapeGeometry Box2DRectangleShape2D::get_shape_geometry(const Transform2D &p_transform) const {
 	ShapeGeometry shape;
 	shape.type = ShapeGeometry::Type::POLYGON;
 	if (!make_rectangle(p_transform, data, shape.polygon)) {

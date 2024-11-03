@@ -17,7 +17,7 @@ public:
 	virtual ShapeIdAndGeometry add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const = 0;
 
 	/// Return the shape geometry modified by the given transform.
-	virtual ShapeGeometry get_shape_info(const Transform2D &p_transform) const = 0;
+	virtual ShapeGeometry get_shape_geometry(const Transform2D &p_transform) const = 0;
 
 	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }

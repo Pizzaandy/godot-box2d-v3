@@ -258,4 +258,4 @@ void box2d_overlap_shape(
 		b2OverlapResultFcn *fcn,
 		void *context);
 
-ShapeGeometry get_shape_info_from_id(const b2ShapeId &p_shape);
+ShapeGeometry get_shape_geometry_from_id(const b2ShapeId &p_shape);

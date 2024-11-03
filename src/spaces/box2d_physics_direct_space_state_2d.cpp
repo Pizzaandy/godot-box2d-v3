@@ -129,11 +129,11 @@ int32_t Box2DDirectSpaceState2D::_intersect_shape(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, 0);
 
-	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
+	ShapeGeometry shape_geometry = shape->get_shape_geometry(p_transform);
 
 	SpaceStateQueryFilter query_filter(this);
 	CastHitCollector collector(p_max_results, &query_filter);
-	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
+	box2d_cast_shape(world, shape_geometry, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
 
 	for (CastHit hit : collector.hits) {
 		ERR_FAIL_COND_V(hit.shape->index < 0, 0);
@@ -169,11 +169,11 @@ bool Box2DDirectSpaceState2D::_cast_motion(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, false);
 
-	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
+	ShapeGeometry shape_geometry = shape->get_shape_geometry(p_transform);
 
 	SpaceStateQueryFilter query_filter(this);
 	NearestCastHitCollector collector(&query_filter);
-	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_nearest, &collector);
+	box2d_cast_shape(world, shape_geometry, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_nearest, &collector);
 
 	if (!collector.hit) {
 		*p_closest_safe = 1.0;
@@ -213,8 +213,8 @@ bool Box2DDirectSpaceState2D::_collide_shape(
 
 	SpaceStateQueryFilter query_filter(this);
 	CastHitCollector collector(p_max_results, &query_filter);
-	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
-	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
+	ShapeGeometry shape_geometry = shape->get_shape_geometry(p_transform);
+	box2d_cast_shape(world, shape_geometry, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
 
 	if (!collector.hit) {
 		return false;
@@ -255,11 +255,11 @@ bool Box2DDirectSpaceState2D::_rest_info(
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
 	ERR_FAIL_COND_V(!shape, false);
 
-	ShapeGeometry shape_info = shape->get_shape_info(p_transform);
+	ShapeGeometry shape_geometry = shape->get_shape_geometry(p_transform);
 
 	SpaceStateQueryFilter query_filter(this);
 	ShapeOverlapCollector collector(8, &query_filter);
-	box2d_overlap_shape(world, shape_info, b2Transform_identity, filter, overlap_callback, &collector);
+	box2d_overlap_shape(world, shape_geometry, b2Transform_identity, filter, overlap_callback, &collector);
 
 	if (collector.overlaps.size() == 0) {
 		return false;
@@ -267,9 +267,9 @@ bool Box2DDirectSpaceState2D::_rest_info(
 
 	for (ShapeOverlap overlap : collector.overlaps) {
 		ShapeCollideResult result = box2d_collide_shapes(
-				shape_info,
+				shape_geometry,
 				b2Transform_identity,
-				get_shape_info_from_id(overlap.shape_id),
+				get_shape_geometry_from_id(overlap.shape_id),
 				to_box2d(overlap.body->get_transform()),
 				false);
 
@@ -303,11 +303,11 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 	Vector2 motion = params->get_motion();
 	Transform2D start = params->get_transform();
 
-	ShapeGeometry shape_info = shape->get_shape_info(start);
+	ShapeGeometry shape_geometry = shape->get_shape_geometry(start);
 
 	ArrayQueryFilter query_filter(params->get_exclude());
 	NearestCastHitCollector collector(&query_filter);
-	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(motion), filter, cast_callback_nearest, &collector);
+	box2d_cast_shape(world, shape_geometry, b2Transform_identity, to_box2d(motion), filter, cast_callback_nearest, &collector);
 
 	if (!collector.hit) {
 		return {};
@@ -346,11 +346,11 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 	Vector2 motion = params->get_motion();
 	Transform2D start = params->get_transform();
 
-	ShapeGeometry shape_info = shape->get_shape_info(start);
+	ShapeGeometry shape_geometry = shape->get_shape_geometry(start);
 
 	ArrayQueryFilter query_filter(params->get_exclude());
 	CastHitCollector collector(p_max_results, &query_filter);
-	box2d_cast_shape(world, shape_info, b2Transform_identity, to_box2d(motion), filter, cast_callback_all, &collector);
+	box2d_cast_shape(world, shape_geometry, b2Transform_identity, to_box2d(motion), filter, cast_callback_all, &collector);
 
 	if (!collector.hit) {
 		return {};

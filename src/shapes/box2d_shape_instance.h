@@ -8,7 +8,7 @@ class Box2DShapeInstance {
 public:
 	int index = -1;
 	ShapeID shape_id;
-	ShapeGeometry shape_info;
+	ShapeGeometry shape_geometry;
 	Transform2D transform;
 	bool disabled = false;
 	bool one_way_collision = false;

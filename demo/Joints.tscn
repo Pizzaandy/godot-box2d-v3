@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://chjjbg4uqmayi"]
+[gd_scene load_steps=5 format=3 uid="uid://chjjbg4uqmayi"]
 
 [ext_resource type="Script" path="res://scripts/camera_navigation.gd" id="1_awigh"]
 
@@ -9,31 +9,52 @@ size = Vector2(634, 132)
 radius = 38.0
 height = 270.0
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fs63m"]
+size = Vector2(113, 158)
+
 [node name="Joints" type="Node2D"]
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
-position = Vector2(644, 184)
+position = Vector2(634, 155)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
 position = Vector2(-4, -1)
 shape = SubResource("RectangleShape2D_7hk3i")
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
-position = Vector2(331, 316)
+position = Vector2(364, 311)
 rotation = 0.789654
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+position = Vector2(-21.2853, -16.8801)
+rotation = 0.142366
 shape = SubResource("CapsuleShape2D_tnpra")
 
 [node name="PinJoint2D" type="PinJoint2D" parent="."]
-position = Vector2(438, 249)
+position = Vector2(455, 215)
 node_a = NodePath("../StaticBody2D")
 node_b = NodePath("../RigidBody2D")
 angular_limit_lower = -0.872665
 angular_limit_upper = 0.872665
-motor_enabled = true
 motor_target_velocity = 1.74533
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(689, 243)
 script = ExtResource("1_awigh")
+
+[node name="GrooveJoint2D" type="GrooveJoint2D" parent="."]
+position = Vector2(433, 454)
+rotation = -1.78473
+node_a = NodePath("../StaticBody2D")
+node_b = NodePath("../RigidBody2D2")
+length = 370.0
+initial_offset = 236.0
+
+[node name="RigidBody2D2" type="RigidBody2D" parent="."]
+position = Vector2(663, 371)
+mass = 0.1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D2"]
+position = Vector2(-2, 36)
+rotation = -0.225776
+shape = SubResource("RectangleShape2D_fs63m")

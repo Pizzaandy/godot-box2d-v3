@@ -6,7 +6,7 @@
 class Box2DSegmentShape2D : public Box2DShape2D {
 public:
 	ShapeIdAndGeometry add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const override;
-	ShapeGeometry get_shape_info(const Transform2D &p_transform) const override;
+	ShapeGeometry get_shape_geometry(const Transform2D &p_transform) const override;
 
 	static bool make_segment(const Transform2D &p_transform, const Variant &p_data, b2Segment &p_segment);
 };

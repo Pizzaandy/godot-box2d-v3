@@ -6,7 +6,7 @@
 class Box2DCircleShape2D : public Box2DShape2D {
 public:
 	ShapeIdAndGeometry add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const override;
-	ShapeGeometry get_shape_info(const Transform2D &p_transform) const override;
+	ShapeGeometry get_shape_geometry(const Transform2D &p_transform) const override;
 
 	static bool make_circle(const Transform2D &p_transform, const Variant &p_data, b2Circle &p_circle);
 };

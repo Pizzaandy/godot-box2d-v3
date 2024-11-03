@@ -274,8 +274,8 @@ int Box2DCollisionObject2D::get_overlaps(ShapeOverlapCollector &p_collector) {
 			continue;
 		}
 
-		ShapeGeometry shape_info = instance->shape_info;
-		if (!shape_info.is_valid()) {
+		ShapeGeometry shape_geometry = instance->shape_geometry;
+		if (!shape_geometry.is_valid()) {
 			continue;
 		}
 
@@ -283,7 +283,7 @@ int Box2DCollisionObject2D::get_overlaps(ShapeOverlapCollector &p_collector) {
 		filter.categoryBits = shape_def.filter.categoryBits;
 		filter.maskBits = shape_def.filter.maskBits;
 
-		box2d_overlap_shape(space->get_world_id(), shape_info, to_box2d(current_transform), filter, overlap_callback, &p_collector);
+		box2d_overlap_shape(space->get_world_id(), shape_geometry, to_box2d(current_transform), filter, overlap_callback, &p_collector);
 	}
 
 	return p_collector.overlaps.size();

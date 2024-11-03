@@ -7,6 +7,7 @@
 #include "../shapes/box2d_rectangle_shape_2d.h"
 #include "../shapes/box2d_segment_shape_2d.h"
 
+#include "../joints/box2d_groove_joint_2d.h"
 #include "../joints/box2d_pin_joint_2d.h"
 
 namespace {
@@ -119,11 +120,11 @@ bool Box2DPhysicsServer2D::_space_is_active(const RID &p_space) const {
 }
 
 void Box2DPhysicsServer2D::_space_set_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param, float p_value) {
-	WARN_PRINT("Box2D: Godot space parameters are not used by Box2D. Any values set will be ignored.");
+	ERR_PRINT_ONCE("Box2D: Godot space parameters are not supported. Any values set will be ignored.");
 }
 
 float Box2DPhysicsServer2D::_space_get_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param) const {
-	WARN_PRINT("Box2D: Godot space parameters are not used by Box2D.");
+	WARN_PRINT("Box2D: Godot space parameters are not supported.");
 	return 0.0;
 }
 
@@ -422,7 +423,7 @@ uint64_t Box2DPhysicsServer2D::_body_get_canvas_instance_id(const RID &p_body) c
 
 void Box2DPhysicsServer2D::_body_set_continuous_collision_detection_mode(const RID &p_body, PhysicsServer2D::CCDMode p_mode) {
 	if (p_mode == CCDMode::CCD_MODE_CAST_RAY) {
-		WARN_PRINT_ONCE("Box2D: 'Cast Ray' CCD mode is unsupported.");
+		WARN_PRINT_ONCE("Box2D: 'Cast Ray' CCD mode is not supported.");
 		return;
 	}
 
@@ -722,6 +723,15 @@ float Box2DPhysicsServer2D::_body_get_contacts_reported_depth_threshold(const RI
 	return body->get_contact_depth_threshold();
 }
 
+void Box2DPhysicsServer2D::_body_set_omit_force_integration(const RID &p_body, bool p_enable) {
+	ERR_PRINT_ONCE("Box2D: Custom Integrator / Omit Force Integration is not supported. Any values set will be ignored.");
+}
+
+bool Box2DPhysicsServer2D::_body_is_omitting_force_integration(const RID &p_body) const {
+	WARN_PRINT_ONCE("Box2D: Custom Integrator / Omit Force Integration is not supported.");
+	return false;
+}
+
 void Box2DPhysicsServer2D::_body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) {
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL(body);
@@ -816,9 +826,28 @@ void Box2DPhysicsServer2D::_joint_make_pin(const RID &p_joint, const Vector2 &p_
 	ERR_FAIL_NULL(body_a);
 
 	Box2DBody2D *body_b = body_owner.get_or_null(p_body_b);
+	ERR_FAIL_NULL(body_b);
 	ERR_FAIL_COND(body_a == body_b);
 
 	Box2DJoint2D *new_joint = memnew(Box2DPinJoint2D(p_anchor, body_a, body_b));
+	new_joint->copy_settings_from(old_joint);
+	joint_owner.replace(p_joint, new_joint);
+
+	memdelete(old_joint);
+}
+
+void Box2DPhysicsServer2D::_joint_make_groove(const RID &p_joint, const Vector2 &p_a_groove1, const Vector2 &p_a_groove2, const Vector2 &p_b_anchor, const RID &p_body_a, const RID &p_body_b) {
+	Box2DJoint2D *old_joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL(old_joint);
+
+	Box2DBody2D *body_a = body_owner.get_or_null(p_body_a);
+	ERR_FAIL_NULL(body_a);
+
+	Box2DBody2D *body_b = body_owner.get_or_null(p_body_b);
+	ERR_FAIL_NULL(body_b);
+	ERR_FAIL_COND(body_a == body_b);
+
+	Box2DJoint2D *new_joint = memnew(Box2DGrooveJoint2D(p_a_groove1, p_a_groove2, p_b_anchor, body_a, body_b));
 	new_joint->copy_settings_from(old_joint);
 	joint_owner.replace(p_joint, new_joint);
 

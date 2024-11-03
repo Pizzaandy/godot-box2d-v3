@@ -126,12 +126,15 @@ public:
 	int32_t _body_get_max_contacts_reported(const RID &p_body) const override;
 	void _body_set_contacts_reported_depth_threshold(const RID &p_body, float p_threshold) override;
 	float _body_get_contacts_reported_depth_threshold(const RID &p_body) const override;
-	// virtual void _body_set_omit_force_integration(const RID &p_body, bool p_enable) override;
-	// virtual bool _body_is_omitting_force_integration(const RID &p_body) const override;
+	void _body_set_omit_force_integration(const RID &p_body, bool p_enable) override;
+	bool _body_is_omitting_force_integration(const RID &p_body) const override;
 	void _body_set_state_sync_callback(const RID &p_body, const Callable &p_callable) override;
 	void _body_set_force_integration_callback(const RID &p_body, const Callable &p_callable, const Variant &p_userdata) override;
-	// virtual bool _body_collide_shape(const RID &p_body, int32_t p_body_shape, const RID &p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, void *p_results, int32_t p_result_max, int32_t *p_result_count) override;
-	void _body_set_pickable(const RID &p_body, bool p_pickable) override {};
+
+	/// This method is unused.
+	bool _body_collide_shape(const RID &p_body, int32_t p_body_shape, const RID &p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, void *p_results, int32_t p_result_max, int32_t *p_result_count) override { return false; }
+
+	void _body_set_pickable(const RID &p_body, bool p_pickable) override {}
 	PhysicsDirectBodyState2D *_body_get_direct_state(const RID &p_body) override;
 	//virtual bool _body_test_motion(const RID &p_body, const Transform2D &p_from, const Vector2 &p_motion, float p_margin, bool p_collide_separation_ray, bool p_recovery_as_collision, PhysicsServer2DExtensionMotionResult *p_result) const;
 
@@ -143,8 +146,8 @@ public:
 	bool _joint_is_disabled_collisions_between_bodies(const RID &p_joint) const override;
 	void _joint_make_pin(const RID &p_joint, const Vector2 &p_anchor, const RID &p_body_a, const RID &p_body_b) override;
 
-	// virtual void _joint_make_groove(const RID &p_joint, const Vector2 &p_a_groove1, const Vector2 &p_a_groove2, const Vector2 &p_b_anchor, const RID &p_body_a, const RID &p_body_b) override;
-	// virtual void _joint_make_damped_spring(const RID &p_joint, const Vector2 &p_anchor_a, const Vector2 &p_anchor_b, const RID &p_body_a, const RID &p_body_b) override;
+	void _joint_make_groove(const RID &p_joint, const Vector2 &p_a_groove1, const Vector2 &p_a_groove2, const Vector2 &p_b_anchor, const RID &p_body_a, const RID &p_body_b) override;
+	//void _joint_make_damped_spring(const RID &p_joint, const Vector2 &p_anchor_a, const Vector2 &p_anchor_b, const RID &p_body_a, const RID &p_body_b) override;
 
 	void _pin_joint_set_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag, bool p_enabled) override;
 	bool _pin_joint_get_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag) const override;

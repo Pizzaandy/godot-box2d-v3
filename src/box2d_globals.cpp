@@ -212,45 +212,35 @@ void box2d_overlap_shape(
 	}
 }
 
-// void box2d_overlap_chain(
-// 		const b2WorldId &p_world,
-// 		const b2ChainId &p_chain_id,
-// 		const b2Transform &p_transform,
-// 		const b2QueryFilter &p_filter,
-// 		b2OverlapResultFcn *fcn,
-// 		void *context) {
-// 	b2Capsule capsule;
-// }
-
-ShapeGeometry get_shape_info_from_id(const b2ShapeId &p_shape) {
+ShapeGeometry get_shape_geometry_from_id(const b2ShapeId &p_shape) {
 	b2ShapeType type = b2Shape_GetType(p_shape);
 
-	ShapeGeometry shape_info;
+	ShapeGeometry result;
 
 	switch (type) {
 		case b2_circleShape:
-			shape_info.type = ShapeGeometry::Type::CIRCLE;
-			shape_info.circle = b2Shape_GetCircle(p_shape);
+			result.type = ShapeGeometry::Type::CIRCLE;
+			result.circle = b2Shape_GetCircle(p_shape);
 			break;
 		case b2_capsuleShape:
-			shape_info.type = ShapeGeometry::Type::CAPSULE;
-			shape_info.capsule = b2Shape_GetCapsule(p_shape);
+			result.type = ShapeGeometry::Type::CAPSULE;
+			result.capsule = b2Shape_GetCapsule(p_shape);
 			break;
 		case b2_polygonShape:
-			shape_info.type = ShapeGeometry::Type::POLYGON;
-			shape_info.polygon = b2Shape_GetPolygon(p_shape);
+			result.type = ShapeGeometry::Type::POLYGON;
+			result.polygon = b2Shape_GetPolygon(p_shape);
 			break;
 		case b2_segmentShape:
-			shape_info.type = ShapeGeometry::Type::SEGMENT;
-			shape_info.segment = b2Shape_GetSegment(p_shape);
+			result.type = ShapeGeometry::Type::SEGMENT;
+			result.segment = b2Shape_GetSegment(p_shape);
 			break;
 		case b2_chainSegmentShape:
-			shape_info.type = ShapeGeometry::Type::CHAIN_SEGMENT;
-			shape_info.chainSegment = b2Shape_GetChainSegment(p_shape);
+			result.type = ShapeGeometry::Type::CHAIN_SEGMENT;
+			result.chainSegment = b2Shape_GetChainSegment(p_shape);
 			break;
 		default:
 			return ShapeGeometry::invalid();
 	}
 
-	return shape_info;
+	return result;
 }
