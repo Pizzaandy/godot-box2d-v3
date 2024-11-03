@@ -3,11 +3,20 @@
 #include "../bodies/box2d_area_2d.h"
 #include "../box2d_globals.h"
 #include "box2d_physics_direct_space_state_2d.h"
+#include <godot_cpp/classes/worker_thread_pool.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
 #include <godot_cpp/variant/packed_vector2_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
 
 using namespace godot;
+
+struct Box2DTaskData {
+	WorkerThreadPool::GroupID group_id;
+	void *task_context;
+	b2TaskCallback *task;
+	int32_t item_count;
+	int32_t task_count;
+};
 
 class Box2DDirectSpaceState2D;
 

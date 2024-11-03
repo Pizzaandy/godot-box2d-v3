@@ -3,16 +3,7 @@
 #include "../bodies/box2d_body_2d.h"
 #include "../box2d_project_settings.h"
 #include <godot_cpp/classes/os.hpp>
-#include <godot_cpp/classes/worker_thread_pool.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
-
-struct Box2DTaskData {
-	b2TaskCallback *task;
-	int32_t item_count;
-	int32_t task_count;
-	void *task_context;
-	WorkerThreadPool::GroupID group_id;
-};
 
 void group_task_function(void *p_userdata, uint32_t worker_index) {
 	TracyZoneScoped("Box2D Group Task");
@@ -33,20 +24,20 @@ void group_task_function(void *p_userdata, uint32_t worker_index) {
 void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t minRange, void *taskContext, void *userContext) {
 	Box2DSpace2D *space = static_cast<Box2DSpace2D *>(userContext);
 
-	int32_t taskCount = CLAMP(itemCount / minRange, 1, space->get_mask_tasks());
+	int32_t task_count = CLAMP(itemCount / minRange, 1, space->get_mask_tasks());
 
-	Box2DTaskData *taskData = new Box2DTaskData{ task, itemCount, taskCount, taskContext };
+	Box2DTaskData *task_data = new Box2DTaskData{ 0, taskContext, task, itemCount, task_count };
 
-	taskData->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, taskData, taskCount, taskCount, true);
+	task_data->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, task_data, task_count, task_count, true);
 
-	return taskData;
+	return task_data;
 }
 
 void finish_task_callback(void *taskPtr, void *userContext) {
 	if (taskPtr) {
-		Box2DTaskData *taskData = static_cast<Box2DTaskData *>(taskPtr);
-		WorkerThreadPool::get_singleton()->wait_for_group_task_completion(taskData->group_id);
-		delete taskData;
+		Box2DTaskData *task_data = static_cast<Box2DTaskData *>(taskPtr);
+		WorkerThreadPool::get_singleton()->wait_for_group_task_completion(task_data->group_id);
+		delete task_data;
 	}
 }
 
