@@ -16,7 +16,7 @@ func _ready() -> void:
 	for i in rows:
 		for j in columns:
 			var inst = body.instantiate()
-			get_parent().call_deferred("add_child", inst)
+			get_parent().add_child.call_deferred(inst)
 			inst.global_position = global_position + Vector2(i * cell_length, j * cell_length)
 
 

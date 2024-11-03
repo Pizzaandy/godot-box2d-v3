@@ -201,7 +201,6 @@ void Box2DBody2D::sync_state(const b2Transform &p_transform, bool fell_asleep) {
 
 	sleeping = fell_asleep;
 
-	// TODO: optimize?
 	current_transform.set_origin(to_godot(p_transform.p));
 	current_transform.set_rotation_scale_and_skew(
 			b2Rot_GetAngle(p_transform.q),
