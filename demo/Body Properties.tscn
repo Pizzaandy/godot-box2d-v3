@@ -25,8 +25,8 @@ position = Vector2(60, 19)
 shape = SubResource("RectangleShape2D_okqu6")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(20, -254)
-rotation = 0.00695062
+position = Vector2(17, -251)
+rotation = -3.05649
 shape = SubResource("RectangleShape2D_6o1xy")
 one_way_collision = true
 
@@ -41,13 +41,13 @@ center_of_mass_mode = 1
 center_of_mass = Vector2(0, 150)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
-position = Vector2(-31.9467, 30.3218)
+position = Vector2(58.1499, 32.5513)
 shape = SubResource("CapsuleShape2D_xnqn8")
 
 [node name="RigidBody2D2" type="RigidBody2D" parent="."]
 position = Vector2(270, 443)
 rotation = -0.530987
-constant_torque = 5.0
+constant_torque = 500.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D2"]
 position = Vector2(3.8147e-06, 9.53674e-07)

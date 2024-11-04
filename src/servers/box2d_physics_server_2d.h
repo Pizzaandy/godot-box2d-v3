@@ -144,19 +144,19 @@ public:
 	float _joint_get_param(const RID &p_joint, PhysicsServer2D::JointParam p_param) const override;
 	void _joint_disable_collisions_between_bodies(const RID &p_joint, bool p_disable) override;
 	bool _joint_is_disabled_collisions_between_bodies(const RID &p_joint) const override;
-	void _joint_make_pin(const RID &p_joint, const Vector2 &p_anchor, const RID &p_body_a, const RID &p_body_b) override;
 
+	void _joint_make_pin(const RID &p_joint, const Vector2 &p_anchor, const RID &p_body_a, const RID &p_body_b) override;
 	void _joint_make_groove(const RID &p_joint, const Vector2 &p_a_groove1, const Vector2 &p_a_groove2, const Vector2 &p_b_anchor, const RID &p_body_a, const RID &p_body_b) override;
-	//void _joint_make_damped_spring(const RID &p_joint, const Vector2 &p_anchor_a, const Vector2 &p_anchor_b, const RID &p_body_a, const RID &p_body_b) override;
+	void _joint_make_damped_spring(const RID &p_joint, const Vector2 &p_anchor_a, const Vector2 &p_anchor_b, const RID &p_body_a, const RID &p_body_b) override;
 
 	void _pin_joint_set_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag, bool p_enabled) override;
 	bool _pin_joint_get_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag) const override;
 	void _pin_joint_set_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param, float p_value) override;
 	float _pin_joint_get_param(const RID &p_joint, PhysicsServer2D::PinJointParam p_param) const override;
 
-	// virtual void _damped_spring_joint_set_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param, float p_value) override;
-	// virtual float _damped_spring_joint_get_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param) const override;
-	//PhysicsServer2D::JointType _joint_get_type(const RID &p_joint) const override;
+	virtual void _damped_spring_joint_set_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param, float p_value) override;
+	virtual float _damped_spring_joint_get_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param) const override;
+	PhysicsServer2D::JointType _joint_get_type(const RID &p_joint) const override;
 
 	void _free_rid(const RID &p_rid) override;
 	void _set_active(bool p_active) override;

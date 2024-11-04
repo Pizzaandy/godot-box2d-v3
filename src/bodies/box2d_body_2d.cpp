@@ -141,12 +141,12 @@ void Box2DBody2D::apply_impulse_center(const Vector2 &p_impulse) {
 
 void Box2DBody2D::apply_torque(float p_torque) {
 	ERR_FAIL_COND(!body_exists);
-	b2Body_ApplyTorque(body_id, p_torque, true);
+	b2Body_ApplyTorque(body_id, to_box2d(p_torque), true);
 }
 
 void Box2DBody2D::apply_torque_impulse(float p_impulse) {
 	ERR_FAIL_COND(!body_exists);
-	b2Body_ApplyAngularImpulse(body_id, p_impulse, true);
+	b2Body_ApplyAngularImpulse(body_id, to_box2d(p_impulse), true);
 }
 
 void Box2DBody2D::apply_force(const Vector2 &p_force, const Vector2 &p_position) {

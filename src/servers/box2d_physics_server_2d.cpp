@@ -7,6 +7,7 @@
 #include "../shapes/box2d_rectangle_shape_2d.h"
 #include "../shapes/box2d_segment_shape_2d.h"
 
+#include "../joints/box2d_damped_spring_joint_2d.h"
 #include "../joints/box2d_groove_joint_2d.h"
 #include "../joints/box2d_pin_joint_2d.h"
 
@@ -776,13 +777,13 @@ void Box2DPhysicsServer2D::_joint_set_param(const RID &p_joint, PhysicsServer2D:
 	ERR_FAIL_NULL(joint);
 
 	switch (p_param) {
-		case JOINT_PARAM_BIAS:
+		case JointParam::JOINT_PARAM_BIAS:
 			joint->set_bias(p_value);
 			break;
-		case JOINT_PARAM_MAX_BIAS:
+		case JointParam::JOINT_PARAM_MAX_BIAS:
 			joint->set_max_bias(p_value);
 			break;
-		case JOINT_PARAM_MAX_FORCE:
+		case JointParam::JOINT_PARAM_MAX_FORCE:
 			joint->set_max_force(p_value);
 			break;
 		default:
@@ -795,11 +796,11 @@ float Box2DPhysicsServer2D::_joint_get_param(const RID &p_joint, PhysicsServer2D
 	ERR_FAIL_NULL_V(joint, 0.0);
 
 	switch (p_param) {
-		case JOINT_PARAM_BIAS:
+		case JointParam::JOINT_PARAM_BIAS:
 			return joint->get_bias();
-		case JOINT_PARAM_MAX_BIAS:
+		case JointParam::JOINT_PARAM_MAX_BIAS:
 			return joint->get_max_bias();
-		case JOINT_PARAM_MAX_FORCE:
+		case JointParam::JOINT_PARAM_MAX_FORCE:
 			return joint->get_max_force();
 		default:
 			ERR_FAIL_V(0.0);
@@ -854,6 +855,24 @@ void Box2DPhysicsServer2D::_joint_make_groove(const RID &p_joint, const Vector2 
 	memdelete(old_joint);
 }
 
+void Box2DPhysicsServer2D::_joint_make_damped_spring(const RID &p_joint, const Vector2 &p_anchor_a, const Vector2 &p_anchor_b, const RID &p_body_a, const RID &p_body_b) {
+	Box2DJoint2D *old_joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL(old_joint);
+
+	Box2DBody2D *body_a = body_owner.get_or_null(p_body_a);
+	ERR_FAIL_NULL(body_a);
+
+	Box2DBody2D *body_b = body_owner.get_or_null(p_body_b);
+	ERR_FAIL_NULL(body_b);
+	ERR_FAIL_COND(body_a == body_b);
+
+	Box2DJoint2D *new_joint = memnew(Box2DDampedSpringJoint2D(p_anchor_a, p_anchor_b, body_a, body_b));
+	new_joint->copy_settings_from(old_joint);
+	joint_owner.replace(p_joint, new_joint);
+
+	memdelete(old_joint);
+}
+
 void Box2DPhysicsServer2D::_pin_joint_set_flag(const RID &p_joint, PhysicsServer2D::PinJointFlag p_flag, bool p_enabled) {
 	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
 	ERR_FAIL_NULL(joint);
@@ -861,10 +880,10 @@ void Box2DPhysicsServer2D::_pin_joint_set_flag(const RID &p_joint, PhysicsServer
 
 	Box2DPinJoint2D *pin_joint = static_cast<Box2DPinJoint2D *>(joint);
 	switch (p_flag) {
-		case PhysicsServer2D::PIN_JOINT_FLAG_ANGULAR_LIMIT_ENABLED:
+		case PinJointFlag::PIN_JOINT_FLAG_ANGULAR_LIMIT_ENABLED:
 			pin_joint->set_limit_enabled(p_enabled);
 			break;
-		case PhysicsServer2D::PIN_JOINT_FLAG_MOTOR_ENABLED:
+		case PinJointFlag::PIN_JOINT_FLAG_MOTOR_ENABLED:
 			pin_joint->set_motor_enabled(p_enabled);
 			break;
 		default:
@@ -879,9 +898,9 @@ bool Box2DPhysicsServer2D::_pin_joint_get_flag(const RID &p_joint, PhysicsServer
 
 	Box2DPinJoint2D *pin_joint = static_cast<Box2DPinJoint2D *>(joint);
 	switch (p_flag) {
-		case PhysicsServer2D::PIN_JOINT_FLAG_ANGULAR_LIMIT_ENABLED:
+		case PinJointFlag::PIN_JOINT_FLAG_ANGULAR_LIMIT_ENABLED:
 			return pin_joint->get_limit_enabled();
-		case PhysicsServer2D::PIN_JOINT_FLAG_MOTOR_ENABLED:
+		case PinJointFlag::PIN_JOINT_FLAG_MOTOR_ENABLED:
 			return pin_joint->get_motor_enabled();
 		default:
 			ERR_FAIL_V(false);
@@ -894,17 +913,18 @@ void Box2DPhysicsServer2D::_pin_joint_set_param(const RID &p_joint, PhysicsServe
 	ERR_FAIL_COND(joint->get_type() != JOINT_TYPE_PIN);
 
 	Box2DPinJoint2D *pin_joint = static_cast<Box2DPinJoint2D *>(joint);
+
 	switch (p_param) {
-		case PhysicsServer2D::PIN_JOINT_LIMIT_UPPER:
+		case PinJointParam::PIN_JOINT_LIMIT_UPPER:
 			pin_joint->set_upper_limit(p_value);
 			break;
-		case PhysicsServer2D::PIN_JOINT_LIMIT_LOWER:
+		case PinJointParam::PIN_JOINT_LIMIT_LOWER:
 			pin_joint->set_lower_limit(p_value);
 			break;
-		case PhysicsServer2D::PIN_JOINT_MOTOR_TARGET_VELOCITY:
+		case PinJointParam::PIN_JOINT_MOTOR_TARGET_VELOCITY:
 			pin_joint->set_motor_speed(p_value);
 			break;
-		case PhysicsServer2D::PIN_JOINT_SOFTNESS:
+		case PinJointParam::PIN_JOINT_SOFTNESS:
 			break;
 		default:
 			break;
@@ -917,19 +937,66 @@ float Box2DPhysicsServer2D::_pin_joint_get_param(const RID &p_joint, PhysicsServ
 	ERR_FAIL_COND_V(joint->get_type() != JOINT_TYPE_PIN, 0.0);
 
 	Box2DPinJoint2D *pin_joint = static_cast<Box2DPinJoint2D *>(joint);
+
 	switch (p_param) {
-		case PhysicsServer2D::PIN_JOINT_LIMIT_UPPER:
+		case PinJointParam::PIN_JOINT_LIMIT_UPPER:
 			return pin_joint->get_upper_limit();
-		case PhysicsServer2D::PIN_JOINT_LIMIT_LOWER:
+		case PinJointParam::PIN_JOINT_LIMIT_LOWER:
 			return pin_joint->get_lower_limit();
-			break;
-		case PhysicsServer2D::PIN_JOINT_MOTOR_TARGET_VELOCITY:
+		case PinJointParam::PIN_JOINT_MOTOR_TARGET_VELOCITY:
 			return pin_joint->get_motor_speed();
-		case PhysicsServer2D::PIN_JOINT_SOFTNESS:
+		case PinJointParam::PIN_JOINT_SOFTNESS:
 			return 0.0;
 		default:
 			ERR_FAIL_V(0.0);
 	}
+}
+
+void Box2DPhysicsServer2D::_damped_spring_joint_set_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param, float p_value) {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL(joint);
+	ERR_FAIL_COND(joint->get_type() != JOINT_TYPE_DAMPED_SPRING);
+
+	Box2DDampedSpringJoint2D *spring_joint = static_cast<Box2DDampedSpringJoint2D *>(joint);
+
+	switch (p_param) {
+		case DampedSpringParam::DAMPED_SPRING_REST_LENGTH:
+			spring_joint->set_rest_length(p_value);
+			break;
+		case DampedSpringParam::DAMPED_SPRING_STIFFNESS:
+			spring_joint->set_stiffness(p_value);
+			break;
+		case DampedSpringParam::DAMPED_SPRING_DAMPING:
+			spring_joint->set_damping_ratio(p_value);
+			break;
+		default:
+			break;
+	}
+}
+
+float Box2DPhysicsServer2D::_damped_spring_joint_get_param(const RID &p_joint, PhysicsServer2D::DampedSpringParam p_param) const {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL_V(joint, 0.0);
+	ERR_FAIL_COND_V(joint->get_type() != JOINT_TYPE_DAMPED_SPRING, 0.0);
+
+	Box2DDampedSpringJoint2D *spring_joint = static_cast<Box2DDampedSpringJoint2D *>(joint);
+
+	switch (p_param) {
+		case DampedSpringParam::DAMPED_SPRING_REST_LENGTH:
+			return spring_joint->get_rest_length();
+		case DampedSpringParam::DAMPED_SPRING_STIFFNESS:
+			return spring_joint->get_stiffness();
+		case DampedSpringParam::DAMPED_SPRING_DAMPING:
+			return spring_joint->get_damping_ratio();
+		default:
+			ERR_FAIL_V(0.0);
+	}
+}
+
+PhysicsServer2D::JointType Box2DPhysicsServer2D::_joint_get_type(const RID &p_joint) const {
+	Box2DJoint2D *joint = joint_owner.get_or_null(p_joint);
+	ERR_FAIL_NULL_V(joint, JointType::JOINT_TYPE_MAX);
+	return joint->get_type();
 }
 
 void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
