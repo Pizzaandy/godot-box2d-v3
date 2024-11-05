@@ -56,7 +56,6 @@ float cast_callback_all(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fr
 		return -1;
 	}
 
-	collector->hit = true;
 	collector->hits.push_back(CastHit{ body, shape, shapeId, point, normal, fraction });
 
 	if (collector->hits.size() >= collector->max_results) {

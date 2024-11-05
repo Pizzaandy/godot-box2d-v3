@@ -16,7 +16,7 @@ public:
 		return space_state->is_body_excluded_from_query(p_body);
 	}
 
-	SpaceStateQueryFilter(Box2DDirectSpaceState2D *p_space_state) :
+	explicit SpaceStateQueryFilter(Box2DDirectSpaceState2D *p_space_state) :
 			space_state(p_space_state) {}
 
 private:
@@ -29,7 +29,7 @@ public:
 		return exclude.has(p_body);
 	}
 
-	ArrayQueryFilter(TypedArray<RID> p_exclude) :
+	explicit ArrayQueryFilter(TypedArray<RID> p_exclude) :
 			exclude(p_exclude) {}
 
 private:
@@ -83,7 +83,6 @@ struct NearestCastHitCollector {
 struct CastHitCollector {
 	int max_results = 0;
 	QueryFilter *filter;
-	bool hit = false;
 	Vector<CastHit> hits;
 
 	CastHitCollector(int p_max_results, QueryFilter *p_filter) :

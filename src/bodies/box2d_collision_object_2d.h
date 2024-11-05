@@ -50,8 +50,6 @@ public:
 	void set_canvas_instance_id(const ObjectID &p_canvas_instance_id) { canvas_instance_id = p_canvas_instance_id; }
 	ObjectID get_canvas_instance_id() const { return canvas_instance_id; }
 
-	int get_overlaps(ShapeOverlapCollector &p_collector);
-
 	virtual void shapes_changed() {};
 	virtual void on_body_created() {};
 	virtual void on_destroy_body() {};

@@ -262,29 +262,3 @@ Transform2D Box2DCollisionObject2D::get_shape_transform(int p_index) const {
 	Box2DShapeInstance *shape = shapes[p_index];
 	return shape->transform;
 }
-
-int Box2DCollisionObject2D::get_overlaps(ShapeOverlapCollector &p_collector) {
-	for (Box2DShapeInstance *instance : shapes) {
-		if (instance->disabled) {
-			continue;
-		}
-
-		if (instance->shape_id.type == ShapeID::Type::CHAIN) {
-			// handle chain shape overlap
-			continue;
-		}
-
-		ShapeGeometry shape_geometry = instance->shape_geometry;
-		if (!shape_geometry.is_valid()) {
-			continue;
-		}
-
-		b2QueryFilter filter = b2DefaultQueryFilter();
-		filter.categoryBits = shape_def.filter.categoryBits;
-		filter.maskBits = shape_def.filter.maskBits;
-
-		box2d_overlap_shape(space->get_world_id(), shape_geometry, to_box2d(current_transform), filter, overlap_callback, &p_collector);
-	}
-
-	return p_collector.overlaps.size();
-}

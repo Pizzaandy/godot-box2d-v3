@@ -16,10 +16,7 @@ Box2DGrooveJoint2D::Box2DGrooveJoint2D(const Vector2 &p_a_groove1, const Vector2
 
 	Vector2 anchor_a = point_a_1;
 	Vector2 anchor_b = p_body_b->get_transform().affine_inverse().xform(p_b_anchor);
-
 	Vector2 axis = (point_a_2 - point_a_1).normalized();
-	float length_lower = (p_a_groove2 - p_b_anchor).length();
-	float length_upper = (p_a_groove1 - p_b_anchor).length();
 
 	prismatic_def.bodyIdA = p_body_a->get_body_id();
 	prismatic_def.bodyIdB = p_body_b->get_body_id();

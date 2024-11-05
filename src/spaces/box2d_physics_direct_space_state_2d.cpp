@@ -167,7 +167,7 @@ bool Box2DDirectSpaceState2D::_cast_motion(
 	b2QueryFilter filter = make_filter(p_collision_mask);
 
 	Box2DShape2D *shape = Box2DPhysicsServer2D::get_singleton()->get_shape(p_shape_rid);
-	ERR_FAIL_COND_V(!shape, false);
+	ERR_FAIL_NULL_V(shape, false);
 
 	ShapeGeometry shape_geometry = shape->get_shape_geometry(p_transform);
 
@@ -216,7 +216,7 @@ bool Box2DDirectSpaceState2D::_collide_shape(
 	ShapeGeometry shape_geometry = shape->get_shape_geometry(p_transform);
 	box2d_cast_shape(world, shape_geometry, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
 
-	if (!collector.hit) {
+	if (collector.hits.size() == 0) {
 		return false;
 	}
 
@@ -352,7 +352,7 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 	CastHitCollector collector(p_max_results, &query_filter);
 	box2d_cast_shape(world, shape_geometry, b2Transform_identity, to_box2d(motion), filter, cast_callback_all, &collector);
 
-	if (!collector.hit) {
+	if (collector.hits.size() == 0) {
 		return {};
 	}
 

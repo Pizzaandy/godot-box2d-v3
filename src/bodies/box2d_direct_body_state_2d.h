@@ -17,7 +17,7 @@ protected:
 
 public:
 	Box2DDirectBodyState2D() = default;
-	Box2DDirectBodyState2D(Box2DBody2D *p_body) :
+	explicit Box2DDirectBodyState2D(Box2DBody2D *p_body) :
 			body(p_body) {}
 
 	Box2DBody2D *body = nullptr;

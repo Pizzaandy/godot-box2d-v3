@@ -29,7 +29,7 @@ bool Box2DCapsuleShape2D::make_capsule(const Transform2D &p_transform, const Var
 
 	if (type == Variant::ARRAY) {
 		Array arr = p_data;
-		ERR_FAIL_COND_V(arr.size() != 2, {});
+		ERR_FAIL_COND_V(arr.size() != 2, false);
 		height = arr[0];
 		radius = arr[1];
 	} else {

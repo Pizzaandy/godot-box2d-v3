@@ -124,7 +124,7 @@ struct ShapeIdAndGeometry {
 /// Range for iterating body shapes.
 class BodyShapeRange {
 public:
-	BodyShapeRange(b2BodyId body_id) :
+	explicit BodyShapeRange(b2BodyId body_id) :
 			body_id(body_id) {
 		shape_count = b2Body_GetShapeCount(body_id);
 		shape_ids = memnew_arr(b2ShapeId, shape_count);
@@ -175,7 +175,7 @@ private:
 /// Range for iterating chain segment shapes.
 class ChainSegmentRange {
 public:
-	ChainSegmentRange(b2ChainId chain_id) :
+	explicit ChainSegmentRange(b2ChainId chain_id) :
 			chain_id(chain_id) {
 		segment_count = b2Chain_GetSegmentCount(chain_id);
 		shape_ids = memnew_arr(b2ShapeId, segment_count);
