@@ -8,5 +8,5 @@ public:
 	PhysicsServer2D::JointType get_type() const override { return PhysicsServer2D::JOINT_TYPE_GROOVE; }
 
 private:
-	b2PrismaticJointDef prismatic_def = b2DefaultPrismaticJointDef();
+	b2WheelJointDef wheel_def = b2DefaultWheelJointDef();
 };

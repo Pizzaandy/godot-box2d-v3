@@ -18,16 +18,17 @@ Box2DGrooveJoint2D::Box2DGrooveJoint2D(const Vector2 &p_a_groove1, const Vector2
 	Vector2 anchor_b = p_body_b->get_transform().affine_inverse().xform(p_b_anchor);
 	Vector2 axis = (point_a_2 - point_a_1).normalized();
 
-	prismatic_def.bodyIdA = p_body_a->get_body_id();
-	prismatic_def.bodyIdB = p_body_b->get_body_id();
-	prismatic_def.localAnchorA = to_box2d(anchor_a);
-	prismatic_def.localAnchorB = to_box2d(anchor_b);
+	wheel_def.bodyIdA = p_body_a->get_body_id();
+	wheel_def.bodyIdB = p_body_b->get_body_id();
+	wheel_def.localAnchorA = to_box2d(anchor_a);
+	wheel_def.localAnchorB = to_box2d(anchor_b);
 
-	prismatic_def.enableLimit = true;
-	prismatic_def.upperTranslation = to_box2d(p_a_groove1.distance_to(p_a_groove2));
-	prismatic_def.lowerTranslation = 0;
-	prismatic_def.localAxisA = b2Vec2{ (float)axis.x, (float)axis.y };
-	prismatic_def.collideConnected = !disabled_collisions_between_bodies;
+	wheel_def.enableLimit = true;
+	wheel_def.enableSpring = false;
+	wheel_def.upperTranslation = to_box2d(p_a_groove1.distance_to(p_a_groove2));
+	wheel_def.lowerTranslation = 0;
+	wheel_def.localAxisA = b2Vec2{ (float)axis.x, (float)axis.y };
+	wheel_def.collideConnected = !disabled_collisions_between_bodies;
 
-	joint_id = b2CreatePrismaticJoint(space->get_world_id(), &prismatic_def);
+	joint_id = b2CreateWheelJoint(space->get_world_id(), &wheel_def);
 }

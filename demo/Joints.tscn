@@ -1,7 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://chjjbg4uqmayi"]
+[gd_scene load_steps=5 format=3 uid="uid://chjjbg4uqmayi"]
 
 [ext_resource type="Script" path="res://scripts/camera_navigation.gd" id="1_awigh"]
-[ext_resource type="PackedScene" uid="uid://cunci2twkihny" path="res://scenes/Robot.tscn" id="2_dm0gm"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7hk3i"]
 size = Vector2(634, 132)
@@ -63,9 +62,4 @@ shape = SubResource("RectangleShape2D_fs63m")
 [node name="DampedSpringJoint2D" type="DampedSpringJoint2D" parent="."]
 position = Vector2(674, 469)
 node_a = NodePath("../RigidBody2D2")
-node_b = NodePath("../Robot")
 rest_length = 50.0
-
-[node name="Robot" parent="." instance=ExtResource("2_dm0gm")]
-position = Vector2(673, 646)
-mass = 0.05
