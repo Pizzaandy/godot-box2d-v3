@@ -12,6 +12,7 @@ class Box2DSpace2D;
 
 class Box2DCollisionObject2D {
 public:
+	Box2DCollisionObject2D();
 	~Box2DCollisionObject2D();
 
 	void destroy_body();
@@ -50,6 +51,9 @@ public:
 	void set_canvas_instance_id(const ObjectID &p_canvas_instance_id) { canvas_instance_id = p_canvas_instance_id; }
 	ObjectID get_canvas_instance_id() const { return canvas_instance_id; }
 
+	void set_user_data(const Variant &p_data) { user_data = p_data; }
+	Variant get_user_data() const { return user_data; }
+
 	virtual void shapes_changed() {};
 	virtual void on_body_created() {};
 	virtual void on_destroy_body() {};
@@ -57,6 +61,8 @@ public:
 protected:
 	void build_shape(Box2DShapeInstance *p_shape, bool p_shapes_changed = true);
 	void rebuild_all_shapes();
+
+	Variant user_data = Variant();
 
 	Box2DSpace2D *space = nullptr;
 	RID rid;

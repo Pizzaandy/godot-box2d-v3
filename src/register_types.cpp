@@ -20,8 +20,8 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level) {
 #if defined(TRACY_DELAYED_INIT) && defined(TRACY_MANUAL_LIFETIME)
 			tracy::StartupProfiler();
 #endif
-			GDREGISTER_CLASS(Box2DDirectBodyState2D);
-			GDREGISTER_CLASS(Box2DDirectSpaceState2D);
+			GDREGISTER_VIRTUAL_CLASS(Box2DDirectBodyState2D);
+			GDREGISTER_VIRTUAL_CLASS(Box2DDirectSpaceState2D);
 			GDREGISTER_CLASS(Box2DPhysicsServer2D);
 
 			PhysicsServer2DManager::get_singleton()->register_server(

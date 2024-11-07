@@ -15,7 +15,11 @@ namespace {
 constexpr char PHYSICS_SERVER_NAME[] = "Box2DPhysicsServer2D";
 }
 
-void Box2DPhysicsServer2D::_bind_methods() {}
+void Box2DPhysicsServer2D::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("space_get_body_events", "space"), &Box2DPhysicsServer2D::space_get_body_events);
+	ClassDB::bind_method(D_METHOD("body_set_user_data", "body", "data"), &Box2DPhysicsServer2D::body_set_user_data);
+	ClassDB::bind_method(D_METHOD("body_get_user_data", "body"), &Box2DPhysicsServer2D::body_get_user_data);
+}
 
 Box2DPhysicsServer2D::Box2DPhysicsServer2D() {
 	Engine *engine = Engine::get_singleton();
@@ -151,6 +155,25 @@ int32_t Box2DPhysicsServer2D::_space_get_contact_count(const RID &p_space) const
 	Box2DSpace2D *space = space_owner.get_or_null(p_space);
 	ERR_FAIL_NULL_V(space, 0);
 	return space->get_debug_contact_count();
+}
+
+Array Box2DPhysicsServer2D::space_get_body_events(const RID &p_space) const {
+	Box2DSpace2D *space = space_owner.get_or_null(p_space);
+	ERR_FAIL_NULL_V(space, {});
+	ERR_FAIL_COND_V(space->locked, {});
+
+	Array results;
+
+	b2BodyEvents body_events = b2World_GetBodyEvents(space->get_world_id());
+
+	for (int i = 0; i < body_events.moveCount; ++i) {
+		const b2BodyMoveEvent *event = body_events.moveEvents + i;
+		Box2DBody2D *body = static_cast<Box2DBody2D *>(event->userData);
+		results.push_back(body->get_user_data());
+		results.push_back(body->get_transform());
+	}
+
+	return results;
 }
 
 // Area API
@@ -328,6 +351,18 @@ PhysicsServer2D::BodyMode Box2DPhysicsServer2D::_body_get_mode(const RID &p_body
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, BODY_MODE_STATIC);
 	return body->get_mode();
+}
+
+void Box2DPhysicsServer2D::body_set_user_data(const RID &p_body, const Variant &p_variant) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL(body);
+	body->set_user_data(p_variant);
+}
+
+Variant Box2DPhysicsServer2D::body_get_user_data(const RID &p_body) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, Variant());
+	return body->get_user_data();
 }
 
 void Box2DPhysicsServer2D::_body_add_shape(const RID &p_body, const RID &p_shape, const Transform2D &p_transform, bool p_disabled) {
@@ -749,6 +784,17 @@ PhysicsDirectBodyState2D *Box2DPhysicsServer2D::_body_get_direct_state(const RID
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, nullptr);
 	return body->get_direct_state();
+}
+
+bool Box2DPhysicsServer2D::_body_test_motion(
+		const RID &p_body,
+		const Transform2D &p_from,
+		const Vector2 &p_motion,
+		float p_margin,
+		bool p_collide_separation_ray,
+		bool p_recovery_as_collision,
+		PhysicsServer2DExtensionMotionResult *p_result) const {
+	return false;
 }
 
 // Joint API

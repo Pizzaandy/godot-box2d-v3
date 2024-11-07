@@ -2,7 +2,6 @@
 
 #include "box2d_collision_object_2d.h"
 #include "box2d_direct_body_state_2d.h"
-#include <godot_cpp/classes/rigid_body2d.hpp>
 
 class Box2DDirectBodyState2D;
 

@@ -7,6 +7,8 @@ Box2DBody2D::Box2DBody2D() {
 	if (Box2DProjectSettings::get_presolve_enabled()) {
 		shape_def.enablePreSolveEvents = true;
 	}
+	shape_def.restitution = 0.0;
+	shape_def.friction = 1.0;
 }
 
 Box2DBody2D::~Box2DBody2D() {

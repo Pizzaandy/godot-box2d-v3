@@ -14,7 +14,7 @@ ShapeIdAndGeometry Box2DSegmentShape2D::add_to_body(b2BodyId p_body, const Trans
 
 ShapeGeometry Box2DSegmentShape2D::get_shape_geometry(const Transform2D &p_transform) const {
 	ShapeGeometry shape;
-	shape.type = ShapeGeometry::Type::SEGMENT;
+	shape.type = ShapeGeometry::SEGMENT;
 	if (!make_segment(p_transform, data, shape.segment)) {
 		return ShapeGeometry::invalid();
 	}

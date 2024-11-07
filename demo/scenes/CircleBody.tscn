@@ -3,14 +3,13 @@
 [ext_resource type="Texture2D" uid="uid://bkyhaupky0h52" path="res://sprites/circle.png" id="1_cqxn3"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_26sbn"]
-radius = 49.0
+radius = 25.0
 
 [node name="CircleBody" type="RigidBody2D"]
-scale = Vector2(0.5, 0.5)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_26sbn")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.379883, 0.379883)
+scale = Vector2(0.2, 0.2)
 texture = ExtResource("1_cqxn3")

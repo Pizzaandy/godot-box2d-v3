@@ -41,6 +41,8 @@ public:
 	PackedVector2Array _space_get_contacts(const RID &p_space) const override;
 	int32_t _space_get_contact_count(const RID &p_space) const override;
 
+	Array space_get_body_events(const RID &p_space) const;
+
 	RID _area_create() override;
 	void _area_set_space(const RID &p_area, const RID &p_space) override;
 	RID _area_get_space(const RID &p_area) const override;
@@ -75,6 +77,9 @@ public:
 	RID _body_get_space(const RID &p_body) const override;
 	void _body_set_mode(const RID &p_body, PhysicsServer2D::BodyMode p_mode) override;
 	PhysicsServer2D::BodyMode _body_get_mode(const RID &p_body) const override;
+
+	void body_set_user_data(const RID &p_body, const Variant &p_variant) const;
+	Variant body_get_user_data(const RID &p_body) const;
 
 	void _body_add_shape(const RID &p_body, const RID &p_shape, const Transform2D &p_transform, bool p_disabled) override;
 	void _body_set_shape(const RID &p_body, int32_t p_shape_idx, const RID &p_shape) override;
@@ -136,7 +141,7 @@ public:
 
 	void _body_set_pickable(const RID &p_body, bool p_pickable) override {}
 	PhysicsDirectBodyState2D *_body_get_direct_state(const RID &p_body) override;
-	//virtual bool _body_test_motion(const RID &p_body, const Transform2D &p_from, const Vector2 &p_motion, float p_margin, bool p_collide_separation_ray, bool p_recovery_as_collision, PhysicsServer2DExtensionMotionResult *p_result) const;
+	bool _body_test_motion(const RID &p_body, const Transform2D &p_from, const Vector2 &p_motion, float p_margin, bool p_collide_separation_ray, bool p_recovery_as_collision, PhysicsServer2DExtensionMotionResult *p_result) const;
 
 	RID _joint_create() override;
 	void _joint_clear(const RID &p_joint) override;

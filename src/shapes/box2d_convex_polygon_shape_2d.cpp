@@ -15,7 +15,7 @@ ShapeIdAndGeometry Box2DConvexPolygonShape2D::add_to_body(b2BodyId p_body, const
 
 ShapeGeometry Box2DConvexPolygonShape2D::get_shape_geometry(const Transform2D &p_transform) const {
 	ShapeGeometry shape;
-	shape.type = ShapeGeometry::Type::POLYGON;
+	shape.type = ShapeGeometry::POLYGON;
 	if (!make_polygon(p_transform, data, shape.polygon)) {
 		return ShapeGeometry::invalid();
 	}

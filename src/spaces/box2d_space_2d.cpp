@@ -144,11 +144,11 @@ void Box2DSpace2D::step(float p_step) {
 }
 
 void Box2DSpace2D::sync_state() {
-	b2BodyEvents body_events = b2World_GetBodyEvents(world_id);
-
 	for (Box2DBody2D *body : force_integration_list) {
 		body->call_force_integration_callback();
 	}
+
+	b2BodyEvents body_events = b2World_GetBodyEvents(world_id);
 
 	for (int i = 0; i < body_events.moveCount; ++i) {
 		const b2BodyMoveEvent *event = body_events.moveEvents + i;
