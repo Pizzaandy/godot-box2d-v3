@@ -16,7 +16,7 @@ constexpr char PHYSICS_SERVER_NAME[] = "Box2DPhysicsServer2D";
 }
 
 void Box2DPhysicsServer2D::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("space_get_body_events", "space"), &Box2DPhysicsServer2D::space_get_body_events);
+	ClassDB::bind_method(D_METHOD("space_get_body_move_events", "space"), &Box2DPhysicsServer2D::space_get_body_move_events);
 	ClassDB::bind_method(D_METHOD("body_set_user_data", "body", "data"), &Box2DPhysicsServer2D::body_set_user_data);
 	ClassDB::bind_method(D_METHOD("body_get_user_data", "body"), &Box2DPhysicsServer2D::body_get_user_data);
 }
@@ -157,7 +157,7 @@ int32_t Box2DPhysicsServer2D::_space_get_contact_count(const RID &p_space) const
 	return space->get_debug_contact_count();
 }
 
-Array Box2DPhysicsServer2D::space_get_body_events(const RID &p_space) const {
+Array Box2DPhysicsServer2D::space_get_body_move_events(const RID &p_space) const {
 	Box2DSpace2D *space = space_owner.get_or_null(p_space);
 	ERR_FAIL_NULL_V(space, {});
 	ERR_FAIL_COND_V(space->locked, {});

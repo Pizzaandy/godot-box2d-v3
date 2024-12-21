@@ -27,7 +27,7 @@ func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 
-	var event_data := Box2DPhysicsServer2D.space_get_body_events(get_world_2d().space)
+	var event_data := Box2DPhysicsServer2D.space_get_body_move_events(get_world_2d().space)
 
 	for i in range(0, event_data.size(), 2):
 		var index = event_data[i]

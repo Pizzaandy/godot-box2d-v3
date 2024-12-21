@@ -41,7 +41,7 @@ public:
 	PackedVector2Array _space_get_contacts(const RID &p_space) const override;
 	int32_t _space_get_contact_count(const RID &p_space) const override;
 
-	Array space_get_body_events(const RID &p_space) const;
+	Array space_get_body_move_events(const RID &p_space) const;
 
 	RID _area_create() override;
 	void _area_set_space(const RID &p_area, const RID &p_space) override;

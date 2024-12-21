@@ -214,6 +214,8 @@ bool Box2DDirectSpaceState2D::_collide_shape(
 	SpaceStateQueryFilter query_filter(this);
 	CastHitCollector collector(p_max_results, &query_filter);
 	ShapeGeometry shape_geometry = shape->get_shape_geometry(p_transform);
+
+	// TODO: add initial overlap check
 	box2d_cast_shape(world, shape_geometry, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
 
 	if (collector.hits.size() == 0) {
