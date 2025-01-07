@@ -91,7 +91,7 @@ ShapeCollideResult box2d_collide_shapes(
 		case ShapeGeometry::CHAIN_SEGMENT:
 			switch (type_b) {
 				case ShapeGeometry::CAPSULE: {
-					b2DistanceCache cache{ 0 };
+					b2SimplexCache cache{ 0 };
 					manifold = b2CollideChainSegmentAndCapsule(&p_shape_a.chainSegment, xfa, &p_shape_b.capsule, xfb, &cache);
 					break;
 				}
@@ -99,7 +99,7 @@ ShapeCollideResult box2d_collide_shapes(
 					manifold = b2CollideChainSegmentAndCircle(&p_shape_a.chainSegment, xfa, &p_shape_b.circle, xfb);
 					break;
 				case ShapeGeometry::POLYGON: {
-					b2DistanceCache cache{ 0 };
+					b2SimplexCache cache{ 0 };
 					manifold = b2CollideChainSegmentAndPolygon(&p_shape_a.chainSegment, xfa, &p_shape_b.polygon, xfb, &cache);
 					break;
 				}
@@ -213,7 +213,7 @@ void box2d_overlap_shape(
 	}
 }
 
-ShapeGeometry get_shape_geometry_from_id(const b2ShapeId &p_shape) {
+ShapeGeometry get_shape_geometry(const b2ShapeId &p_shape) {
 	b2ShapeType type = b2Shape_GetType(p_shape);
 
 	ShapeGeometry result;

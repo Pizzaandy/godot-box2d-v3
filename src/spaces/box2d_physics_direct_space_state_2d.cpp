@@ -271,7 +271,7 @@ bool Box2DDirectSpaceState2D::_rest_info(
 		ShapeCollideResult result = box2d_collide_shapes(
 				shape_geometry,
 				b2Transform_identity,
-				get_shape_geometry_from_id(overlap.shape_id),
+				get_shape_geometry(overlap.shape_id),
 				to_box2d(overlap.body->get_transform()),
 				false);
 

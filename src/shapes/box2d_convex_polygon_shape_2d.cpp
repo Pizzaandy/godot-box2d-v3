@@ -61,9 +61,9 @@ bool Box2DConvexPolygonShape2D::make_polygon(const Transform2D &p_transform, con
 	ERR_FAIL_COND_V(point_count < 3, false);
 
 	ERR_FAIL_COND_V_MSG(
-			point_count > b2_maxPolygonVertices,
+			point_count > B2_MAX_POLYGON_VERTICES,
 			false,
-			"Box2D: Convex polygons cannot have more than " + itos(b2_maxPolygonVertices) + " vertices");
+			"Box2D: Convex polygons cannot have more than " + itos(B2_MAX_POLYGON_VERTICES) + " vertices");
 
 	b2Hull hull = b2ComputeHull(points, point_count);
 
