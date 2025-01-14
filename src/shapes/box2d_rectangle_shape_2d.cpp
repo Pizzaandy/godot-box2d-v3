@@ -14,7 +14,7 @@ ShapeIdAndGeometry Box2DRectangleShape2D::add_to_body(b2BodyId p_body, const Tra
 
 ShapeGeometry Box2DRectangleShape2D::get_shape_geometry(const Transform2D &p_transform) const {
 	ShapeGeometry shape;
-	shape.type = ShapeGeometry::POLYGON;
+	shape.type = ShapeGeometry::Type::POLYGON;
 	if (!make_rectangle(p_transform, data, shape.polygon)) {
 		return ShapeGeometry::invalid();
 	}

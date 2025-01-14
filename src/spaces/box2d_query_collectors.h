@@ -2,8 +2,8 @@
 
 #include "box2d_physics_direct_space_state_2d.h"
 
-class Box2DBody2D;
 class Box2DShapeInstance;
+class Box2DCollisionObject2D;
 
 class QueryFilter {
 public:
@@ -38,14 +38,14 @@ private:
 
 /// Overlap query result
 struct ShapeOverlap {
-	Box2DBody2D *body = nullptr;
+	Box2DCollisionObject2D *body = nullptr;
 	Box2DShapeInstance *shape = nullptr;
 	b2ShapeId shape_id;
 };
 
 /// Cast query result
 struct CastHit {
-	Box2DBody2D *body;
+	Box2DCollisionObject2D *body;
 	Box2DShapeInstance *shape;
 	b2ShapeId shape_id;
 	b2Vec2 point;

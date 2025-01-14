@@ -1,6 +1,5 @@
 #include "box2d_space_2d.h"
 
-#include "../bodies/box2d_body_2d.h"
 #include "../box2d_project_settings.h"
 #include <godot_cpp/classes/os.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -24,7 +23,7 @@ void group_task_function(void *p_userdata, uint32_t worker_index) {
 void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t minRange, void *taskContext, void *userContext) {
 	Box2DSpace2D *space = static_cast<Box2DSpace2D *>(userContext);
 
-	int32_t task_count = CLAMP(itemCount / minRange, 1, space->get_mask_tasks());
+	int32_t task_count = CLAMP(itemCount / minRange, 1, space->get_max_tasks());
 
 	Box2DTaskData *task_data = new Box2DTaskData{ 0, taskContext, task, itemCount, task_count };
 
@@ -42,6 +41,11 @@ void finish_task_callback(void *taskPtr, void *userContext) {
 }
 
 bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *manifold, void *context) {
+	// Optimization: assume sensors are attached to Areas. This may change in the future.
+	if (b2Shape_IsSensor(shapeIdA) || b2Shape_IsSensor(shapeIdB)) {
+		return true;
+	}
+
 	Box2DBody2D *body_a = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)));
 	Box2DBody2D *body_b = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)));
 

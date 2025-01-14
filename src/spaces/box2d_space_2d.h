@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../bodies/box2d_area_2d.h"
+#include "../bodies/box2d_body_2d.h"
 #include "../box2d_globals.h"
 #include "box2d_physics_direct_space_state_2d.h"
 #include <godot_cpp/classes/worker_thread_pool.hpp>
@@ -27,7 +28,7 @@ public:
 
 	void step(float p_step);
 
-	int get_mask_tasks() const { return max_tasks; }
+	int get_max_tasks() const { return max_tasks; }
 
 	void sync_state();
 

@@ -14,7 +14,7 @@ ShapeIdAndGeometry Box2DCapsuleShape2D::add_to_body(b2BodyId p_body, const Trans
 
 ShapeGeometry Box2DCapsuleShape2D::get_shape_geometry(const Transform2D &p_transform) const {
 	ShapeGeometry shape;
-	shape.type = ShapeGeometry::CAPSULE;
+	shape.type = ShapeGeometry::Type::CAPSULE;
 	if (!make_capsule(p_transform, data, shape.capsule)) {
 		return ShapeGeometry::invalid();
 	}

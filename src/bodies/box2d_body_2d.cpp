@@ -3,12 +3,15 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-Box2DBody2D::Box2DBody2D() {
+Box2DBody2D::Box2DBody2D() :
+		Box2DCollisionObject2D(Type::RIGIDBODY) {
 	if (Box2DProjectSettings::get_presolve_enabled()) {
 		shape_def.enablePreSolveEvents = true;
 	}
 	shape_def.restitution = 0.0;
 	shape_def.friction = 1.0;
+	shape_def.filter.categoryBits = 1;
+	shape_def.filter.maskBits = 1 | BODY_MASK_BIT;
 }
 
 Box2DBody2D::~Box2DBody2D() {
@@ -163,7 +166,9 @@ void Box2DBody2D::apply_central_force(const Vector2 &p_force) {
 }
 
 void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
-	ERR_FAIL_COND(!body_exists);
+	if (!body_exists) {
+		return;
+	}
 	b2Body_SetLinearVelocity(body_id, to_box2d(p_velocity));
 }
 
@@ -184,7 +189,9 @@ Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
 }
 
 void Box2DBody2D::set_angular_velocity(float p_velocity) {
-	ERR_FAIL_COND(!body_exists);
+	if (!body_exists) {
+		return;
+	}
 	b2Body_SetAngularVelocity(body_id, (float)p_velocity);
 }
 
@@ -194,14 +201,32 @@ float Box2DBody2D::get_angular_velocity() const {
 	return angular_velocity;
 }
 
-void Box2DBody2D::sync_state(const b2Transform &p_transform, bool fell_asleep) {
+void Box2DBody2D::set_sleep_state(bool p_sleeping) {
+	if (!body_exists) {
+		return;
+	}
+	b2Body_SetAwake(body_id, p_sleeping);
+	sleeping = p_sleeping;
+}
+
+void Box2DBody2D::set_sleep_enabled(bool p_can_sleep) {
+	body_def.enableSleep = p_can_sleep;
+
+	if (!body_exists) {
+		return;
+	}
+
+	b2Body_EnableSleep(body_id, p_can_sleep);
+}
+
+void Box2DBody2D::sync_state(const b2Transform &p_transform, bool p_fell_asleep) {
 	if (!body_exists) {
 		return;
 	}
 
 	queried_contacts = false;
 
-	sleeping = fell_asleep;
+	sleeping = p_fell_asleep;
 
 	current_transform.set_origin(to_godot(p_transform.p));
 	current_transform.set_rotation_scale_and_skew(
@@ -577,6 +602,12 @@ void Box2DBody2D::on_destroy_body() {
 void Box2DBody2D::apply_area_overrides() {
 	if (!body_exists || mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
 		return;
+	}
+
+	if (area_overrides.skip_world_gravity) {
+		b2Body_SetGravityScale(body_id, 0.0f);
+	} else {
+		b2Body_SetGravityScale(body_id, body_def.gravityScale);
 	}
 
 	if (!area_overrides.total_gravity.is_zero_approx()) {

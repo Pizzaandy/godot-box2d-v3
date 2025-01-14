@@ -123,7 +123,7 @@ float Box2DDirectBodyState2D::_get_constant_torque() const {
 }
 
 void Box2DDirectBodyState2D::_set_sleep_state(bool p_enable) {
-	// nope, sorry :)
+	body->set_sleep_state(p_enable);
 }
 
 bool Box2DDirectBodyState2D::_is_sleeping() const {

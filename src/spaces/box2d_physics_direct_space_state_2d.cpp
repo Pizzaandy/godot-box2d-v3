@@ -3,6 +3,7 @@
 #include "../bodies/box2d_body_2d.h"
 #include "../servers/box2d_physics_server_2d.h"
 #include "box2d_query_collectors.h"
+
 #include <godot_cpp/classes/physics_shape_query_parameters2d.hpp>
 
 void Box2DDirectSpaceState2D::_bind_methods() {
@@ -279,12 +280,18 @@ bool Box2DDirectSpaceState2D::_rest_info(
 			continue;
 		}
 
+		if (overlap.body->get_type() == Box2DCollisionObject2D::Type::AREA) {
+			continue;
+		}
+
+		Box2DBody2D *body = static_cast<Box2DBody2D *>(overlap.body);
+
 		p_rest_info->point = result.points[0].point;
 		p_rest_info->normal = result.normal;
-		p_rest_info->rid = overlap.body->get_rid();
-		p_rest_info->collider_id = overlap.body->get_instance_id();
+		p_rest_info->rid = body->get_rid();
+		p_rest_info->collider_id = body->get_instance_id();
 		p_rest_info->shape = overlap.shape->index;
-		p_rest_info->linear_velocity = overlap.body->get_velocity_at_local_point(result.points[0].point);
+		p_rest_info->linear_velocity = body->get_velocity_at_local_point(result.points[0].point);
 		return true;
 	}
 

@@ -99,6 +99,18 @@ void Box2DPhysicsServer2D::_shape_set_data(const RID &p_shape, const Variant &p_
 	shape->set_data(p_data);
 }
 
+PhysicsServer2D::ShapeType Box2DPhysicsServer2D::_shape_get_type(const RID &p_shape) const {
+	Box2DShape2D *shape = shape_owner.get_or_null(p_shape);
+	ERR_FAIL_NULL_V(shape, PhysicsServer2D::ShapeType::SHAPE_CUSTOM);
+	return shape->get_type();
+}
+
+Variant Box2DPhysicsServer2D::_shape_get_data(const RID &p_shape) const {
+	Box2DShape2D *shape = shape_owner.get_or_null(p_shape);
+	ERR_FAIL_NULL_V(shape, Variant());
+	return shape->get_data();
+}
+
 // Space API
 RID Box2DPhysicsServer2D::_space_create() {
 	Box2DSpace2D *space = memnew(Box2DSpace2D);
@@ -210,7 +222,7 @@ RID Box2DPhysicsServer2D::_area_get_space(const RID &p_area) const {
 }
 
 void Box2DPhysicsServer2D::_area_add_shape(const RID &p_area, const RID &p_shape, const Transform2D &p_transform, bool p_disabled) {
-	Box2DBody2D *area = body_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_NULL(area);
 
 	Box2DShape2D *shape = shape_owner.get_or_null(p_shape);
@@ -220,7 +232,7 @@ void Box2DPhysicsServer2D::_area_add_shape(const RID &p_area, const RID &p_shape
 }
 
 void Box2DPhysicsServer2D::_area_set_shape(const RID &p_area, int32_t p_shape_idx, const RID &p_shape) {
-	Box2DBody2D *area = body_owner.get_or_null(p_area);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_NULL(area);
 
 	Box2DShape2D *shape = shape_owner.get_or_null(p_shape);
@@ -601,8 +613,10 @@ void Box2DPhysicsServer2D::_body_set_state(const RID &p_body, PhysicsServer2D::B
 			body->set_angular_velocity(p_value);
 			break;
 		case BodyState::BODY_STATE_SLEEPING:
+			body->set_sleep_state(p_value);
 			break;
 		case BodyState::BODY_STATE_CAN_SLEEP:
+			body->set_sleep_enabled(p_value);
 			break;
 		default:
 			break;
@@ -623,7 +637,7 @@ Variant Box2DPhysicsServer2D::_body_get_state(const RID &p_body, PhysicsServer2D
 		case BodyState::BODY_STATE_SLEEPING:
 			return body->is_sleeping();
 		case BodyState::BODY_STATE_CAN_SLEEP:
-			return true;
+			return body->can_sleep();
 		default:
 			return Variant();
 	}

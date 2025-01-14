@@ -14,7 +14,7 @@ ShapeIdAndGeometry Box2DCircleShape2D::add_to_body(b2BodyId p_body, const Transf
 
 ShapeGeometry Box2DCircleShape2D::get_shape_geometry(const Transform2D &p_transform) const {
 	ShapeGeometry shape;
-	shape.type = ShapeGeometry::CIRCLE;
+	shape.type = ShapeGeometry::Type::CIRCLE;
 	if (!make_circle(p_transform, data, shape.circle)) {
 		return ShapeGeometry::invalid();
 	}

@@ -4,11 +4,6 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-Box2DCollisionObject2D::Box2DCollisionObject2D() {
-	shape_def.filter.categoryBits = 1;
-	shape_def.filter.maskBits = 1 | BODY_MASK_BIT;
-}
-
 Box2DCollisionObject2D::~Box2DCollisionObject2D() {
 	ERR_FAIL_COND_MSG(body_exists, "Box2D: Collision object was freed without destroying its Box2D body. This is a bug!");
 }

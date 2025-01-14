@@ -5,8 +5,10 @@
 
 using namespace godot;
 
-class Box2DArea2D : public Box2DCollisionObject2D {
+class Box2DArea2D final : public Box2DCollisionObject2D {
 public:
+	Box2DArea2D();
+
 	void step();
 
 	void set_gravity_override_mode(PhysicsServer2D::AreaSpaceOverrideMode p_mode) {

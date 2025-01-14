@@ -19,6 +19,8 @@ public:
 	/// Return the shape geometry modified by the given transform.
 	virtual ShapeGeometry get_shape_geometry(const Transform2D &p_transform) const = 0;
 
+	virtual PhysicsServer2D::ShapeType get_type() const = 0;
+
 	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }
 	void set_data(const Variant &p_data) { data = p_data; }

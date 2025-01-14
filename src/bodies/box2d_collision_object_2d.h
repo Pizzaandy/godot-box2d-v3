@@ -12,8 +12,16 @@ class Box2DSpace2D;
 
 class Box2DCollisionObject2D {
 public:
-	Box2DCollisionObject2D();
+	enum Type {
+		RIGIDBODY,
+		AREA,
+	};
+
+	explicit Box2DCollisionObject2D(Type p_type) :
+			type(p_type) {};
 	~Box2DCollisionObject2D();
+
+	Type get_type() const { return type; }
 
 	void destroy_body();
 
@@ -77,4 +85,5 @@ protected:
 	b2BodyId body_id = b2_nullBodyId;
 
 	bool body_exists = false;
+	Type type = Type::RIGIDBODY;
 };

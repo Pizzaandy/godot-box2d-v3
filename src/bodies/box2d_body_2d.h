@@ -5,7 +5,7 @@
 
 class Box2DDirectBodyState2D;
 
-class Box2DBody2D : public Box2DCollisionObject2D {
+class Box2DBody2D final : public Box2DCollisionObject2D {
 public:
 	struct Contact {
 		Vector2 local_position;
@@ -24,6 +24,7 @@ public:
 		Vector2 total_gravity = Vector2();
 		float total_linear_damp = 0.0;
 		float total_angular_damp = 0.0;
+		bool skip_world_gravity = false;
 		bool ignore_remaining = false;
 	};
 
@@ -65,9 +66,12 @@ public:
 	Vector2 get_velocity_at_local_point(const Vector2 &p_point) const;
 	void set_angular_velocity(float p_velocity);
 	float get_angular_velocity() const;
+	void set_sleep_state(bool p_sleeping);
 	bool is_sleeping() { return sleeping; }
+	void set_sleep_enabled(bool p_can_sleep);
+	bool can_sleep() const { return body_def.enableSleep; }
 
-	void sync_state(const b2Transform &p_transform, bool is_sleeping);
+	void sync_state(const b2Transform &p_transform, bool p_fell_asleep);
 
 	void update_contacts();
 	int32_t get_contact_count();
