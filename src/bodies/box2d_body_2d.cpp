@@ -167,6 +167,7 @@ void Box2DBody2D::apply_central_force(const Vector2 &p_force) {
 
 void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
 	if (!body_exists) {
+		initial_linear_velocity = p_velocity;
 		return;
 	}
 	b2Body_SetLinearVelocity(body_id, to_box2d(p_velocity));
@@ -190,6 +191,7 @@ Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
 
 void Box2DBody2D::set_angular_velocity(float p_velocity) {
 	if (!body_exists) {
+		initial_angular_velocity = p_velocity;
 		return;
 	}
 	b2Body_SetAngularVelocity(body_id, (float)p_velocity);
@@ -205,7 +207,7 @@ void Box2DBody2D::set_sleep_state(bool p_sleeping) {
 	if (!body_exists) {
 		return;
 	}
-	b2Body_SetAwake(body_id, p_sleeping);
+	b2Body_SetAwake(body_id, !p_sleeping);
 	sleeping = p_sleeping;
 }
 
@@ -583,6 +585,18 @@ void Box2DBody2D::shapes_changed() {
 }
 
 void Box2DBody2D::on_body_created() {
+	if (!initial_linear_velocity.is_zero_approx()) {
+		b2Body_SetLinearVelocity(body_id, to_box2d(initial_linear_velocity));
+		initial_linear_velocity = Vector2();
+	}
+
+	if (!Math::is_zero_approx(initial_angular_velocity)) {
+		b2Body_SetAngularVelocity(body_id, to_box2d(initial_angular_velocity));
+		initial_angular_velocity = 0.0f;
+	}
+
+	b2Body_SetAwake(body_id, !sleeping);
+
 	update_constant_forces_list();
 	update_force_integration_list();
 }

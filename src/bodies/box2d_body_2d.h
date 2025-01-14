@@ -143,7 +143,7 @@ private:
 	HashSet<RID> exceptions;
 
 	Vector2 constant_force = Vector2();
-	float constant_torque = 0.0;
+	float constant_torque = 0.0f;
 
 	PhysicsServer2D::BodyDampMode linear_damp_mode = PhysicsServer2D::BODY_DAMP_MODE_COMBINE;
 	PhysicsServer2D::BodyDampMode angular_damp_mode = PhysicsServer2D::BODY_DAMP_MODE_COMBINE;
@@ -157,19 +157,22 @@ private:
 	Callable force_integration_callback;
 	Variant force_integration_user_data;
 
-	float mass = 1.0;
+	float mass = 1.0f;
 	b2MassData mass_data = b2MassData{ 0 };
 	bool override_center_of_mass = false;
 	Vector2 center_of_mass = Vector2();
 	bool override_inertia = false;
-	float inertia = 0.0;
+	float inertia = 0.0f;
 
-	float character_collision_priority = 0.0;
+	float character_collision_priority = 0.0f;
 
 	bool queried_contacts = false;
 	int max_contact_count = 0;
-	float contact_depth_threshold = -100.0;
+	float contact_depth_threshold = -100.0f;
 	// TODO: expose
 	bool contact_ignore_speculative = true;
 	LocalVector<Contact> contacts;
+
+	Vector2 initial_linear_velocity = Vector2();
+	float initial_angular_velocity = 0.0f;
 };
