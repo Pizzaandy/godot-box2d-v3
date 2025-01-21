@@ -204,11 +204,15 @@ float Box2DBody2D::get_angular_velocity() const {
 }
 
 void Box2DBody2D::set_sleep_state(bool p_sleeping) {
+	sleeping = p_sleeping;
+
 	if (!body_exists) {
+		// Sleep state can be set before the body is created.
+		body_def.isAwake = !p_sleeping;
 		return;
 	}
+
 	b2Body_SetAwake(body_id, !p_sleeping);
-	sleeping = p_sleeping;
 }
 
 void Box2DBody2D::set_sleep_enabled(bool p_can_sleep) {
@@ -585,6 +589,10 @@ void Box2DBody2D::shapes_changed() {
 }
 
 void Box2DBody2D::on_body_created() {
+	// Bodies start asleep if their state is set with body_set_state before adding them to a space.
+	// After creation, reset the sleep state to the default.
+	body_def.isAwake = true;
+
 	if (!initial_linear_velocity.is_zero_approx()) {
 		b2Body_SetLinearVelocity(body_id, to_box2d(initial_linear_velocity));
 		initial_linear_velocity = Vector2();
@@ -594,8 +602,6 @@ void Box2DBody2D::on_body_created() {
 		b2Body_SetAngularVelocity(body_id, to_box2d(initial_angular_velocity));
 		initial_angular_velocity = 0.0f;
 	}
-
-	b2Body_SetAwake(body_id, !sleeping);
 
 	update_constant_forces_list();
 	update_force_integration_list();

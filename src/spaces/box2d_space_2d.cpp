@@ -41,13 +41,15 @@ void finish_task_callback(void *taskPtr, void *userContext) {
 }
 
 bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *manifold, void *context) {
-	// Optimization: assume sensors are attached to Areas. This may change in the future.
-	if (b2Shape_IsSensor(shapeIdA) || b2Shape_IsSensor(shapeIdB)) {
+	Box2DCollisionObject2D *object_a = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)));
+	Box2DCollisionObject2D *object_b = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)));
+
+	if (object_a->is_area() || object_b->is_area()) {
 		return true;
 	}
 
-	Box2DBody2D *body_a = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)));
-	Box2DBody2D *body_b = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)));
+	Box2DBody2D *body_a = static_cast<Box2DBody2D *>(object_a);
+	Box2DBody2D *body_b = static_cast<Box2DBody2D *>(object_b);
 
 	if (body_a->is_collision_exception(body_b->get_rid()) ||
 			body_b->is_collision_exception(body_a->get_rid())) {
@@ -107,6 +109,10 @@ Box2DSpace2D::Box2DSpace2D() {
 
 	b2WorldDef world_def = b2DefaultWorldDef();
 	world_def.gravity = to_box2d(default_gravity);
+
+	// TODO: add settings for mixing rules
+	// world_def.frictionMixingRule = b2_mixMinimum;
+	// world_def.restitutionMixingRule = b2_mixAverage;
 
 	world_def.workerCount = max_tasks;
 	world_def.userTaskContext = this;

@@ -82,7 +82,6 @@ public:
 private:
 	LocalVector<Box2DBody2D *> constant_force_list;
 	LocalVector<Box2DBody2D *> force_integration_list;
-
 	LocalVector<Box2DArea2D *> areas_to_step;
 
 	b2WorldId world_id = b2_nullWorldId;

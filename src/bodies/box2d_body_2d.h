@@ -148,10 +148,11 @@ private:
 	PhysicsServer2D::BodyDampMode linear_damp_mode = PhysicsServer2D::BODY_DAMP_MODE_COMBINE;
 	PhysicsServer2D::BodyDampMode angular_damp_mode = PhysicsServer2D::BODY_DAMP_MODE_COMBINE;
 
-	bool sleeping = false;
-
 	bool in_constant_forces_list = false;
 	bool in_force_integration_list = false;
+	bool sleeping = false;
+	Vector2 initial_linear_velocity = Vector2();
+	float initial_angular_velocity = 0.0f;
 
 	Callable body_state_callback;
 	Callable force_integration_callback;
@@ -172,7 +173,4 @@ private:
 	// TODO: expose
 	bool contact_ignore_speculative = true;
 	LocalVector<Contact> contacts;
-
-	Vector2 initial_linear_velocity = Vector2();
-	float initial_angular_velocity = 0.0f;
 };

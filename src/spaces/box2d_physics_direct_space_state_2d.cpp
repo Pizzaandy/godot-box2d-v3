@@ -280,7 +280,7 @@ bool Box2DDirectSpaceState2D::_rest_info(
 			continue;
 		}
 
-		if (overlap.body->get_type() == Box2DCollisionObject2D::Type::AREA) {
+		if (overlap.body->is_area()) {
 			continue;
 		}
 

@@ -34,7 +34,7 @@ bool Box2DCapsuleShape2D::make_capsule(const Transform2D &p_transform, const Var
 		radius = arr[1];
 	} else {
 		Vector2 p = p_data;
-		// ???
+		// Order for Vector2 is flipped for some reason
 		radius = p.x;
 		height = p.y;
 	}

@@ -22,6 +22,7 @@ public:
 	~Box2DCollisionObject2D();
 
 	Type get_type() const { return type; }
+	bool is_area() const { return type == Type::AREA; }
 
 	void destroy_body();
 
