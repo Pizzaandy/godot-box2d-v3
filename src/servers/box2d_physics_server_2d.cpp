@@ -311,12 +311,133 @@ void Box2DPhysicsServer2D::_area_set_param(
 		const RID &p_area,
 		AreaParameter p_param,
 		const Variant &p_value) {
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL(area);
+
+	switch (p_param) {
+		case AreaParameter::AREA_PARAM_GRAVITY_OVERRIDE_MODE:
+			// TODO: add more variant type checks like this
+			ERR_FAIL_COND(p_value.get_type() != Variant::INT);
+			int value = (int)p_value;
+			ERR_FAIL_INDEX(value, 4);
+			area->set_gravity_override_mode((PhysicsServer2D::AreaSpaceOverrideMode)value);
+			break;
+		case AreaParameter::AREA_PARAM_GRAVITY:
+			area->set_gravity_strength(p_value);
+			break;
+		case AreaParameter::AREA_PARAM_GRAVITY_VECTOR:
+			area->set_gravity_direction(p_value);
+			break;
+		case AreaParameter::AREA_PARAM_GRAVITY_IS_POINT:
+			area->set_gravity_direction(p_value);
+			break;
+		case AreaParameter::AREA_PARAM_GRAVITY_POINT_UNIT_DISTANCE:
+			area->set_gravity_point_unit_distance(p_value);
+			break;
+		case AreaParameter::AREA_PARAM_LINEAR_DAMP_OVERRIDE_MODE:
+			area->set_linear_damp_override_mode((PhysicsServer2D::AreaSpaceOverrideMode)(int)p_value);
+			break;
+		case AreaParameter::AREA_PARAM_LINEAR_DAMP:
+			area->set_linear_damp(p_value);
+			break;
+		case AreaParameter::AREA_PARAM_ANGULAR_DAMP_OVERRIDE_MODE:
+			area->set_angular_damp_override_mode((PhysicsServer2D::AreaSpaceOverrideMode)(int)p_value);
+			break;
+		case AreaParameter::AREA_PARAM_ANGULAR_DAMP:
+			area->set_angular_damp(p_value);
+			break;
+		case AreaParameter::AREA_PARAM_PRIORITY:
+			area->set_priority(p_value);
+			break;
+		default:
+			break;
+	}
 }
 
 void Box2DPhysicsServer2D::_area_set_transform(const RID &p_area, const Transform2D &p_transform) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_NULL(area);
 	area->set_transform(p_transform);
+}
+
+Variant Box2DPhysicsServer2D::_area_get_param(const RID &p_area, PhysicsServer2D::AreaParameter p_param) const {
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL_V(area, Variant());
+
+	switch (p_param) {
+		case AreaParameter::AREA_PARAM_GRAVITY_OVERRIDE_MODE:
+			return area->get_gravity_override_mode();
+		case AreaParameter::AREA_PARAM_GRAVITY:
+			return area->get_gravity_strength();
+		case AreaParameter::AREA_PARAM_GRAVITY_VECTOR:
+			return area->get_gravity_direction();
+		case AreaParameter::AREA_PARAM_GRAVITY_IS_POINT:
+			return area->get_angular_damp();
+		case AreaParameter::AREA_PARAM_GRAVITY_POINT_UNIT_DISTANCE:
+			return area->get_gravity_point_unit_distance();
+		case AreaParameter::AREA_PARAM_LINEAR_DAMP_OVERRIDE_MODE:
+			return area->get_linear_damp_override_mode();
+		case AreaParameter::AREA_PARAM_LINEAR_DAMP:
+			return area->get_linear_damp();
+		case AreaParameter::AREA_PARAM_ANGULAR_DAMP_OVERRIDE_MODE:
+			return area->get_angular_damp_override_mode();
+		case AreaParameter::AREA_PARAM_ANGULAR_DAMP:
+			return area->get_angular_damp();
+		case AreaParameter::AREA_PARAM_PRIORITY:
+			return area->get_priority();
+		default:
+			ERR_FAIL_V(Variant());
+	}
+}
+
+Transform2D Box2DPhysicsServer2D::_area_get_transform(const RID &p_area) const {
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL_V(area, Transform2D());
+	return area->get_transform();
+}
+
+void Box2DPhysicsServer2D::_area_set_collision_layer(const RID &p_area, uint32_t p_layer) {
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL(area);
+	area->set_collision_layer(p_layer);
+}
+
+uint32_t Box2DPhysicsServer2D::_area_get_collision_layer(const RID &p_area) const {
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL_V(area, 0);
+	return area->get_collision_layer();
+}
+
+void Box2DPhysicsServer2D::_area_set_collision_mask(const RID &p_area, uint32_t p_mask) {
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL(area);
+	area->set_collision_mask(p_mask);
+}
+
+uint32_t Box2DPhysicsServer2D::_area_get_collision_mask(const RID &p_area) const {
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL_V(area, 0);
+	return area->get_collision_mask();
+}
+
+void Box2DPhysicsServer2D::_area_set_monitorable(const RID &p_area, bool p_monitorable) {
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL(area);
+	return area->set_monitorable(p_monitorable);
+}
+
+void Box2DPhysicsServer2D::_area_set_pickable(const RID &p_area, bool p_pickable) {
+	// TODO: figure out what to do here
+}
+
+void Box2DPhysicsServer2D::_area_set_monitor_callback(const RID &p_area, const Callable &p_callback) {
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL(area);
+	area->set_monitor_callback(p_callback);
+}
+
+void Box2DPhysicsServer2D::_area_set_area_monitor_callback(const RID &p_area, const Callable &p_callback) {
+	_area_set_monitor_callback(p_area, p_callback);
 }
 
 // Body API
