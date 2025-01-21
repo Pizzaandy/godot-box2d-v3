@@ -316,11 +316,8 @@ void Box2DPhysicsServer2D::_area_set_param(
 
 	switch (p_param) {
 		case AreaParameter::AREA_PARAM_GRAVITY_OVERRIDE_MODE:
-			// TODO: add more variant type checks like this
-			ERR_FAIL_COND(p_value.get_type() != Variant::INT);
-			int value = (int)p_value;
-			ERR_FAIL_INDEX(value, 4);
-			area->set_gravity_override_mode((PhysicsServer2D::AreaSpaceOverrideMode)value);
+			// TODO: add variant type checks
+			area->set_gravity_override_mode((PhysicsServer2D::AreaSpaceOverrideMode)(int)p_value);
 			break;
 		case AreaParameter::AREA_PARAM_GRAVITY:
 			area->set_gravity_strength(p_value);

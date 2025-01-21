@@ -73,9 +73,9 @@ public:
 	void _area_set_collision_mask(const RID &p_area, uint32_t p_mask) override;
 	uint32_t _area_get_collision_mask(const RID &p_area) const override;
 	void _area_set_monitorable(const RID &p_area, bool p_monitorable) override;
-	// void _area_set_pickable(const RID &p_area, bool p_pickable) override;
-	// void _area_set_monitor_callback(const RID &p_area, const Callable &p_callback) override;
-	// void _area_set_area_monitor_callback(const RID &p_area, const Callable &p_callback) override;
+	void _area_set_pickable(const RID &p_area, bool p_pickable) override;
+	void _area_set_monitor_callback(const RID &p_area, const Callable &p_callback) override;
+	void _area_set_area_monitor_callback(const RID &p_area, const Callable &p_callback) override;
 
 	RID _body_create() override;
 	void _body_set_space(const RID &p_body, const RID &p_space) override;
