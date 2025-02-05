@@ -1,4 +1,5 @@
 #include "box2d_shape_instance.h"
+#include "../bodies/box2d_collision_object_2d.h"
 
 void Box2DShapeInstance::set_shape(Box2DShape2D *p_shape) {
 	if (shape) {
@@ -14,32 +15,18 @@ void Box2DShapeInstance::set_shape(Box2DShape2D *p_shape) {
 	p_shape->add_instance(this);
 }
 
-void Box2DShapeInstance::build(b2BodyId p_body, const Transform2D &p_local_transform, b2ShapeDef p_shape_def) {
-	destroy();
+void Box2DShapeInstance::build() {
+	ERR_FAIL_COND(!shape);
+	ERR_FAIL_COND(!body);
+
+	shape->remove_from_body(body, this);
 
 	if (disabled) {
 		return;
 	}
 
-	ERR_FAIL_COND(!shape);
+	Transform2D parent_transform = body->get_transform();
+	Transform2D parent_scale_and_skew = Transform2D(0.0, parent_transform.get_scale(), parent_transform.get_skew(), Vector2());
 
-	p_shape_def.userData = this;
-	ShapeIdAndGeometry result = shape->add_to_body(p_body, p_local_transform, p_shape_def);
-
-	shape_id = result.id;
-	shape_geometry = result.info;
-}
-
-void Box2DShapeInstance::destroy() {
-	if (shape_id.type == ShapeID::Type::CHAIN) {
-		if (b2Chain_IsValid(shape_id.chain_id)) {
-			b2DestroyChain(shape_id.chain_id);
-		}
-	} else if (shape_id.type == ShapeID::Type::DEFAULT) {
-		if (b2Shape_IsValid(shape_id.shape_id)) {
-			b2DestroyShape(shape_id.shape_id, false);
-		}
-	}
-
-	shape_id = ShapeID::invalid();
+	shape->add_to_body(body, parent_scale_and_skew * transform, body->get_shape_def());
 }

@@ -154,12 +154,11 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 	bool scale_changed = !current_transform.get_scale().is_equal_approx(p_transform.get_scale());
 	bool skew_changed = !Math::is_equal_approx(current_transform.get_skew(), p_transform.get_skew());
 
+	current_transform = p_transform;
+
 	if (scale_changed || skew_changed) {
-		current_transform = p_transform;
 		rebuild_all_shapes();
 	}
-
-	current_transform = p_transform;
 }
 
 RID Box2DCollisionObject2D::get_shape_rid(int p_index) const {
@@ -187,10 +186,7 @@ void Box2DCollisionObject2D::build_shape(Box2DShapeInstance *p_shape, bool p_sha
 
 	ERR_FAIL_COND(space->locked);
 
-	// Apply parent scale and skew
-	Transform2D scale_and_skew = Transform2D(0.0, current_transform.get_scale(), current_transform.get_skew(), Vector2());
-
-	p_shape->build(body_id, scale_and_skew * p_shape->transform, shape_def);
+	p_shape->build();
 
 	if (p_shapes_changed) {
 		shapes_changed();
@@ -206,10 +202,7 @@ void Box2DCollisionObject2D::rebuild_all_shapes() {
 }
 
 void Box2DCollisionObject2D::add_shape(Box2DShape2D *p_shape, const Transform2D &p_transform, bool p_disabled) {
-	Box2DShapeInstance *shape = memnew(Box2DShapeInstance);
-	shape->set_shape(p_shape);
-	shape->transform = p_transform;
-	shape->disabled = p_disabled;
+	Box2DShapeInstance *shape = memnew(Box2DShapeInstance(this, p_shape, p_transform, p_disabled));
 
 	build_shape(shape, true);
 	shapes.push_back(shape);
@@ -232,6 +225,25 @@ void Box2DCollisionObject2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 
 	shapes.remove_at(p_index);
+
+	int index = 0;
+	for (Box2DShapeInstance *shape : shapes) {
+		shape->index = index;
+		index++;
+	}
+
+	shapes_changed();
+}
+
+void Box2DCollisionObject2D::remove_shape(Box2DShape2D *p_shape) {
+	ERR_FAIL_NULL(p_shape);
+
+	for (int i = 0; i < shapes.size(); i++) {
+		if (shapes[i]->get_shape_or_null() == p_shape) {
+			shapes.remove_at(i);
+			i--;
+		}
+	}
 
 	int index = 0;
 	for (Box2DShapeInstance *shape : shapes) {

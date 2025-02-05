@@ -34,7 +34,7 @@ public:
 	PhysicsServer2D::ShapeType _shape_get_type(const RID &p_shape) const override;
 	Variant _shape_get_data(const RID &p_shape) const override;
 	float _shape_get_custom_solver_bias(const RID &p_shape) const override { return 0; }
-	//bool _shape_collide(const RID &p_shape_A, const Transform2D &p_xform_A, const Vector2 &p_motion_A, const RID &p_shape_B, const Transform2D &p_xform_B, const Vector2 &p_motion_B, void *p_results, int32_t p_result_max, int32_t *p_result_count) override;
+	bool _shape_collide(const RID &p_shape_A, const Transform2D &p_xform_A, const Vector2 &p_motion_A, const RID &p_shape_B, const Transform2D &p_xform_B, const Vector2 &p_motion_B, void *p_results, int32_t p_result_max, int32_t *p_result_count) override;
 
 	RID _space_create() override;
 	void _space_set_active(const RID &p_space, bool p_active) override;

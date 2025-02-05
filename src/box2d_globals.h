@@ -116,11 +116,6 @@ struct ShapeID {
 	}
 };
 
-struct ShapeIdAndGeometry {
-	ShapeID id = ShapeID::invalid();
-	ShapeGeometry info = ShapeGeometry::invalid();
-};
-
 /// Range for iterating body shapes.
 class BodyShapeRange {
 public:

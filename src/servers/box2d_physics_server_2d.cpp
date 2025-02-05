@@ -111,6 +111,19 @@ Variant Box2DPhysicsServer2D::_shape_get_data(const RID &p_shape) const {
 	return shape->get_data();
 }
 
+bool Box2DPhysicsServer2D::_shape_collide(
+		const RID &p_shape_A,
+		const Transform2D &p_xform_A,
+		const Vector2 &p_motion_A,
+		const RID &p_shape_B,
+		const Transform2D &p_xform_B,
+		const Vector2 &p_motion_B,
+		void *p_results,
+		int32_t p_result_max,
+		int32_t *p_result_count) {
+	return false;
+}
+
 // Space API
 RID Box2DPhysicsServer2D::_space_create() {
 	Box2DSpace2D *space = memnew(Box2DSpace2D);
