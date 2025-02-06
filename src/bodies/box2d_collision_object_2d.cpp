@@ -128,10 +128,6 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 	float rotation = p_transform.get_rotation();
 	float last_step = space->get_last_step();
 
-	if (is_area()) {
-		p_move_kinematic = false;
-	}
-
 	if (p_move_kinematic && mode == PhysicsServer2D::BODY_MODE_KINEMATIC) {
 		if (last_step < 0.0) {
 			current_transform = p_transform;
