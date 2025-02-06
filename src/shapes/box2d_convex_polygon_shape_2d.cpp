@@ -6,7 +6,8 @@ void Box2DConvexPolygonShape2D::add_to_body(b2BodyId p_body_id, Box2DShapeInstan
 	if (!make_polygon(p_instance->get_shape_transform(), data, shape)) {
 		return;
 	}
-	b2ShapeId id = b2CreatePolygonShape(p_body_id, &p_instance->get_shape_def(), &shape);
+	b2ShapeDef shape_def = p_instance->get_shape_def();
+	b2ShapeId id = b2CreatePolygonShape(p_body_id, &shape_def, &shape);
 	p_instance->shape_ids.push_back(id);
 }
 

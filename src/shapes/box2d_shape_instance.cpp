@@ -15,7 +15,7 @@ Box2DShapeInstance::Box2DShapeInstance(Box2DCollisionObject2D *p_body,
 }
 
 Box2DShapeInstance::~Box2DShapeInstance() {
-	if (shape) {
+	if (!shape) {
 		return;
 	}
 	shape->remove_body_reference(body);
