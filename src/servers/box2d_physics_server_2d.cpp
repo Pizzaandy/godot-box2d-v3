@@ -129,6 +129,13 @@ RID Box2DPhysicsServer2D::_space_create() {
 	Box2DSpace2D *space = memnew(Box2DSpace2D);
 	RID rid = space_owner.make_rid(space);
 	space->set_rid(rid);
+
+	const RID default_area_rid = area_create();
+	Box2DArea2D *default_area = area_owner.get_or_null(default_area_rid);
+	ERR_FAIL_NULL_V(default_area, RID());
+	space->set_default_area(default_area);
+	default_area->set_space(space);
+
 	return rid;
 }
 
@@ -324,7 +331,14 @@ void Box2DPhysicsServer2D::_area_set_param(
 		const RID &p_area,
 		AreaParameter p_param,
 		const Variant &p_value) {
-	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	RID area_rid = p_area;
+
+	if (space_owner.owns(area_rid)) {
+		const Box2DSpace2D *space = space_owner.get_or_null(area_rid);
+		area_rid = space->get_default_area()->get_rid();
+	}
+
+	Box2DArea2D *area = area_owner.get_or_null(area_rid);
 	ERR_FAIL_NULL(area);
 
 	switch (p_param) {
@@ -371,7 +385,14 @@ void Box2DPhysicsServer2D::_area_set_transform(const RID &p_area, const Transfor
 }
 
 Variant Box2DPhysicsServer2D::_area_get_param(const RID &p_area, PhysicsServer2D::AreaParameter p_param) const {
-	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	RID area_rid = p_area;
+
+	if (space_owner.owns(area_rid)) {
+		const Box2DSpace2D *space = space_owner.get_or_null(area_rid);
+		area_rid = space->get_default_area()->get_rid();
+	}
+
+	Box2DArea2D *area = area_owner.get_or_null(area_rid);
 	ERR_FAIL_NULL_V(area, Variant());
 
 	switch (p_param) {

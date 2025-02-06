@@ -54,6 +54,9 @@ public:
 		}
 	}
 
+	void set_default_area(Box2DArea2D *p_area) { default_area = p_area; }
+	Box2DArea2D *get_default_area() const { return default_area; }
+
 	void set_default_gravity(Vector2 p_gravity);
 	Vector2 get_default_gravity() { return default_gravity; }
 
@@ -84,9 +87,11 @@ private:
 	LocalVector<Box2DBody2D *> force_integration_list;
 	LocalVector<Box2DArea2D *> areas_to_step;
 
+	Box2DArea2D *default_area = nullptr;
+	Box2DDirectSpaceState2D *direct_state = nullptr;
+
 	b2WorldId world_id = b2_nullWorldId;
 	RID rid;
-	Box2DDirectSpaceState2D *direct_state = nullptr;
 	float last_step = -1.0;
 	b2ContactEvents contact_events;
 	PackedVector2Array debug_contacts;

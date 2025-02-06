@@ -92,6 +92,14 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 	return true;
 }
 
+float friction_callback(float frictionA, int materialA, float frictionB, int materialB) {
+	return ABS(MIN(frictionA, frictionB));
+}
+
+float restitution_callback(float restitutionA, int materialA, float restitutionB, int materialB) {
+	return CLAMP(restitutionA + restitutionB, 0.0f, 1.0f);
+}
+
 Box2DSpace2D::Box2DSpace2D() {
 	substeps = Box2DProjectSettings::get_substeps();
 	default_gravity = Box2DProjectSettings::get_default_gravity();
@@ -111,8 +119,8 @@ Box2DSpace2D::Box2DSpace2D() {
 	world_def.gravity = to_box2d(default_gravity);
 
 	// TODO: add settings for mixing rules
-	// world_def.frictionMixingRule = b2_mixMinimum;
-	// world_def.restitutionMixingRule = b2_mixAverage;
+	world_def.frictionCallback = friction_callback;
+	world_def.restitutionCallback = restitution_callback;
 
 	world_def.workerCount = max_tasks;
 	world_def.userTaskContext = this;
