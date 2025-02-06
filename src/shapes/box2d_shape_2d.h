@@ -3,34 +3,40 @@
 #include "../box2d_globals.h"
 #include "box2d_shape_instance.h"
 #include <godot_cpp/classes/physics_server2d.hpp>
-#include <godot_cpp/templates/hash_set.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 
 using namespace godot;
 
 class Box2DShapeInstance;
+class Box2DCollisionObject2D;
 
-/// Builder class for shapes.
 class Box2DShape2D {
 public:
 	virtual ~Box2DShape2D();
 
-	virtual ShapeIdAndGeometry add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const = 0;
+	/// Note: This does not validate data
+	virtual void add_to_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const = 0;
+	virtual void remove_from_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const;
 
 	/// Return the shape geometry modified by the given transform.
 	virtual ShapeGeometry get_shape_geometry(const Transform2D &p_transform) const = 0;
 
 	virtual PhysicsServer2D::ShapeType get_type() const = 0;
 
-	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }
-	void set_data(const Variant &p_data) { data = p_data; }
+	RID get_rid() const { return rid; }
+
+	void set_data(const Variant &p_data);
 	Variant get_data() const { return data; }
 
-	void add_instance(Box2DShapeInstance *p_shape) { instances.insert(p_shape); }
-	void remove_instance(Box2DShapeInstance *p_shape) { instances.erase(p_shape); }
+	void add_body_reference(Box2DCollisionObject2D *p_owner);
+	void remove_body_reference(Box2DCollisionObject2D *p_owner);
+	void remove_from_all_bodies();
 
 protected:
+	void update_instances();
+
 	RID rid;
 	Variant data;
-	HashSet<Box2DShapeInstance *> instances;
+	HashMap<Box2DCollisionObject2D *, int> ref_counts_by_body;
 };

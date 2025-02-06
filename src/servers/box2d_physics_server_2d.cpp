@@ -111,6 +111,19 @@ Variant Box2DPhysicsServer2D::_shape_get_data(const RID &p_shape) const {
 	return shape->get_data();
 }
 
+bool Box2DPhysicsServer2D::_shape_collide(
+		const RID &p_shape_A,
+		const Transform2D &p_xform_A,
+		const Vector2 &p_motion_A,
+		const RID &p_shape_B,
+		const Transform2D &p_xform_B,
+		const Vector2 &p_motion_B,
+		void *p_results,
+		int32_t p_result_max,
+		int32_t *p_result_count) {
+	return false;
+}
+
 // Space API
 RID Box2DPhysicsServer2D::_space_create() {
 	Box2DSpace2D *space = memnew(Box2DSpace2D);
@@ -190,9 +203,9 @@ Array Box2DPhysicsServer2D::space_get_body_move_events(const RID &p_space) const
 
 // Area API
 RID Box2DPhysicsServer2D::_area_create() {
-	Box2DArea2D *body = memnew(Box2DArea2D);
-	RID rid = area_owner.make_rid(body);
-	body->set_rid(rid);
+	Box2DArea2D *area = memnew(Box2DArea2D);
+	RID rid = area_owner.make_rid(area);
+	area->set_rid(rid);
 	return rid;
 }
 
@@ -1181,16 +1194,16 @@ void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 	if (shape_owner.owns(p_rid)) {
 		Box2DShape2D *shape = shape_owner.get_or_null(p_rid);
 		shape_owner.free(p_rid);
-		shapes_to_delete.push_back(shape);
+		memdelete(shape);
 	} else if (body_owner.owns(p_rid)) {
 		Box2DBody2D *body = body_owner.get_or_null(p_rid);
+		body->set_space(nullptr);
 		body_owner.free(p_rid);
-		body->destroy_body();
 		bodies_to_delete.push_back(body);
 	} else if (area_owner.owns(p_rid)) {
 		Box2DArea2D *area = area_owner.get_or_null(p_rid);
+		area->set_space(nullptr);
 		area_owner.free(p_rid);
-		area->destroy_body();
 		areas_to_delete.push_back(area);
 	} else if (space_owner.owns(p_rid)) {
 		Box2DSpace2D *space = space_owner.get_or_null(p_rid);
@@ -1232,11 +1245,6 @@ void Box2DPhysicsServer2D::_step(float p_step) {
 		memdelete(p_body);
 	}
 	bodies_to_delete.clear();
-
-	for (Box2DShape2D *p_shape : shapes_to_delete) {
-		memdelete(p_shape);
-	}
-	shapes_to_delete.clear();
 
 #ifdef TRACY_ENABLE
 	FrameMark;

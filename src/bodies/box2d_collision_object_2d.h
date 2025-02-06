@@ -19,7 +19,6 @@ public:
 
 	explicit Box2DCollisionObject2D(Type p_type) :
 			type(p_type) {};
-	~Box2DCollisionObject2D();
 
 	Type get_type() const { return type; }
 	bool is_area() const { return type == Type::AREA; }
@@ -43,10 +42,15 @@ public:
 	void set_transform(const Transform2D &p_transform, bool p_move_kinematic = false);
 	Transform2D get_transform() const { return current_transform; }
 
+	b2BodyId get_body_id() const { return body_id; }
+	b2ShapeDef get_shape_def() const { return shape_def; }
+
 	void add_shape(Box2DShape2D *p_shape, const Transform2D &p_transform, bool p_disabled);
 	void set_shape(int p_index, Box2DShape2D *p_shape);
 	void remove_shape(int p_index);
+	void remove_shape(Box2DShape2D *p_shape);
 	void clear_shapes();
+	void reindex_all_shapes();
 
 	int32_t get_shape_count() const { return shapes.size(); }
 	void set_shape_transform(int p_index, const Transform2D &p_transform);
@@ -68,7 +72,7 @@ public:
 	virtual void on_destroy_body() {};
 
 protected:
-	void build_shape(Box2DShapeInstance *p_shape, bool p_shapes_changed = true);
+	void build_shape(Box2DShapeInstance &p_shape, bool p_shapes_changed = true);
 	void rebuild_all_shapes();
 
 	Variant user_data = Variant();
@@ -78,7 +82,7 @@ protected:
 	ObjectID instance_id;
 	ObjectID canvas_instance_id;
 	Transform2D current_transform;
-	LocalVector<Box2DShapeInstance *> shapes;
+	LocalVector<Box2DShapeInstance> shapes;
 	PhysicsServer2D::BodyMode mode = PhysicsServer2D::BodyMode::BODY_MODE_STATIC;
 
 	b2BodyDef body_def = b2DefaultBodyDef();

@@ -415,15 +415,15 @@ TypedArray<RID> Box2DBody2D::get_collision_exceptions() const {
 
 void Box2DBody2D::set_shape_one_way_collision(int p_index, bool p_one_way, float p_margin) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
-	Box2DShapeInstance *shape = shapes[p_index];
-	shape->one_way_collision = p_one_way;
-	shape->one_way_collision_margin = p_margin;
+	Box2DShapeInstance &shape = shapes[p_index];
+	shape.one_way_collision = p_one_way;
+	shape.one_way_collision_margin = p_margin;
 }
 
 bool Box2DBody2D::get_shape_one_way_collision(int p_index) {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), false);
-	Box2DShapeInstance *shape = shapes[p_index];
-	return shape->one_way_collision;
+	Box2DShapeInstance &shape = shapes[p_index];
+	return shape.one_way_collision;
 }
 
 void Box2DBody2D::update_mass() {

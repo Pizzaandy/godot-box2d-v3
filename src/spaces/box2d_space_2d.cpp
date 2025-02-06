@@ -131,8 +131,10 @@ Box2DSpace2D::~Box2DSpace2D() {
 		memdelete(direct_state);
 	}
 
-	ERR_FAIL_COND(!b2World_IsValid(world_id));
-	b2DestroyWorld(world_id);
+	if (b2World_IsValid(world_id)) {
+		b2DestroyWorld(world_id);
+	}
+
 	world_id = b2_nullWorldId;
 }
 
@@ -162,7 +164,11 @@ void Box2DSpace2D::sync_state() {
 
 	for (int i = 0; i < body_events.moveCount; ++i) {
 		const b2BodyMoveEvent *event = body_events.moveEvents + i;
-		Box2DBody2D *body = static_cast<Box2DBody2D *>(event->userData);
+		Box2DCollisionObject2D *object = static_cast<Box2DCollisionObject2D *>(event->userData);
+		if (object->is_area()) {
+			continue;
+		}
+		Box2DBody2D *body = static_cast<Box2DBody2D *>(object);
 		body->sync_state(event->transform, event->fellAsleep);
 	}
 }

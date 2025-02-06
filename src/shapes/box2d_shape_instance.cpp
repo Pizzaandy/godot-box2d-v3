@@ -1,45 +1,49 @@
 #include "box2d_shape_instance.h"
+#include "../bodies/box2d_collision_object_2d.h"
 
-void Box2DShapeInstance::set_shape(Box2DShape2D *p_shape) {
+Box2DShapeInstance::Box2DShapeInstance(
+		Box2DCollisionObject2D *p_body,
+		Box2DShape2D *p_shape,
+		const Transform2D &p_transform,
+		bool p_disabled) :
+		body(p_body),
+		shape(p_shape),
+		transform(p_transform),
+		disabled(p_disabled) {
 	if (shape) {
-		shape->remove_instance(this);
+		shape->add_body_reference(body);
 	}
-
-	if (!p_shape) {
-		shape = nullptr;
-		return;
-	}
-
-	shape = p_shape;
-	p_shape->add_instance(this);
 }
 
-void Box2DShapeInstance::build(b2BodyId p_body, const Transform2D &p_local_transform, b2ShapeDef p_shape_def) {
-	destroy();
+Box2DShapeInstance::~Box2DShapeInstance() {
+	if (!shape || !body) {
+		return;
+	}
+	shape->remove_from_body(body->get_body_id(), this);
+	shape->remove_body_reference(body);
+}
+
+void Box2DShapeInstance::build() {
+	ERR_FAIL_COND(!shape);
+	ERR_FAIL_COND(!body);
+
+	shape->remove_from_body(body->get_body_id(), this);
 
 	if (disabled) {
 		return;
 	}
 
-	ERR_FAIL_COND(!shape);
-
-	p_shape_def.userData = this;
-	ShapeIdAndGeometry result = shape->add_to_body(p_body, p_local_transform, p_shape_def);
-
-	shape_id = result.id;
-	shape_geometry = result.info;
+	shape->add_to_body(body->get_body_id(), this);
 }
 
-void Box2DShapeInstance::destroy() {
-	if (shape_id.type == ShapeID::Type::CHAIN) {
-		if (b2Chain_IsValid(shape_id.chain_id)) {
-			b2DestroyChain(shape_id.chain_id);
-		}
-	} else if (shape_id.type == ShapeID::Type::DEFAULT) {
-		if (b2Shape_IsValid(shape_id.shape_id)) {
-			b2DestroyShape(shape_id.shape_id, false);
-		}
-	}
+Transform2D Box2DShapeInstance::get_shape_transform() const {
+	Transform2D parent_transform = body->get_transform();
+	Transform2D parent_scale_and_skew = Transform2D(0.0, parent_transform.get_scale(), parent_transform.get_skew(), Vector2());
+	return parent_scale_and_skew * transform;
+}
 
-	shape_id = ShapeID::invalid();
+b2ShapeDef Box2DShapeInstance::get_shape_def() const {
+	b2ShapeDef shape_def = body->get_shape_def();
+	shape_def.userData = (void *)this;
+	return shape_def;
 }
