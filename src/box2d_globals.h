@@ -80,42 +80,6 @@ struct ShapeGeometry {
 	}
 };
 
-/// A shape or chain id.
-struct ShapeID {
-	enum Type {
-		INVALID,
-		DEFAULT,
-		CHAIN,
-	};
-
-	Type type = Type::INVALID;
-
-	union {
-		b2ShapeId shape_id;
-		b2ChainId chain_id;
-	};
-
-	ShapeID() = default;
-
-	ShapeID(b2ShapeId p_shape_id) {
-		type = Type::DEFAULT;
-		shape_id = p_shape_id;
-	}
-
-	ShapeID(b2ChainId p_chain_id) {
-		type = Type::CHAIN;
-		chain_id = p_chain_id;
-	}
-
-	_FORCE_INLINE_ bool is_valid() {
-		return type != Type::INVALID;
-	}
-
-	_FORCE_INLINE_ static ShapeID invalid() {
-		return {};
-	}
-};
-
 /// Range for iterating body shapes.
 class BodyShapeRange {
 public:
