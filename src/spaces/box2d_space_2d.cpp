@@ -131,8 +131,10 @@ Box2DSpace2D::~Box2DSpace2D() {
 		memdelete(direct_state);
 	}
 
-	ERR_FAIL_COND(!b2World_IsValid(world_id));
-	b2DestroyWorld(world_id);
+	if (b2World_IsValid(world_id)) {
+		b2DestroyWorld(world_id);
+	}
+
 	world_id = b2_nullWorldId;
 }
 

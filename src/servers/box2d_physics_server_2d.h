@@ -191,7 +191,6 @@ private:
 	bool flushing_queries;
 
 	LocalVector<Box2DBody2D *> bodies_to_delete;
-	LocalVector<Box2DShape2D *> shapes_to_delete;
 	LocalVector<Box2DArea2D *> areas_to_delete;
 
 	mutable RID_PtrOwner<Box2DSpace2D> space_owner;

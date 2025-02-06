@@ -4,10 +4,6 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-Box2DCollisionObject2D::~Box2DCollisionObject2D() {
-	ERR_FAIL_COND_MSG(body_exists, "Box2D: Collision object was freed without destroying its Box2D body. This is a bug!");
-}
-
 void Box2DCollisionObject2D::destroy_body() {
 	if (b2Body_IsValid(body_id)) {
 		on_destroy_body();

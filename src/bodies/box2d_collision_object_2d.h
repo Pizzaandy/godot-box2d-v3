@@ -20,8 +20,6 @@ public:
 	explicit Box2DCollisionObject2D(Type p_type) :
 			type(p_type) {};
 
-	~Box2DCollisionObject2D();
-
 	Type get_type() const { return type; }
 	bool is_area() const { return type == Type::AREA; }
 

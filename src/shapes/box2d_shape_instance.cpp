@@ -16,11 +16,11 @@ Box2DShapeInstance::Box2DShapeInstance(
 }
 
 Box2DShapeInstance::~Box2DShapeInstance() {
-	if (!shape) {
+	if (!shape || !body) {
 		return;
 	}
-	shape->remove_body_reference(body);
 	shape->remove_from_body(body->get_body_id(), this);
+	shape->remove_body_reference(body);
 }
 
 void Box2DShapeInstance::build() {
