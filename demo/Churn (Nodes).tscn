@@ -1,9 +1,9 @@
 [gd_scene load_steps=8 format=3 uid="uid://f2dle7n6bc7o"]
 
 [ext_resource type="Script" path="res://scripts/body_animator.gd" id="1_o1u2r"]
-[ext_resource type="Script" path="res://scripts/camera_navigation.gd" id="1_rnyq5"]
 [ext_resource type="Script" path="res://scripts/rain_spawner.gd" id="2_whm8o"]
 [ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://scenes/CircleBody.tscn" id="4_6buib"]
+[ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="4_kk17e"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]
 size = Vector2(101.108, 2782.56)
@@ -33,11 +33,6 @@ rotation = 0.261799
 scale = Vector2(0.675, 0.675)
 shape = SubResource("RectangleShape2D_hfuel")
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(1588, 69)
-zoom = Vector2(0.2, 0.2)
-script = ExtResource("1_rnyq5")
-
 [node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
 position = Vector2(1503, 597)
 script = ExtResource("1_o1u2r")
@@ -60,3 +55,6 @@ position = Vector2(-71, 138)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
 position = Vector2(1522, 1766)
 shape = SubResource("RectangleShape2D_op26f")
+
+[node name="Camera2D" parent="." instance=ExtResource("4_kk17e")]
+position = Vector2(1516, -537)

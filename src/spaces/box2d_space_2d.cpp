@@ -181,6 +181,60 @@ void Box2DSpace2D::sync_state() {
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(object);
 		body->sync_state(event->transform, event->fellAsleep);
 	}
+
+	b2SensorEvents sensor_events = b2World_GetSensorEvents(world_id);
+
+	for (int i = 0; i < sensor_events.beginCount; ++i) {
+		const b2SensorBeginTouchEvent *begin_event = sensor_events.beginEvents + i;
+		if (!b2Shape_IsValid(begin_event->sensorShapeId) || !b2Shape_IsValid(begin_event->visitorShapeId)) {
+			continue;
+		}
+
+		Box2DShapeInstance *self_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(begin_event->sensorShapeId));
+		Box2DCollisionObject2D *self_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(begin_event->sensorShapeId)));
+		if (!self_object->is_area()) {
+			ERR_FAIL_MSG("Received a sensor event from a Rigidbody. This should never happen!");
+			continue;
+		}
+		Box2DArea2D *area = static_cast<Box2DArea2D *>(self_object);
+
+		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(begin_event->visitorShapeId));
+		Box2DCollisionObject2D *other_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(begin_event->visitorShapeId)));
+
+		area->report_event(
+				other_object->get_type(),
+				PhysicsServer2D::AREA_BODY_ADDED,
+				other_object->get_rid(),
+				other_object->get_instance_id(),
+				other_shape->index,
+				self_shape->index);
+	}
+
+	for (int i = 0; i < sensor_events.endCount; ++i) {
+		const b2SensorEndTouchEvent *end_event = sensor_events.endEvents + i;
+		if (!b2Shape_IsValid(end_event->sensorShapeId) || !b2Shape_IsValid(end_event->visitorShapeId)) {
+			continue;
+		}
+
+		Box2DShapeInstance *self_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(end_event->sensorShapeId));
+		Box2DCollisionObject2D *self_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(end_event->sensorShapeId)));
+		if (!self_object->is_area()) {
+			ERR_FAIL_MSG("Received a sensor event from a Rigidbody. This should never happen!");
+			continue;
+		}
+		Box2DArea2D *area = static_cast<Box2DArea2D *>(self_object);
+
+		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(end_event->visitorShapeId));
+		Box2DCollisionObject2D *other_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(end_event->visitorShapeId)));
+
+		area->report_event(
+				other_object->get_type(),
+				PhysicsServer2D::AREA_BODY_REMOVED,
+				other_object->get_rid(),
+				other_object->get_instance_id(),
+				other_shape->index,
+				self_shape->index);
+	}
 }
 
 Box2DDirectSpaceState2D *Box2DSpace2D::get_direct_state() {

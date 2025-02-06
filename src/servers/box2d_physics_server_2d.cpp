@@ -464,11 +464,13 @@ void Box2DPhysicsServer2D::_area_set_pickable(const RID &p_area, bool p_pickable
 void Box2DPhysicsServer2D::_area_set_monitor_callback(const RID &p_area, const Callable &p_callback) {
 	Box2DArea2D *area = area_owner.get_or_null(p_area);
 	ERR_FAIL_NULL(area);
-	area->set_monitor_callback(p_callback);
+	area->set_body_monitor_callback(p_callback);
 }
 
 void Box2DPhysicsServer2D::_area_set_area_monitor_callback(const RID &p_area, const Callable &p_callback) {
-	_area_set_monitor_callback(p_area, p_callback);
+	Box2DArea2D *area = area_owner.get_or_null(p_area);
+	ERR_FAIL_NULL(area);
+	area->set_area_monitor_callback(p_callback);
 }
 
 // Body API

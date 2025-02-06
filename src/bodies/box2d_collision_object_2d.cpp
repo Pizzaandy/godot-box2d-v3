@@ -101,7 +101,8 @@ void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 }
 
 void Box2DCollisionObject2D::set_collision_mask(uint32_t p_mask) {
-	shape_def.filter.maskBits = p_mask | BODY_MASK_BIT;
+	// TODO: Use a virtual method
+	shape_def.filter.maskBits = p_mask | (is_area() ? BODY_MASK_BIT : AREA_MASK_BIT);
 
 	if (!body_exists) {
 		return;
@@ -126,6 +127,10 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 	Vector2 position = p_transform.get_origin();
 	float rotation = p_transform.get_rotation();
 	float last_step = space->get_last_step();
+
+	if (is_area()) {
+		p_move_kinematic = false;
+	}
 
 	if (p_move_kinematic && mode == PhysicsServer2D::BODY_MODE_KINEMATIC) {
 		if (last_step < 0.0) {

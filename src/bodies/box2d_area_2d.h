@@ -11,6 +11,14 @@ public:
 
 	void step();
 
+	void report_event(
+			Type p_type,
+			PhysicsServer2D::AreaBodyStatus p_status,
+			const RID &p_other_rid,
+			ObjectID p_other_instance_id,
+			int32_t p_other_shape_index,
+			int32_t p_self_shape_index) const;
+
 	bool is_default_area() const;
 
 	void set_gravity_override_mode(PhysicsServer2D::AreaSpaceOverrideMode p_mode) { override_gravity_mode = p_mode; }
@@ -47,7 +55,8 @@ public:
 	void set_monitorable(float p_monitorable) { monitorable = p_monitorable; }
 	bool get_monitorable() const { return monitorable; }
 
-	void set_monitor_callback(const Callable &p_callback) {}
+	void set_body_monitor_callback(const Callable &p_callback) { body_monitor_callback = p_callback; }
+	void set_area_monitor_callback(const Callable &p_callback) { area_monitor_callback = p_callback; }
 
 	bool operator<(const Box2DArea2D &other) const {
 		return get_priority() < other.get_priority();
@@ -56,6 +65,8 @@ public:
 private:
 	int priority = 0;
 	bool monitorable = false;
+	Callable body_monitor_callback;
+	Callable area_monitor_callback;
 
 	float gravity_strength = 9.8;
 	Vector2 gravity_direction = Vector2(0, -1);

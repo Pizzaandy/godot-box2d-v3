@@ -1,10 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://ced48acgmpi0n"]
+[gd_scene load_steps=5 format=3 uid="uid://ced48acgmpi0n"]
+
+[ext_resource type="Script" path="res://area_print_events.gd" id="1_m33uo"]
+[ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="2_0dh5b"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h7rvq"]
 size = Vector2(1825, 105)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_o1tt7"]
-size = Vector2(363, 95)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_qlqpe"]
 radius = 42.0
@@ -20,14 +20,23 @@ position = Vector2(60, 19)
 shape = SubResource("RectangleShape2D_h7rvq")
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2(848, 595)
+position = Vector2(851, 531)
+script = ExtResource("1_m33uo")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-position = Vector2(4.5, -3)
-shape = SubResource("RectangleShape2D_o1tt7")
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
+polygon = PackedVector2Array(-53, -64, -6, -39, -8, -119, 85, -47, 98, 55, -6, 69, -124, 45, -134, -35, -55, 14)
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
 position = Vector2(845, 293)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
 shape = SubResource("CapsuleShape2D_qlqpe")
+
+[node name="Camera2D" parent="." instance=ExtResource("2_0dh5b")]
+position = Vector2(901, 499)
+zoom = Vector2(1, 1)
+
+[connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]
+[connection signal="body_exited" from="Area2D" to="Area2D" method="_on_body_exited"]
+[connection signal="body_shape_entered" from="Area2D" to="Area2D" method="_on_body_shape_entered"]
+[connection signal="body_shape_exited" from="Area2D" to="Area2D" method="_on_body_shape_exited"]
