@@ -46,6 +46,7 @@ public:
 
 	b2BodyId get_body_id() const { return body_id; }
 	b2ShapeDef get_shape_def() const { return shape_def; }
+
 	void add_shape(Box2DShape2D *p_shape, const Transform2D &p_transform, bool p_disabled);
 	void set_shape(int p_index, Box2DShape2D *p_shape);
 	void remove_shape(int p_index);
@@ -73,7 +74,7 @@ public:
 	virtual void on_destroy_body() {};
 
 protected:
-	void build_shape(Box2DShapeInstance *p_shape, bool p_shapes_changed = true);
+	void build_shape(Box2DShapeInstance &p_shape, bool p_shapes_changed = true);
 	void rebuild_all_shapes();
 
 	Variant user_data = Variant();
@@ -83,7 +84,7 @@ protected:
 	ObjectID instance_id;
 	ObjectID canvas_instance_id;
 	Transform2D current_transform;
-	LocalVector<Box2DShapeInstance *> shapes;
+	LocalVector<Box2DShapeInstance> shapes;
 	PhysicsServer2D::BodyMode mode = PhysicsServer2D::BodyMode::BODY_MODE_STATIC;
 
 	b2BodyDef body_def = b2DefaultBodyDef();

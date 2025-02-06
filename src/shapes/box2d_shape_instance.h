@@ -13,6 +13,8 @@ public:
 			const Transform2D &p_transform,
 			bool p_disabled);
 
+	Box2DShapeInstance() = default;
+
 	~Box2DShapeInstance();
 
 	int index = -1;
