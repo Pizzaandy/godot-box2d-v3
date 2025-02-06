@@ -203,9 +203,9 @@ Array Box2DPhysicsServer2D::space_get_body_move_events(const RID &p_space) const
 
 // Area API
 RID Box2DPhysicsServer2D::_area_create() {
-	Box2DArea2D *body = memnew(Box2DArea2D);
-	RID rid = area_owner.make_rid(body);
-	body->set_rid(rid);
+	Box2DArea2D *area = memnew(Box2DArea2D);
+	RID rid = area_owner.make_rid(area);
+	area->set_rid(rid);
 	return rid;
 }
 
@@ -1197,12 +1197,12 @@ void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 		memdelete(shape);
 	} else if (body_owner.owns(p_rid)) {
 		Box2DBody2D *body = body_owner.get_or_null(p_rid);
-		body->destroy_body();
+		body->set_space(nullptr);
 		body_owner.free(p_rid);
 		bodies_to_delete.push_back(body);
 	} else if (area_owner.owns(p_rid)) {
 		Box2DArea2D *area = area_owner.get_or_null(p_rid);
-		area->destroy_body();
+		area->set_space(nullptr);
 		area_owner.free(p_rid);
 		areas_to_delete.push_back(area);
 	} else if (space_owner.owns(p_rid)) {
