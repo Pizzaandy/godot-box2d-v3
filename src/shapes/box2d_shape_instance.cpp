@@ -1,7 +1,8 @@
 #include "box2d_shape_instance.h"
 #include "../bodies/box2d_collision_object_2d.h"
 
-Box2DShapeInstance::Box2DShapeInstance(Box2DCollisionObject2D *p_body,
+Box2DShapeInstance::Box2DShapeInstance(
+		Box2DCollisionObject2D *p_body,
 		Box2DShape2D *p_shape,
 		const Transform2D &p_transform,
 		bool p_disabled) :
@@ -38,11 +39,11 @@ void Box2DShapeInstance::build() {
 Transform2D Box2DShapeInstance::get_shape_transform() const {
 	Transform2D parent_transform = body->get_transform();
 	Transform2D parent_scale_and_skew = Transform2D(0.0, parent_transform.get_scale(), parent_transform.get_skew(), Vector2());
-	return parent_transform * transform;
+	return parent_scale_and_skew * transform;
 }
 
 b2ShapeDef Box2DShapeInstance::get_shape_def() const {
 	b2ShapeDef shape_def = body->get_shape_def();
-	shape_def.userData = shape;
+	shape_def.userData = (void *)this;
 	return shape_def;
 }

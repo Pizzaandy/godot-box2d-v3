@@ -16,7 +16,6 @@ public:
 	~Box2DShapeInstance();
 
 	int index = -1;
-
 	Transform2D transform;
 	bool disabled = false;
 	bool one_way_collision = false;
