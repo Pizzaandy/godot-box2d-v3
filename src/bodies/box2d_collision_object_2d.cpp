@@ -207,11 +207,7 @@ void Box2DCollisionObject2D::add_shape(Box2DShape2D *p_shape, const Transform2D 
 	build_shape(shape, true);
 	shapes.push_back(shape);
 
-	int index = 0;
-	for (Box2DShapeInstance *shape : shapes) {
-		shape->index = index;
-		index++;
-	}
+	reindex_all_shapes();
 }
 
 void Box2DCollisionObject2D::set_shape(int p_index, Box2DShape2D *p_shape) {
@@ -226,11 +222,7 @@ void Box2DCollisionObject2D::remove_shape(int p_index) {
 
 	shapes.remove_at(p_index);
 
-	int index = 0;
-	for (Box2DShapeInstance *shape : shapes) {
-		shape->index = index;
-		index++;
-	}
+	reindex_all_shapes();
 
 	shapes_changed();
 }
@@ -245,11 +237,7 @@ void Box2DCollisionObject2D::remove_shape(Box2DShape2D *p_shape) {
 		}
 	}
 
-	int index = 0;
-	for (Box2DShapeInstance *shape : shapes) {
-		shape->index = index;
-		index++;
-	}
+	reindex_all_shapes();
 
 	shapes_changed();
 }
@@ -257,6 +245,14 @@ void Box2DCollisionObject2D::remove_shape(Box2DShape2D *p_shape) {
 void Box2DCollisionObject2D::clear_shapes() {
 	shapes.clear();
 	shapes_changed();
+}
+
+void Box2DCollisionObject2D::reindex_all_shapes() {
+	int index = 0;
+	for (Box2DShapeInstance *shape : shapes) {
+		shape->index = index;
+		index++;
+	}
 }
 
 void Box2DCollisionObject2D::set_shape_transform(int p_index, const Transform2D &p_transform) {

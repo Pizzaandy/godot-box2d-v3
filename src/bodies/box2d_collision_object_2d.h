@@ -19,6 +19,7 @@ public:
 
 	explicit Box2DCollisionObject2D(Type p_type) :
 			type(p_type) {};
+
 	~Box2DCollisionObject2D();
 
 	Type get_type() const { return type; }
@@ -43,12 +44,14 @@ public:
 	void set_transform(const Transform2D &p_transform, bool p_move_kinematic = false);
 	Transform2D get_transform() const { return current_transform; }
 
+	b2BodyId get_body_id() const { return body_id; }
 	b2ShapeDef get_shape_def() const { return shape_def; }
 	void add_shape(Box2DShape2D *p_shape, const Transform2D &p_transform, bool p_disabled);
 	void set_shape(int p_index, Box2DShape2D *p_shape);
 	void remove_shape(int p_index);
 	void remove_shape(Box2DShape2D *p_shape);
 	void clear_shapes();
+	void reindex_all_shapes();
 
 	int32_t get_shape_count() const { return shapes.size(); }
 	void set_shape_transform(int p_index, const Transform2D &p_transform);

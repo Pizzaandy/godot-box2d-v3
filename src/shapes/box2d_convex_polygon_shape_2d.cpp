@@ -1,16 +1,13 @@
 #include "box2d_convex_polygon_shape_2d.h"
 #include <godot_cpp/variant/utility_functions.hpp>
 
-ShapeIdAndGeometry Box2DConvexPolygonShape2D::add_to_body(b2BodyId p_body, const Transform2D &p_transform, const b2ShapeDef &p_shape_def) const {
-	ShapeIdAndGeometry result;
-
-	result.info = get_shape_geometry(p_transform);
-	if (!result.info.is_valid()) {
-		return result;
+void Box2DConvexPolygonShape2D::add_to_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const {
+	b2Polygon shape;
+	if (!make_polygon(p_instance->get_shape_transform(), data, shape)) {
+		return;
 	}
-
-	result.id = b2CreatePolygonShape(p_body, &p_shape_def, &result.info.polygon);
-	return result;
+	b2ShapeId id = b2CreatePolygonShape(p_body_id, &p_instance->shape_def, &shape);
+	p_instance->shape_ids.push_back(id);
 }
 
 ShapeGeometry Box2DConvexPolygonShape2D::get_shape_geometry(const Transform2D &p_transform) const {
