@@ -5,7 +5,7 @@ void Box2DCapsuleShape2D::add_to_body(b2BodyId p_body_id, Box2DShapeInstance *p_
 	if (!make_capsule(p_instance->get_shape_transform(), data, shape)) {
 		return;
 	}
-	b2ShapeId id = b2CreateCapsuleShape(p_body_id, &p_instance->shape_def, &shape);
+	b2ShapeId id = b2CreateCapsuleShape(p_body_id, &p_instance->get_shape_def(), &shape);
 	p_instance->shape_ids.push_back(id);
 }
 

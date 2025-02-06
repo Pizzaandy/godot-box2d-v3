@@ -11,7 +11,7 @@ void Box2DConcavePolygonShape2D::add_to_body(b2BodyId p_body_id, Box2DShapeInsta
 	ERR_FAIL_COND(point_count % 2);
 
 	Transform2D shape_transform = p_instance->get_shape_transform();
-	b2ShapeDef shape_def = p_instance->shape_def;
+	b2ShapeDef shape_def = p_instance->get_shape_def();
 
 	for (int i = 0; i < point_count - 1; i++) {
 		b2Vec2 point_a = to_box2d(shape_transform.xform(arr[i]));

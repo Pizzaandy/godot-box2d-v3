@@ -40,3 +40,9 @@ Transform2D Box2DShapeInstance::get_shape_transform() const {
 	Transform2D parent_scale_and_skew = Transform2D(0.0, parent_transform.get_scale(), parent_transform.get_skew(), Vector2());
 	return parent_transform * transform;
 }
+
+b2ShapeDef Box2DShapeInstance::get_shape_def() const {
+	b2ShapeDef shape_def = body->get_shape_def();
+	shape_def.userData = shape;
+	return shape_def;
+}

@@ -220,6 +220,7 @@ void Box2DCollisionObject2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 void Box2DCollisionObject2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 
+	memdelete(shapes[p_index]);
 	shapes.remove_at(p_index);
 
 	reindex_all_shapes();
@@ -232,6 +233,7 @@ void Box2DCollisionObject2D::remove_shape(Box2DShape2D *p_shape) {
 
 	for (int i = 0; i < shapes.size(); i++) {
 		if (shapes[i]->get_shape_or_null() == p_shape) {
+			memdelete(shapes[i]);
 			shapes.remove_at(i);
 			i--;
 		}
@@ -243,6 +245,9 @@ void Box2DCollisionObject2D::remove_shape(Box2DShape2D *p_shape) {
 }
 
 void Box2DCollisionObject2D::clear_shapes() {
+	for (Box2DShapeInstance *shape : shapes) {
+		memdelete(shape);
+	}
 	shapes.clear();
 	shapes_changed();
 }

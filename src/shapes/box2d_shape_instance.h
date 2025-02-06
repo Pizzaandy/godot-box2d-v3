@@ -16,7 +16,6 @@ public:
 	~Box2DShapeInstance();
 
 	int index = -1;
-	b2ShapeDef shape_def;
 
 	Transform2D transform;
 	bool disabled = false;
@@ -29,6 +28,7 @@ public:
 	Box2DShape2D *get_shape_or_null() const { return shape; }
 
 	Transform2D get_shape_transform() const;
+	b2ShapeDef get_shape_def() const;
 
 	void build();
 
