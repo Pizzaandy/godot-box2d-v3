@@ -67,3 +67,5 @@ position = Vector2(673, 646)
 mass = 0.05
 
 [node name="Camera2D" parent="." instance=ExtResource("2_nwtlb")]
+position = Vector2(665, 466)
+zoom = Vector2(1, 1)

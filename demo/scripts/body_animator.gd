@@ -14,8 +14,6 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	spin(delta)
 
-	# pulse(delta)
-
 
 func oscillate(delta: float):
 	elapsed_time += delta

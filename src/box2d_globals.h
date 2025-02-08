@@ -16,11 +16,9 @@ using namespace godot;
 
 extern float BOX2D_PIXELS_PER_METER;
 
-/// Mask bit used with all bodies. This is used by queries only.
-const uint64_t BODY_MASK_BIT = 0x8000000000000000ULL;
-
-/// Mask bit used with all areas. This is used by queries only.
-const uint64_t AREA_MASK_BIT = 0x4000000000000000ULL;
+/// Mask bit used by all bodies and areas.
+/// This allows queries to find objects with a mask of 0 (consistent with Godot physics).
+const uint64_t COMMON_MASK_BIT = 1ULL << 63;
 
 _FORCE_INLINE_ void box2d_set_pixels_per_meter(float p_value) {
 	BOX2D_PIXELS_PER_METER = p_value;

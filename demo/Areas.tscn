@@ -1,16 +1,33 @@
-[gd_scene load_steps=5 format=3 uid="uid://ced48acgmpi0n"]
+[gd_scene load_steps=11 format=3 uid="uid://ced48acgmpi0n"]
 
-[ext_resource type="Script" path="res://area_print_events.gd" id="1_m33uo"]
+[ext_resource type="Script" path="res://scripts/override_timescale.gd" id="1_a6y3g"]
+[ext_resource type="Script" path="res://scripts/area_print_events.gd" id="1_m33uo"]
 [ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="2_0dh5b"]
+[ext_resource type="Script" path="res://scripts/body_destroyer.gd" id="3_k3b74"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h7rvq"]
 size = Vector2(1825, 105)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dm7sd"]
+size = Vector2(336, 26.25)
+
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_qlqpe"]
-radius = 42.0
-height = 156.0
+radius = 24.0
+height = 79.6821
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vey6j"]
+radius = 28.7924
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lq7m4"]
+size = Vector2(66.9442, 71.9972)
+
+[sub_resource type="SegmentShape2D" id="SegmentShape2D_4vqp8"]
+a = Vector2(-57.7581, -116.194)
+b = Vector2(10.8633, 11.916)
 
 [node name="Areas" type="Node2D"]
+script = ExtResource("1_a6y3g")
+time_scale = 0.25
 
 [node name="StaticBody2D" type="AnimatableBody2D" parent="."]
 position = Vector2(846, 836)
@@ -23,18 +40,64 @@ shape = SubResource("RectangleShape2D_h7rvq")
 position = Vector2(851, 531)
 script = ExtResource("1_m33uo")
 
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(8, -151)
+shape = SubResource("RectangleShape2D_dm7sd")
+
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
-polygon = PackedVector2Array(-53, -64, -6, -39, -8, -119, 85, -47, 98, 55, -6, 69, -124, 45, -134, -35, -55, 14)
+position = Vector2(15, 57)
+polygon = PackedVector2Array(-149, -97, -28, -82, 120, -113, 28, -41, 142, 24, 29, -3, -36, -1, -146, 16, -21, -43)
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(11, 243)
+shape = SubResource("RectangleShape2D_dm7sd")
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
 position = Vector2(845, 293)
+rotation = -2.97817
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
+position = Vector2(39.7925, -4.53443)
 shape = SubResource("CapsuleShape2D_qlqpe")
+
+[node name="RigidBody2D2" type="RigidBody2D" parent="."]
+position = Vector2(961, 213)
+rotation = -1.54029
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D2"]
+position = Vector2(-8.44682, 18.2661)
+shape = SubResource("CapsuleShape2D_qlqpe")
+
+[node name="RigidBody2D3" type="RigidBody2D" parent="."]
+position = Vector2(840, 129)
+rotation = 1.79087
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D3"]
+position = Vector2(-22.2787, -30.8814)
+shape = SubResource("CapsuleShape2D_qlqpe")
+
+[node name="RigidBody2D4" type="RigidBody2D" parent="."]
+position = Vector2(846, -52)
+rotation = 1.79087
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D4"]
+position = Vector2(28.6733, 27.4015)
+shape = SubResource("CircleShape2D_vey6j")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="RigidBody2D4"]
+position = Vector2(-44.7248, -103.739)
+shape = SubResource("RectangleShape2D_lq7m4")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="RigidBody2D4"]
+position = Vector2(15.64, 14.9463)
+shape = SubResource("SegmentShape2D_4vqp8")
 
 [node name="Camera2D" parent="." instance=ExtResource("2_0dh5b")]
 position = Vector2(901, 499)
 zoom = Vector2(1, 1)
+
+[node name="Node2D" type="Node2D" parent="."]
+script = ExtResource("3_k3b74")
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]
 [connection signal="body_exited" from="Area2D" to="Area2D" method="_on_body_exited"]

@@ -31,9 +31,7 @@ public:
 		return reinterpret_cast<Object *>((GodotObject *)(internal::gdextension_interface_object_get_instance_from_id(p_object_id)));
 	}
 
-	b2QueryFilter make_filter(uint64_t p_collision_mask) {
-		return b2QueryFilter{ UINT64_MAX, p_collision_mask };
-	}
+	b2QueryFilter make_filter(uint64_t p_collision_mask);
 
 private:
 	static void _bind_methods();

@@ -1,0 +1,14 @@
+extends Node2D
+
+func _input(event):
+	if event is InputEventMouseButton and event.pressed:
+		var space_state = get_world_2d().direct_space_state
+		var query = PhysicsPointQueryParameters2D.new()
+		query.position = get_global_mouse_position()
+		query.collide_with_bodies = true
+		query.collide_with_areas = true
+
+		var results = space_state.intersect_point(query)
+		for result in results:
+			var obj = result.collider
+			obj.queue_free()

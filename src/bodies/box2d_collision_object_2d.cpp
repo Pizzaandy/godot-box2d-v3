@@ -101,8 +101,7 @@ void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 }
 
 void Box2DCollisionObject2D::set_collision_mask(uint32_t p_mask) {
-	// TODO: Use a virtual method
-	shape_def.filter.maskBits = p_mask | (is_area() ? BODY_MASK_BIT : AREA_MASK_BIT);
+	shape_def.filter.maskBits = p_mask | COMMON_MASK_BIT;
 
 	if (!body_exists) {
 		return;

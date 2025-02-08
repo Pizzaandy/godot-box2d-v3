@@ -10,9 +10,6 @@ size = Vector2(107, 1105)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_e88so"]
 size = Vector2(107, 1950.03)
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_yx4hw"]
-radius = 96.0208
-
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_r2w26"]
 radius = 44.0
 height = 174.0
@@ -23,6 +20,9 @@ b = Vector2(185, 58)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_o0sn6"]
 size = Vector2(152, 145)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yx4hw"]
+radius = 96.0208
 
 [node name="Queries" type="Node2D"]
 
@@ -70,10 +70,6 @@ shape = SubResource("RectangleShape2D_e88so")
 position = Vector2(984, 32.9999)
 rotation = -1.57397
 shape = SubResource("RectangleShape2D_e88so")
-
-[node name="CollisionShape2D5" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(343, 301)
-shape = SubResource("CircleShape2D_yx4hw")
 
 [node name="Camera2D" parent="." instance=ExtResource("1_c0irw")]
 position = Vector2(963, 535)
@@ -150,6 +146,12 @@ offset_right = 1640.0
 offset_bottom = 629.0
 text = "CW
 "
+
+[node name="StaticBody2D2" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D5" type="CollisionShape2D" parent="StaticBody2D2"]
+position = Vector2(343, 301)
+shape = SubResource("CircleShape2D_yx4hw")
 
 [connection signal="pressed" from="_Settings/Raycast" to="QueryTester" method="_on_raycast_pressed"]
 [connection signal="pressed" from="_Settings/Circle" to="QueryTester" method="_on_circle_pressed"]

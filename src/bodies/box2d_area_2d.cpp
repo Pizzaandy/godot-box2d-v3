@@ -7,7 +7,7 @@ Box2DArea2D::Box2DArea2D() :
 	mode = PhysicsServer2D::BODY_MODE_KINEMATIC;
 	shape_def.isSensor = true;
 	shape_def.filter.categoryBits = 1;
-	shape_def.filter.maskBits = 1 | AREA_MASK_BIT;
+	set_collision_mask(1);
 }
 
 void Box2DArea2D::step() {

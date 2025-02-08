@@ -9,7 +9,7 @@ bool overlap_callback(b2ShapeId shapeId, void *context) {
 	Box2DCollisionObject2D *body = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(body_id));
 	Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
 
-	if (collector->filter->is_excluded(body->get_rid())) {
+	if (collector->filter.is_excluded(body->get_rid(), body->is_area())) {
 		return true;
 	}
 
@@ -30,7 +30,7 @@ float cast_callback_nearest(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, floa
 	Box2DCollisionObject2D *body = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(body_id));
 	Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
 
-	if (collector->filter->is_excluded(body->get_rid())) {
+	if (collector->filter.is_excluded(body->get_rid(), body->is_area())) {
 		return -1;
 	}
 
@@ -48,7 +48,7 @@ float cast_callback_all(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fr
 	Box2DCollisionObject2D *body = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(body_id));
 	Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
 
-	if (collector->filter->is_excluded(body->get_rid())) {
+	if (collector->filter.is_excluded(body->get_rid(), body->is_area())) {
 		return -1;
 	}
 

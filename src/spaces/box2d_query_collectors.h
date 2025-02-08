@@ -7,32 +7,46 @@ class Box2DCollisionObject2D;
 
 class QueryFilter {
 public:
+	bool is_excluded(const RID &p_body, bool p_is_area) {
+		if (p_is_area && !collide_with_areas) {
+			return true;
+		}
+		if (!p_is_area && !collide_with_bodies) {
+			return true;
+		}
+		return is_excluded(p_body);
+	}
+
+	bool collide_with_bodies = true;
+	bool collide_with_areas = true;
+
+protected:
 	virtual bool is_excluded(const RID &p_body) { return false; }
 };
 
 class SpaceStateQueryFilter : public QueryFilter {
 public:
+	explicit SpaceStateQueryFilter(Box2DDirectSpaceState2D *p_space_state) :
+			space_state(p_space_state) {}
+
+protected:
 	bool is_excluded(const RID &p_body) override {
 		return space_state->is_body_excluded_from_query(p_body);
 	}
 
-	explicit SpaceStateQueryFilter(Box2DDirectSpaceState2D *p_space_state) :
-			space_state(p_space_state) {}
-
-private:
 	Box2DDirectSpaceState2D *space_state = nullptr;
 };
 
 class ArrayQueryFilter : public QueryFilter {
 public:
+	explicit ArrayQueryFilter(TypedArray<RID> p_exclude) :
+			exclude(p_exclude) {}
+
+protected:
 	bool is_excluded(const RID &p_body) override {
 		return exclude.has(p_body);
 	}
 
-	explicit ArrayQueryFilter(TypedArray<RID> p_exclude) :
-			exclude(p_exclude) {}
-
-private:
 	TypedArray<RID> exclude;
 };
 
@@ -56,9 +70,9 @@ struct CastHit {
 struct ShapeOverlapCollector {
 	int max_results = 0;
 	Vector<ShapeOverlap> overlaps;
-	QueryFilter *filter;
+	QueryFilter &filter;
 
-	ShapeOverlapCollector(int p_max_results, QueryFilter *p_filter) :
+	ShapeOverlapCollector(int p_max_results, QueryFilter &p_filter) :
 			filter(p_filter),
 			max_results(p_max_results) {}
 
@@ -74,18 +88,18 @@ struct ShapeOverlapCollector {
 
 struct NearestCastHitCollector {
 	CastHit nearest_hit;
-	QueryFilter *filter;
+	QueryFilter &filter;
 	bool hit = false;
-	NearestCastHitCollector(QueryFilter *p_filter) :
+	NearestCastHitCollector(QueryFilter &p_filter) :
 			filter(p_filter) {}
 };
 
 struct CastHitCollector {
 	int max_results = 0;
-	QueryFilter *filter;
+	QueryFilter &filter;
 	Vector<CastHit> hits;
 
-	CastHitCollector(int p_max_results, QueryFilter *p_filter) :
+	CastHitCollector(int p_max_results, QueryFilter &p_filter) :
 			max_results(p_max_results), filter(p_filter) {}
 
 	bool contains_id(const b2ShapeId &id) {

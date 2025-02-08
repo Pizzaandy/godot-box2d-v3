@@ -334,7 +334,7 @@ void Box2DPhysicsServer2D::_area_set_param(
 	RID area_rid = p_area;
 
 	if (space_owner.owns(area_rid)) {
-		const Box2DSpace2D *space = space_owner.get_or_null(area_rid);
+		Box2DSpace2D *space = space_owner.get_or_null(area_rid);
 		area_rid = space->get_default_area()->get_rid();
 	}
 
@@ -388,7 +388,7 @@ Variant Box2DPhysicsServer2D::_area_get_param(const RID &p_area, PhysicsServer2D
 	RID area_rid = p_area;
 
 	if (space_owner.owns(area_rid)) {
-		const Box2DSpace2D *space = space_owner.get_or_null(area_rid);
+		Box2DSpace2D *space = space_owner.get_or_null(area_rid);
 		area_rid = space->get_default_area()->get_rid();
 	}
 

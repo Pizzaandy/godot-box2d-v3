@@ -103,7 +103,7 @@ float restitution_callback(float restitutionA, int materialA, float restitutionB
 Box2DSpace2D::Box2DSpace2D() {
 	substeps = Box2DProjectSettings::get_substeps();
 
-	// Gravity is changed by the default area immediately - the value set here isn't important.
+	// Gravity is changed by the default area immediately - the value set here doesn't matter.
 	default_gravity = Vector2(0.0, 9.8);
 
 	int hardware_thread_count = OS::get_singleton()->get_processor_count();
