@@ -98,7 +98,7 @@ env.Append(CPPDEFINES=["BOX2D_ENABLE_SIMD"])
 #     use_avx2 = True
 
 if env["CC"] == "cl":
-    env.Append(CFLAGS=["/std:c11", "/experimental:c11atomics"])
+    env.Append(CFLAGS=["/std:c17"])
 
 if env["CC"].endswith("gcc") or env["CC"].endswith("clang"):
     env.Append(CFLAGS=["-ffp-contract=off"])

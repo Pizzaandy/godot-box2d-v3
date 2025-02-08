@@ -17,6 +17,14 @@ func _on_body_exited(body: Node2D) -> void:
 	change_shape_colors(body, Color.BLUE)
 
 
+func _on_area_entered(area: Area2D) -> void:
+	change_shape_colors(area, Color.RED)
+
+
+func _on_area_exited(area: Area2D) -> void:
+	change_shape_colors(area, Color.BLUE)
+
+
 func change_shape_colors(body: Node2D, color: Color) -> void:
 	for shape in body.find_children("*", "CollisionShape2D", false):
 		shape = shape as CollisionShape2D

@@ -52,7 +52,7 @@ public:
 	void set_priority(float p_priority) { priority = p_priority; }
 	int get_priority() const { return priority; }
 
-	void set_monitorable(float p_monitorable) { monitorable = p_monitorable; }
+	void set_monitorable(float p_monitorable);
 	bool get_monitorable() const { return monitorable; }
 
 	void set_body_monitor_callback(const Callable &p_callback) { body_monitor_callback = p_callback; }
@@ -61,6 +61,9 @@ public:
 	bool operator<(const Box2DArea2D &other) const {
 		return get_priority() < other.get_priority();
 	}
+
+	uint64_t modify_mask_bits(uint32_t p_mask) override;
+	uint64_t modify_layer_bits(uint32_t p_layer) override;
 
 private:
 	int priority = 0;

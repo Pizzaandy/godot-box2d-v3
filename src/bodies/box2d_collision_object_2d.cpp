@@ -4,6 +4,12 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+Box2DCollisionObject2D::Box2DCollisionObject2D(Type p_type) :
+		type(p_type) {
+	set_collision_mask(1);
+	set_collision_layer(1);
+}
+
 void Box2DCollisionObject2D::destroy_body() {
 	if (b2Body_IsValid(body_id)) {
 		on_destroy_body();
@@ -88,7 +94,7 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 }
 
 void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
-	shape_def.filter.categoryBits = p_layer;
+	shape_def.filter.categoryBits = modify_layer_bits(p_layer);
 
 	if (!body_exists) {
 		return;
@@ -101,7 +107,7 @@ void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 }
 
 void Box2DCollisionObject2D::set_collision_mask(uint32_t p_mask) {
-	shape_def.filter.maskBits = p_mask | COMMON_MASK_BIT;
+	shape_def.filter.maskBits = modify_mask_bits(p_mask) | COMMON_MASK_BIT;
 
 	if (!body_exists) {
 		return;

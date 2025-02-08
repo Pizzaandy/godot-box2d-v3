@@ -17,8 +17,7 @@ public:
 		AREA,
 	};
 
-	explicit Box2DCollisionObject2D(Type p_type) :
-			type(p_type) {};
+	explicit Box2DCollisionObject2D(Type p_type);
 
 	Type get_type() const { return type; }
 	bool is_area() const { return type == Type::AREA; }
@@ -67,6 +66,8 @@ public:
 	void set_user_data(const Variant &p_data) { user_data = p_data; }
 	Variant get_user_data() const { return user_data; }
 
+	virtual uint64_t modify_mask_bits(uint32_t p_mask) { return p_mask; }
+	virtual uint64_t modify_layer_bits(uint32_t p_layer) { return p_layer; }
 	virtual void shapes_changed() {};
 	virtual void on_body_created() {};
 	virtual void on_destroy_body() {};

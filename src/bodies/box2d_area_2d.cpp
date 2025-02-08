@@ -6,8 +6,6 @@ Box2DArea2D::Box2DArea2D() :
 	body_def.type = b2_kinematicBody;
 	mode = PhysicsServer2D::BODY_MODE_KINEMATIC;
 	shape_def.isSensor = true;
-	shape_def.filter.categoryBits = 1;
-	set_collision_mask(1);
 }
 
 void Box2DArea2D::step() {
@@ -60,4 +58,18 @@ void Box2DArea2D::gravity_changed() {
 	if (is_default_area()) {
 		space->set_default_gravity(gravity_direction * gravity_strength);
 	}
+}
+
+void Box2DArea2D::set_monitorable(float p_monitorable) {
+	monitorable = p_monitorable;
+
+	set_collision_mask(shape_def.filter.maskBits);
+}
+
+uint64_t Box2DArea2D::modify_mask_bits(uint32_t p_mask) {
+	return monitorable ? p_mask | AREA_MONITORABLE_MASK_BIT : p_mask;
+}
+
+uint64_t Box2DArea2D::modify_layer_bits(uint32_t p_layer) {
+	return p_layer | AREA_MONITORABLE_MASK_BIT;
 }

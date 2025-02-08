@@ -10,8 +10,6 @@ Box2DBody2D::Box2DBody2D() :
 	}
 	shape_def.restitution = 0.0;
 	shape_def.friction = 1.0;
-	shape_def.filter.categoryBits = 1;
-	set_collision_mask(1);
 }
 
 Box2DBody2D::~Box2DBody2D() {
