@@ -1,7 +1,8 @@
 extends Node2D
 
 func _input(event):
-	if event is InputEventMouseButton and event.pressed:
+	var ev = event as InputEventMouseButton
+	if ev and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
 		var space_state = get_world_2d().direct_space_state
 		var query = PhysicsPointQueryParameters2D.new()
 		query.position = get_global_mouse_position()
