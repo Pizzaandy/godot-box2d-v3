@@ -1,10 +1,5 @@
 #include "box2d_joint_2d.h"
 
-Box2DJoint2D::Box2DJoint2D(Box2DBody2D *p_body_a, Box2DBody2D *p_body_b) {
-	body_a = p_body_a;
-	body_b = p_body_b;
-}
-
 Box2DJoint2D::~Box2DJoint2D() {
 	destroy_joint();
 }

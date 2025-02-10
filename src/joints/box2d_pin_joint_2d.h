@@ -6,8 +6,6 @@ class Box2DPinJoint2D : public Box2DJoint2D {
 public:
 	Box2DPinJoint2D(const Vector2 &p_pos, Box2DBody2D *p_body_a, Box2DBody2D *p_body_b);
 
-	PhysicsServer2D::JointType get_type() const override { return PhysicsServer2D::JOINT_TYPE_PIN; }
-
 	void set_upper_limit(float p_limit);
 	float get_upper_limit() const { return revolute_def.upperAngle; }
 

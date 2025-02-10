@@ -5,10 +5,12 @@
 class Box2DJoint2D {
 public:
 	Box2DJoint2D() = default;
-	Box2DJoint2D(Box2DBody2D *p_body_a, Box2DBody2D *p_body_b);
-	~Box2DJoint2D();
+	explicit Box2DJoint2D(PhysicsServer2D::JointType p_type, Box2DBody2D *p_body_a, Box2DBody2D *p_body_b) :
+			type(p_type), body_a(p_body_a), body_b(p_body_b) {};
 
-	virtual PhysicsServer2D::JointType get_type() const { return PhysicsServer2D::JOINT_TYPE_MAX; }
+	virtual ~Box2DJoint2D();
+
+	PhysicsServer2D::JointType get_type() const { return type; }
 
 	void copy_settings_from(Box2DJoint2D *p_joint);
 
@@ -30,8 +32,9 @@ public:
 	float get_max_bias() const { return max_bias; }
 
 protected:
-	Box2DBody2D *body_a;
-	Box2DBody2D *body_b;
+	Box2DBody2D *body_a = nullptr;
+	Box2DBody2D *body_b = nullptr;
+	PhysicsServer2D::JointType type = PhysicsServer2D::JOINT_TYPE_MAX;
 
 	Box2DSpace2D *space = nullptr;
 	b2JointId joint_id = b2_nullJointId;

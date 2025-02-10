@@ -2,7 +2,7 @@
 #include "../spaces/box2d_space_2d.h"
 
 Box2DPinJoint2D::Box2DPinJoint2D(const Vector2 &p_pos, Box2DBody2D *p_body_a, Box2DBody2D *p_body_b) :
-		Box2DJoint2D(p_body_a, p_body_b) {
+		Box2DJoint2D(PhysicsServer2D::JOINT_TYPE_PIN, p_body_a, p_body_b) {
 	if (!p_body_a || !p_body_b) {
 		return;
 	}
@@ -18,10 +18,12 @@ Box2DPinJoint2D::Box2DPinJoint2D(const Vector2 &p_pos, Box2DBody2D *p_body_a, Bo
 	revolute_def.bodyIdB = p_body_b->get_body_id();
 	revolute_def.localAnchorA = to_box2d(anchor_a);
 	revolute_def.localAnchorB = to_box2d(anchor_b);
-	revolute_def.collideConnected = !disabled_collisions_between_bodies;
 
 	// TODO: account for mass?
 	revolute_def.maxMotorTorque = 100000.0;
+
+	revolute_def.collideConnected = !disabled_collisions_between_bodies;
+	revolute_def.userData = this;
 
 	joint_id = b2CreateRevoluteJoint(space->get_world_id(), &revolute_def);
 }

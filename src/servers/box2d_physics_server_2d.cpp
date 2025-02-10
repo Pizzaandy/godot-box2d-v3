@@ -130,7 +130,7 @@ RID Box2DPhysicsServer2D::_space_create() {
 	RID rid = space_owner.make_rid(space);
 	space->set_rid(rid);
 
-	const RID default_area_rid = area_create();
+	RID default_area_rid = area_create();
 	Box2DArea2D *default_area = area_owner.get_or_null(default_area_rid);
 	ERR_FAIL_NULL_V(default_area, RID());
 	space->set_default_area(default_area);
@@ -157,11 +157,11 @@ bool Box2DPhysicsServer2D::_space_is_active(const RID &p_space) const {
 }
 
 void Box2DPhysicsServer2D::_space_set_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param, float p_value) {
-	ERR_PRINT_ONCE("Box2D: Godot space parameters are not supported. Any values set will be ignored.");
+	WARN_PRINT_ONCE("Box2D: Godot space parameters are not supported. Any values set will be ignored.");
 }
 
 float Box2DPhysicsServer2D::_space_get_param(const RID &p_space, PhysicsServer2D::SpaceParameter p_param) const {
-	WARN_PRINT("Box2D: Godot space parameters are not supported.");
+	WARN_PRINT_ONCE("Box2D: Godot space parameters are not supported.");
 	return 0.0;
 }
 

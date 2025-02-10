@@ -16,7 +16,7 @@ void Box2DCollisionObject2D::destroy_body() {
 		b2DestroyBody(body_id);
 	}
 
-	body_exists = false;
+	in_space = false;
 	body_id = b2_nullBodyId;
 }
 
@@ -42,7 +42,7 @@ void Box2DCollisionObject2D::set_space(Box2DSpace2D *p_space) {
 	body_def.userData = this;
 	body_id = b2CreateBody(space->get_world_id(), &body_def);
 
-	body_exists = true;
+	in_space = true;
 
 	rebuild_all_shapes();
 
@@ -56,14 +56,14 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 	switch (p_mode) {
 		case PhysicsServer2D::BODY_MODE_STATIC:
 			body_def.type = b2_staticBody;
-			if (!body_exists) {
+			if (!in_space) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_staticBody);
 			break;
 		case PhysicsServer2D::BODY_MODE_KINEMATIC:
 			body_def.type = b2_kinematicBody;
-			if (!body_exists) {
+			if (!in_space) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_kinematicBody);
@@ -71,7 +71,7 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 		case PhysicsServer2D::BODY_MODE_RIGID:
 			body_def.type = b2_dynamicBody;
 			body_def.fixedRotation = false;
-			if (!body_exists) {
+			if (!in_space) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
@@ -81,7 +81,7 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 		case PhysicsServer2D::BODY_MODE_RIGID_LINEAR:
 			body_def.type = b2_dynamicBody;
 			body_def.fixedRotation = true;
-			if (!body_exists) {
+			if (!in_space) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
@@ -96,7 +96,7 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 	shape_def.filter.categoryBits = modify_layer_bits(p_layer);
 
-	if (!body_exists) {
+	if (!in_space) {
 		return;
 	}
 
@@ -109,7 +109,7 @@ void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 void Box2DCollisionObject2D::set_collision_mask(uint32_t p_mask) {
 	shape_def.filter.maskBits = modify_mask_bits(p_mask) | COMMON_MASK_BIT;
 
-	if (!body_exists) {
+	if (!in_space) {
 		return;
 	}
 
@@ -120,7 +120,7 @@ void Box2DCollisionObject2D::set_collision_mask(uint32_t p_mask) {
 }
 
 void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool p_move_kinematic) {
-	if (!body_exists) {
+	if (!in_space) {
 		current_transform = p_transform;
 		return;
 	}
@@ -182,7 +182,7 @@ void Box2DCollisionObject2D::set_shape_disabled(int p_index, bool p_disabled) {
 }
 
 void Box2DCollisionObject2D::build_shape(Box2DShapeInstance &p_shape, bool p_shapes_changed) {
-	if (!body_exists) {
+	if (!in_space) {
 		return;
 	}
 

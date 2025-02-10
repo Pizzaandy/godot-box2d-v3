@@ -2,7 +2,7 @@
 #include "../spaces/box2d_space_2d.h"
 
 Box2DGrooveJoint2D::Box2DGrooveJoint2D(const Vector2 &p_a_groove1, const Vector2 &p_a_groove2, const Vector2 &p_b_anchor, Box2DBody2D *p_body_a, Box2DBody2D *p_body_b) :
-		Box2DJoint2D(p_body_a, p_body_b) {
+		Box2DJoint2D(PhysicsServer2D::JOINT_TYPE_GROOVE, p_body_a, p_body_b) {
 	if (!p_body_a || !p_body_b) {
 		return;
 	}
@@ -28,7 +28,9 @@ Box2DGrooveJoint2D::Box2DGrooveJoint2D(const Vector2 &p_a_groove1, const Vector2
 	wheel_def.upperTranslation = to_box2d(p_a_groove1.distance_to(p_a_groove2));
 	wheel_def.lowerTranslation = 0;
 	wheel_def.localAxisA = b2Vec2{ (float)axis.x, (float)axis.y };
+
 	wheel_def.collideConnected = !disabled_collisions_between_bodies;
+	wheel_def.userData = this;
 
 	joint_id = b2CreateWheelJoint(space->get_world_id(), &wheel_def);
 }

@@ -26,6 +26,7 @@ func spawn_ball(pos: Vector2):
 	var inst: Node2D = body.instantiate()
 	get_parent().add_child(inst)
 	inst.global_position = pos
+	inst.scale = randf_range(0.5, 3) * Vector2.ONE
 	inst.reset_physics_interpolation()
 
 

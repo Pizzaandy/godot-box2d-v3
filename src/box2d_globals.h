@@ -16,7 +16,7 @@ using namespace godot;
 
 extern float BOX2D_PIXELS_PER_METER;
 
-/// Mask bit used by all bodies and areas.
+/// Mask bit used by all Box2D shapes.
 /// This allows queries to find objects with a mask of 0 (consistent with Godot physics).
 const uint64_t COMMON_MASK_BIT = 1ULL << 63;
 
@@ -87,12 +87,12 @@ public:
 	explicit BodyShapeRange(b2BodyId body_id) :
 			body_id(body_id) {
 		shape_count = b2Body_GetShapeCount(body_id);
-		shape_ids = memnew_arr(b2ShapeId, shape_count);
+		shape_ids = new b2ShapeId[shape_count];
 		b2Body_GetShapes(body_id, shape_ids, shape_count);
 	}
 
 	~BodyShapeRange() {
-		memdelete_arr(shape_ids);
+		delete[] shape_ids;
 	}
 
 	class Iterator {
@@ -130,6 +130,57 @@ private:
 	b2BodyId body_id;
 	b2ShapeId *shape_ids;
 	int shape_count;
+};
+
+/// Range for iterating body joints.
+class BodyJointRange {
+public:
+	explicit BodyJointRange(b2BodyId body_id) :
+			body_id(body_id) {
+		joint_count = b2Body_GetJointCount(body_id);
+		joint_ids = new b2JointId[joint_count];
+		b2Body_GetJoints(body_id, joint_ids, joint_count);
+	}
+
+	~BodyJointRange() {
+		delete[] joint_ids;
+	}
+
+	class Iterator {
+	public:
+		Iterator(b2JointId *ids, int index) :
+				joint_ids(ids), index(index) {}
+
+		b2JointId operator*() const {
+			return joint_ids[index];
+		}
+
+		Iterator &operator++() {
+			++index;
+			return *this;
+		}
+
+		bool operator!=(const Iterator &other) const {
+			return index != other.index;
+		}
+
+	private:
+		b2JointId *joint_ids;
+		int index;
+	};
+
+	Iterator begin() const {
+		return Iterator(joint_ids, 0);
+	}
+
+	Iterator end() const {
+		return Iterator(joint_ids, joint_count);
+	}
+
+private:
+	b2BodyId body_id;
+	b2JointId *joint_ids;
+	int joint_count;
 };
 
 /// Range for iterating chain segment shapes.

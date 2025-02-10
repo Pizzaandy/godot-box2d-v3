@@ -21,6 +21,7 @@ public:
 
 	Type get_type() const { return type; }
 	bool is_area() const { return type == Type::AREA; }
+	bool is_rigidbody() const { return type == Type::RIGIDBODY; }
 
 	void destroy_body();
 
@@ -90,6 +91,6 @@ protected:
 	b2ShapeDef shape_def = b2DefaultShapeDef();
 	b2BodyId body_id = b2_nullBodyId;
 
-	bool body_exists = false;
+	bool in_space = false;
 	Type type = Type::RIGIDBODY;
 };

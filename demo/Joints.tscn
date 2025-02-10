@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://chjjbg4uqmayi"]
+[gd_scene load_steps=7 format=3 uid="uid://chjjbg4uqmayi"]
 
 [ext_resource type="PackedScene" uid="uid://cunci2twkihny" path="res://scenes/Robot.tscn" id="2_dm0gm"]
 [ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="2_nwtlb"]
@@ -12,6 +12,9 @@ height = 270.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fs63m"]
 size = Vector2(113, 158)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xbkjp"]
+radius = 49.0408
 
 [node name="Joints" type="Node2D"]
 
@@ -69,3 +72,28 @@ mass = 0.05
 [node name="Camera2D" parent="." instance=ExtResource("2_nwtlb")]
 position = Vector2(665, 466)
 zoom = Vector2(1, 1)
+
+[node name="DampedSpringJoint2D2" type="DampedSpringJoint2D" parent="."]
+position = Vector2(1243, 479)
+node_a = NodePath("../RigidBody2D3")
+node_b = NodePath("../StaticBody2D")
+stiffness = 50.0
+
+[node name="DampedSpringJoint2D3" type="DampedSpringJoint2D" parent="."]
+position = Vector2(1244, 603)
+node_a = NodePath("../RigidBody2D3")
+node_b = NodePath("../RigidBody2D4")
+rest_length = 20.0
+stiffness = 50.0
+
+[node name="RigidBody2D3" type="RigidBody2D" parent="."]
+position = Vector2(1246, 543)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D3"]
+shape = SubResource("CircleShape2D_xbkjp")
+
+[node name="RigidBody2D4" type="RigidBody2D" parent="."]
+position = Vector2(1245, 665)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D4"]
+shape = SubResource("CircleShape2D_xbkjp")
