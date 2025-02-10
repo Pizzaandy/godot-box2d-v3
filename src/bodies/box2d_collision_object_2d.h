@@ -33,6 +33,7 @@ public:
 
 	void set_mode(PhysicsServer2D::BodyMode p_mode);
 	PhysicsServer2D::BodyMode get_mode() const { return mode; }
+	bool is_dynamic() const { return mode > PhysicsServer2D::BODY_MODE_KINEMATIC; }
 
 	void set_collision_layer(uint32_t p_layer);
 	uint32_t get_collision_layer() { return shape_def.filter.categoryBits; }

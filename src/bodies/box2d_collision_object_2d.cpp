@@ -76,7 +76,6 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
 			b2Body_SetFixedRotation(body_id, false);
-			shapes_changed();
 			break;
 		case PhysicsServer2D::BODY_MODE_RIGID_LINEAR:
 			body_def.type = b2_dynamicBody;
@@ -86,11 +85,12 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
 			b2Body_SetFixedRotation(body_id, true);
-			shapes_changed();
 			break;
 		default:
 			return;
 	}
+
+	shapes_changed();
 }
 
 void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {

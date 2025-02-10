@@ -53,8 +53,8 @@ void Box2DDampedSpringJoint2D::update_stiffness() {
 	float mass_a = body_a->get_mass();
 	float mass_b = body_b->get_mass();
 
-	bool is_a_dynamic = body_a->get_mode() > PhysicsServer2D::BODY_MODE_KINEMATIC && mass_a > 0.0;
-	bool is_b_dynamic = body_b->get_mode() > PhysicsServer2D::BODY_MODE_KINEMATIC && mass_b > 0.0;
+	bool is_a_dynamic = body_a->is_dynamic() && mass_a > 0.0;
+	bool is_b_dynamic = body_b->is_dynamic() > PhysicsServer2D::BODY_MODE_KINEMATIC && mass_b > 0.0;
 
 	float mass;
 

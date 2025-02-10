@@ -427,7 +427,20 @@ bool Box2DBody2D::get_shape_one_way_collision(int p_index) {
 }
 
 void Box2DBody2D::update_mass() {
-	if (!in_space || mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
+	if (!in_space) {
+		return;
+	}
+
+	BodyJointRange range(body_id);
+	for (b2JointId id : range) {
+		Box2DJoint2D *joint = static_cast<Box2DJoint2D *>(b2Joint_GetUserData(id));
+		if (joint->get_type() == PhysicsServer2D::JOINT_TYPE_DAMPED_SPRING) {
+			Box2DDampedSpringJoint2D *spring = static_cast<Box2DDampedSpringJoint2D *>(joint);
+			spring->update_stiffness();
+		}
+	}
+
+	if (!is_dynamic()) {
 		return;
 	}
 
@@ -441,15 +454,6 @@ void Box2DBody2D::update_mass() {
 	}
 	if (override_center_of_mass) {
 		mass_data.center = to_box2d(center_of_mass);
-	}
-
-	BodyJointRange range(body_id);
-	for (b2JointId id : range) {
-		Box2DJoint2D *joint = static_cast<Box2DJoint2D *>(b2Joint_GetUserData(id));
-		if (joint->get_type() == PhysicsServer2D::JOINT_TYPE_DAMPED_SPRING) {
-			Box2DDampedSpringJoint2D *spring = static_cast<Box2DDampedSpringJoint2D *>(joint);
-			spring->update_stiffness();
-		}
 	}
 
 	b2Body_SetMassData(body_id, mass_data);
