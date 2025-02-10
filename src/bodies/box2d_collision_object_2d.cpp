@@ -50,6 +50,10 @@ void Box2DCollisionObject2D::set_space(Box2DSpace2D *p_space) {
 }
 
 void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
+	if (mode == p_mode) {
+		return;
+	}
+
 	PhysicsServer2D::BodyMode previous_mode = mode;
 	mode = p_mode;
 
@@ -268,6 +272,7 @@ void Box2DCollisionObject2D::set_shape_transform(int p_index, const Transform2D 
 
 Transform2D Box2DCollisionObject2D::get_shape_transform(int p_index) const {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), Transform2D());
+	// TODO: more const references and pointers
 	const Box2DShapeInstance &shape = shapes[p_index];
 	return shape.transform;
 }
