@@ -49,12 +49,14 @@ void Box2DDampedSpringJoint2D::set_stiffness(float p_stiffness) {
 	update_stiffness();
 }
 
+/// Box2D uses natural frequency for spring stiffness instead of a spring constant.
+/// This method converts the spring constant to a natural frequency, accounting for mass.
 void Box2DDampedSpringJoint2D::update_stiffness() {
 	float mass_a = body_a->get_mass();
 	float mass_b = body_b->get_mass();
 
 	bool is_a_dynamic = body_a->is_dynamic() && mass_a > 0.0;
-	bool is_b_dynamic = body_b->is_dynamic() > PhysicsServer2D::BODY_MODE_KINEMATIC && mass_b > 0.0;
+	bool is_b_dynamic = body_b->is_dynamic() && mass_b > 0.0;
 
 	float mass;
 

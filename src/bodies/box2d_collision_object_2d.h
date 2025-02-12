@@ -9,6 +9,7 @@
 #include <godot_cpp/templates/local_vector.hpp>
 
 class Box2DSpace2D;
+class Box2DArea2D;
 
 class Box2DCollisionObject2D {
 public:
@@ -22,6 +23,9 @@ public:
 	Type get_type() const { return type; }
 	bool is_area() const { return type == Type::AREA; }
 	bool is_rigidbody() const { return type == Type::RIGIDBODY; }
+
+	void set_free();
+	bool is_freed() const { return freed; }
 
 	void destroy_body();
 
@@ -68,15 +72,18 @@ public:
 	void set_user_data(const Variant &p_data) { user_data = p_data; }
 	Variant get_user_data() const { return user_data; }
 
-	virtual uint64_t modify_mask_bits(uint32_t p_mask) { return p_mask; }
-	virtual uint64_t modify_layer_bits(uint32_t p_layer) { return p_layer; }
 	virtual void shapes_changed() {};
-	virtual void on_body_created() {};
-	virtual void on_destroy_body() {};
 
 protected:
 	void build_shape(Box2DShapeInstance &p_shape, bool p_shapes_changed = true);
 	void rebuild_all_shapes();
+
+	virtual uint64_t modify_mask_bits(uint32_t p_mask) { return p_mask; }
+	virtual uint64_t modify_layer_bits(uint32_t p_layer) { return p_layer; }
+
+	virtual void body_created() {};
+	virtual void body_destroyed() {};
+	virtual void on_shape_destroy(Box2DShapeInstance &p_shape) {};
 
 	Variant user_data = Variant();
 
@@ -93,5 +100,6 @@ protected:
 	b2BodyId body_id = b2_nullBodyId;
 
 	bool in_space = false;
+	bool freed = false;
 	Type type = Type::RIGIDBODY;
 };

@@ -353,7 +353,7 @@ void Box2DPhysicsServer2D::_area_set_param(
 			area->set_gravity_direction(p_value);
 			break;
 		case AreaParameter::AREA_PARAM_GRAVITY_IS_POINT:
-			area->set_gravity_direction(p_value);
+			area->set_gravity_point_enabled(p_value);
 			break;
 		case AreaParameter::AREA_PARAM_GRAVITY_POINT_UNIT_DISTANCE:
 			area->set_gravity_point_unit_distance(p_value);
@@ -403,7 +403,7 @@ Variant Box2DPhysicsServer2D::_area_get_param(const RID &p_area, PhysicsServer2D
 		case AreaParameter::AREA_PARAM_GRAVITY_VECTOR:
 			return area->get_gravity_direction();
 		case AreaParameter::AREA_PARAM_GRAVITY_IS_POINT:
-			return area->get_angular_damp();
+			return area->get_gravity_point_enabled();
 		case AreaParameter::AREA_PARAM_GRAVITY_POINT_UNIT_DISTANCE:
 			return area->get_gravity_point_unit_distance();
 		case AreaParameter::AREA_PARAM_LINEAR_DAMP_OVERRIDE_MODE:
@@ -1220,12 +1220,12 @@ void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 		memdelete(shape);
 	} else if (body_owner.owns(p_rid)) {
 		Box2DBody2D *body = body_owner.get_or_null(p_rid);
-		body->set_space(nullptr);
+		body->set_free();
 		body_owner.free(p_rid);
 		bodies_to_delete.push_back(body);
 	} else if (area_owner.owns(p_rid)) {
 		Box2DArea2D *area = area_owner.get_or_null(p_rid);
-		area->set_space(nullptr);
+		area->set_free();
 		area_owner.free(p_rid);
 		areas_to_delete.push_back(area);
 	} else if (space_owner.owns(p_rid)) {

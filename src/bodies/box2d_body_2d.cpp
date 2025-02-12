@@ -2,6 +2,7 @@
 #include "../joints/box2d_damped_spring_joint_2d.h"
 #include "../joints/box2d_joint_2d.h"
 #include "../spaces/box2d_space_2d.h"
+#include "box2d_area_2d.h"
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -90,6 +91,10 @@ void Box2DBody2D::set_inertia(float p_inertia) {
 	}
 
 	update_mass();
+}
+
+Vector2 Box2DBody2D::get_center_of_mass_global() const {
+	return to_godot(b2Body_GetWorldCenterOfMass(body_id));
 }
 
 void Box2DBody2D::set_center_of_mass(const Vector2 &p_center) {
@@ -601,7 +606,7 @@ void Box2DBody2D::shapes_changed() {
 	update_mass();
 }
 
-void Box2DBody2D::on_body_created() {
+void Box2DBody2D::body_created() {
 	// Bodies start asleep if their state is set with body_set_state before adding them to a space.
 	// After creation, reset the sleep state to the default.
 	body_def.isAwake = true;
@@ -620,7 +625,7 @@ void Box2DBody2D::on_body_created() {
 	update_force_integration_list();
 }
 
-void Box2DBody2D::on_destroy_body() {
+void Box2DBody2D::body_destroyed() {
 	if (in_constant_forces_list) {
 		space->remove_constant_force_body(this);
 		in_constant_forces_list = false;
@@ -633,12 +638,12 @@ void Box2DBody2D::on_destroy_body() {
 }
 
 void Box2DBody2D::apply_area_overrides() {
-	if (!in_space || mode <= PhysicsServer2D::BODY_MODE_KINEMATIC) {
+	if (!in_space || !is_dynamic()) {
 		return;
 	}
 
 	if (area_overrides.skip_world_gravity) {
-		b2Body_SetGravityScale(body_id, 0.0f);
+		b2Body_SetGravityScale(body_id, 0.0);
 	} else {
 		b2Body_SetGravityScale(body_id, body_def.gravityScale);
 	}
@@ -656,10 +661,10 @@ void Box2DBody2D::apply_area_overrides() {
 	if (area_overrides.total_angular_damp != body_def.angularDamping) {
 		b2Body_SetAngularDamping(body_id, area_overrides.total_angular_damp);
 	} else {
-		b2Body_SetLinearDamping(body_id, body_def.angularDamping);
+		b2Body_SetAngularDamping(body_id, body_def.angularDamping);
 	}
 
-	area_overrides.total_gravity = Vector2();
+	area_overrides = AreaOverrideAccumulator();
 	area_overrides.total_linear_damp = body_def.linearDamping;
 	area_overrides.total_angular_damp = body_def.angularDamping;
 }

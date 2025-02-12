@@ -109,10 +109,3 @@ script = ExtResource("5_2dv5o")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
 shape = SubResource("CircleShape2D_l5cai")
-
-[connection signal="area_entered" from="Area2D" to="Area2D" method="_on_area_entered"]
-[connection signal="area_exited" from="Area2D" to="Area2D" method="_on_area_exited"]
-[connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]
-[connection signal="body_exited" from="Area2D" to="Area2D" method="_on_body_exited"]
-[connection signal="body_shape_entered" from="Area2D" to="Area2D" method="_on_body_shape_entered"]
-[connection signal="body_shape_exited" from="Area2D" to="Area2D" method="_on_body_shape_exited"]

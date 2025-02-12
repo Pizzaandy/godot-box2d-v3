@@ -155,12 +155,17 @@ void Box2DSpace2D::step(float p_step) {
 		body->apply_constant_forces();
 	}
 
-	for (Box2DArea2D *area : areas_to_step) {
-		area->step();
-	}
-
 	b2World_Step(world_id, p_step, substeps);
 	locked = false;
+
+	for (Box2DArea2D *area : areas_to_step) {
+		area->apply_overrides();
+	}
+
+	for (Box2DBody2D *body : bodies_with_overrides) {
+		body->apply_area_overrides();
+	}
+	bodies_with_overrides.clear();
 
 	last_step = p_step;
 }
@@ -186,9 +191,6 @@ void Box2DSpace2D::sync_state() {
 
 	for (int i = 0; i < sensor_events.beginCount; ++i) {
 		const b2SensorBeginTouchEvent *begin_event = sensor_events.beginEvents + i;
-		if (!b2Shape_IsValid(begin_event->sensorShapeId) || !b2Shape_IsValid(begin_event->visitorShapeId)) {
-			continue;
-		}
 
 		Box2DShapeInstance *self_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(begin_event->sensorShapeId));
 		Box2DCollisionObject2D *self_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(begin_event->sensorShapeId)));
@@ -196,20 +198,34 @@ void Box2DSpace2D::sync_state() {
 		Box2DArea2D *area = static_cast<Box2DArea2D *>(self_object);
 
 		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(begin_event->visitorShapeId));
-		Box2DCollisionObject2D *other_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(begin_event->visitorShapeId)));
+		//Box2DCollisionObject2D *other_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(begin_event->visitorShapeId)));
 
-		area->report_event(
-				other_object->get_type(),
-				PhysicsServer2D::AREA_BODY_ADDED,
-				other_object->get_rid(),
-				other_object->get_instance_id(),
-				other_shape->index,
-				self_shape->index);
+		area->add_overlap(other_shape, self_shape);
 	}
+
+	LocalVector<Box2DArea2D *> areas_with_destroyed_overlaps;
 
 	for (int i = 0; i < sensor_events.endCount; ++i) {
 		const b2SensorEndTouchEvent *end_event = sensor_events.endEvents + i;
-		if (!b2Shape_IsValid(end_event->sensorShapeId) || !b2Shape_IsValid(end_event->visitorShapeId)) {
+
+		// Sensor end events can occur when overlapping shapes are destroyed or moved.
+
+		bool sensor_shape_exists = b2Shape_IsValid(end_event->sensorShapeId);
+		bool other_shape_exists = b2Shape_IsValid(end_event->visitorShapeId);
+
+		if (!sensor_shape_exists && !other_shape_exists) {
+			continue;
+		}
+
+		if (sensor_shape_exists && !other_shape_exists) {
+			// Notify the area that a shape has been destroyed
+			Box2DArea2D *area = static_cast<Box2DArea2D *>(b2Body_GetUserData(b2Shape_GetBody(end_event->sensorShapeId)));
+			areas_with_destroyed_overlaps.push_back(area);
+			continue;
+		}
+
+		if (!sensor_shape_exists && other_shape_exists) {
+			// Areas update their overlaps when destroyed or modified.
 			continue;
 		}
 
@@ -220,15 +236,13 @@ void Box2DSpace2D::sync_state() {
 		Box2DArea2D *area = static_cast<Box2DArea2D *>(self_object);
 
 		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(end_event->visitorShapeId));
-		Box2DCollisionObject2D *other_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(end_event->visitorShapeId)));
+		//Box2DCollisionObject2D *other_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(end_event->visitorShapeId)));
 
-		area->report_event(
-				other_object->get_type(),
-				PhysicsServer2D::AREA_BODY_REMOVED,
-				other_object->get_rid(),
-				other_object->get_instance_id(),
-				other_shape->index,
-				self_shape->index);
+		area->remove_overlap(other_shape, self_shape);
+	}
+
+	for (Box2DArea2D *area : areas_with_destroyed_overlaps) {
+		area->update_overlaps();
 	}
 }
 

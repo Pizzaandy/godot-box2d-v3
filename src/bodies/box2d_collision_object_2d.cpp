@@ -10,10 +10,15 @@ Box2DCollisionObject2D::Box2DCollisionObject2D(Type p_type) :
 	set_collision_layer(1);
 }
 
+void Box2DCollisionObject2D::set_free() {
+	freed = true;
+	set_space(nullptr);
+}
+
 void Box2DCollisionObject2D::destroy_body() {
 	if (b2Body_IsValid(body_id)) {
-		on_destroy_body();
 		b2DestroyBody(body_id);
+		body_destroyed();
 	}
 
 	in_space = false;
@@ -46,7 +51,7 @@ void Box2DCollisionObject2D::set_space(Box2DSpace2D *p_space) {
 
 	rebuild_all_shapes();
 
-	on_body_created();
+	body_created();
 }
 
 void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
@@ -225,6 +230,7 @@ void Box2DCollisionObject2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 void Box2DCollisionObject2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 
+	on_shape_destroy(shapes[p_index]);
 	shapes.remove_at(p_index);
 
 	reindex_all_shapes();
@@ -237,6 +243,7 @@ void Box2DCollisionObject2D::remove_shape(Box2DShape2D *p_shape) {
 
 	for (int i = 0; i < shapes.size(); i++) {
 		if (shapes[i].get_shape_or_null() == p_shape) {
+			on_shape_destroy(shapes[i]);
 			shapes.remove_at(i);
 			i--;
 		}

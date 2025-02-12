@@ -10,6 +10,5 @@ func _input(event):
 		query.collide_with_areas = true
 
 		var results = space_state.intersect_point(query)
-		for result in results:
-			var obj = result.collider
-			obj.queue_free()
+		if results.size() > 0:
+			results[0].queue_free()

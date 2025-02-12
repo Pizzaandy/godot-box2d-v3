@@ -5,6 +5,7 @@
 #include "../box2d_globals.h"
 #include "box2d_physics_direct_space_state_2d.h"
 #include <godot_cpp/classes/worker_thread_pool.hpp>
+#include <godot_cpp/templates/hash_set.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
 #include <godot_cpp/variant/packed_vector2_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
@@ -60,14 +61,16 @@ public:
 	void set_default_gravity(Vector2 p_gravity);
 	Vector2 get_default_gravity() { return default_gravity; }
 
-	void area_add_to_step_list(Box2DArea2D *p_area) {
+	void add_active_area(Box2DArea2D *p_area) {
 		areas_to_step.ordered_insert(p_area);
+	}
+	void remove_active_area(Box2DArea2D *p_area) {
+		areas_to_step.erase(p_area);
 	}
 
 	void add_constant_force_body(Box2DBody2D *p_body) {
 		constant_force_list.push_back(p_body);
 	}
-
 	void remove_constant_force_body(Box2DBody2D *p_body) {
 		constant_force_list.erase(p_body);
 	}
@@ -75,9 +78,12 @@ public:
 	void add_force_integration_body(Box2DBody2D *p_body) {
 		force_integration_list.push_back(p_body);
 	}
-
 	void remove_force_integration_body(Box2DBody2D *p_body) {
 		force_integration_list.erase(p_body);
+	}
+
+	void add_body_with_overrides(Box2DBody2D *p_body) {
+		bodies_with_overrides.insert(p_body);
 	}
 
 	bool locked = false;
@@ -86,6 +92,7 @@ private:
 	LocalVector<Box2DBody2D *> constant_force_list;
 	LocalVector<Box2DBody2D *> force_integration_list;
 	LocalVector<Box2DArea2D *> areas_to_step;
+	HashSet<Box2DBody2D *> bodies_with_overrides;
 
 	Box2DArea2D *default_area = nullptr;
 	Box2DDirectSpaceState2D *direct_state = nullptr;

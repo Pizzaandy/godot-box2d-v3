@@ -33,6 +33,8 @@ public:
 
 	void build();
 
+	Box2DCollisionObject2D *get_body() const { return body; }
+
 private:
 	Box2DCollisionObject2D *body = nullptr;
 	Box2DShape2D *shape = nullptr;

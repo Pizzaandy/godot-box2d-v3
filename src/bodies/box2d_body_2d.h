@@ -23,10 +23,14 @@ public:
 
 	struct AreaOverrideAccumulator {
 		Vector2 total_gravity = Vector2();
+		bool skip_world_gravity = false;
+
 		float total_linear_damp = 0.0;
 		float total_angular_damp = 0.0;
-		bool skip_world_gravity = false;
-		bool ignore_remaining = false;
+
+		bool ignore_remaining_gravity = false;
+		bool ignore_remaining_linear_damp = false;
+		bool ignore_remaining_angular_damp = false;
 	};
 
 	Box2DBody2D();
@@ -36,7 +40,6 @@ public:
 
 	void set_bullet(bool p_bullet);
 	bool get_bullet() const { return body_def.isBullet; }
-
 	float get_bounce() const { return shape_def.restitution; }
 	void set_bounce(float p_bounce);
 	float get_friction() const { return shape_def.friction; }
@@ -47,6 +50,7 @@ public:
 	float get_inertia() const { return mass_data.rotationalInertia; }
 	void set_inertia(float p_inertia);
 	Vector2 get_center_of_mass() const { return to_godot(mass_data.center); }
+	Vector2 get_center_of_mass_global() const;
 	void set_center_of_mass(const Vector2 &p_center);
 	float get_gravity_scale() const { return body_def.gravityScale; }
 	void set_gravity_scale(float p_scale);
@@ -130,15 +134,16 @@ public:
 
 	void update_mass();
 
-	void shapes_changed() override;
-	void on_body_created() override;
-	void on_destroy_body() override;
-
 	void apply_area_overrides();
+
+	void shapes_changed() override;
 
 	AreaOverrideAccumulator area_overrides;
 
-private:
+protected:
+	void body_created() override;
+	void body_destroyed() override;
+
 	Box2DDirectBodyState2D *direct_state = nullptr;
 
 	HashSet<RID> exceptions;

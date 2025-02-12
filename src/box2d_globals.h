@@ -85,8 +85,11 @@ struct ShapeGeometry {
 class BodyShapeRange {
 public:
 	explicit BodyShapeRange(b2BodyId body_id) :
-			body_id(body_id) {
+			body_id(body_id), shape_ids(nullptr) {
 		shape_count = b2Body_GetShapeCount(body_id);
+		if (shape_count == 0) {
+			return;
+		}
 		shape_ids = new b2ShapeId[shape_count];
 		b2Body_GetShapes(body_id, shape_ids, shape_count);
 	}
@@ -129,15 +132,18 @@ public:
 private:
 	b2BodyId body_id;
 	b2ShapeId *shape_ids;
-	int shape_count;
+	int shape_count = 0;
 };
 
 /// Range for iterating body joints.
 class BodyJointRange {
 public:
 	explicit BodyJointRange(b2BodyId body_id) :
-			body_id(body_id) {
+			body_id(body_id), joint_ids(nullptr) {
 		joint_count = b2Body_GetJointCount(body_id);
+		if (joint_count == 0) {
+			return;
+		}
 		joint_ids = new b2JointId[joint_count];
 		b2Body_GetJoints(body_id, joint_ids, joint_count);
 	}
@@ -180,7 +186,7 @@ public:
 private:
 	b2BodyId body_id;
 	b2JointId *joint_ids;
-	int joint_count;
+	int joint_count = 0;
 };
 
 /// Range for iterating chain segment shapes.

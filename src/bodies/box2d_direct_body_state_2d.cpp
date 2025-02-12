@@ -25,7 +25,7 @@
 // }
 
 Vector2 Box2DDirectBodyState2D::_get_center_of_mass() const {
-	return body->get_transform().basis_xform(body->get_center_of_mass());
+	return body->get_center_of_mass_global();
 }
 
 Vector2 Box2DDirectBodyState2D::_get_center_of_mass_local() const {
