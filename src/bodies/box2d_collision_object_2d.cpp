@@ -227,6 +227,18 @@ void Box2DCollisionObject2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 	build_shape(shape, true);
 }
 
+void Box2DCollisionObject2D::shape_updated(Box2DShape2D *p_shape) {
+	ERR_FAIL_NULL(p_shape);
+
+	for (int i = 0; i < shapes.size(); i++) {
+		if (shapes[i].get_shape_or_null() == p_shape) {
+			build_shape(shapes[i]);
+		}
+	}
+
+	shapes_changed();
+}
+
 void Box2DCollisionObject2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 

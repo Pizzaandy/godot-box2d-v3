@@ -18,13 +18,6 @@ void Box2DArea2D::body_destroyed() {
 		space->remove_active_area(this);
 		in_area_step_list = false;
 	}
-
-	const auto overlaps_copy = overlaps;
-	for (const auto &[shape_pair, count] : overlaps_copy) {
-		for (int i = 0; i < count.count; i++) {
-			remove_overlap(shape_pair.other_shape, shape_pair.self_shape);
-		}
-	}
 }
 
 void Box2DArea2D::shapes_changed() {
@@ -64,7 +57,7 @@ void Box2DArea2D::remove_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeIn
 
 		if (--body_overlap_count[body] <= 0) {
 			body_overlap_count.erase(body);
-			if (body->is_rigidbody() && in_area_step_list) {
+			if (body->is_rigidbody()) {
 				Box2DBody2D *rigidbody = static_cast<Box2DBody2D *>(body);
 				rigidbody->apply_area_overrides();
 			}
@@ -81,17 +74,19 @@ void Box2DArea2D::update_overlaps() {
 		new_overlaps[shape_pair] = 0;
 	}
 
-	BodyShapeRange range(body_id);
-	for (b2ShapeId shape_id : range) {
-		Box2DShapeInstance *self_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shape_id));
+	if (in_space) {
+		BodyShapeRange range(body_id);
+		for (b2ShapeId shape_id : range) {
+			Box2DShapeInstance *self_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shape_id));
 
-		int capacity = b2Shape_GetSensorCapacity(shape_id);
-		b2ShapeId *shape_overlaps = new b2ShapeId[capacity];
-		b2Shape_GetSensorOverlaps(shape_id, shape_overlaps, capacity);
-		for (int i = 0; i < capacity; i++) {
-			Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shape_overlaps[i]));
-			ShapePair pair{ other_shape, self_shape };
-			new_overlaps[pair]++;
+			int capacity = b2Shape_GetSensorCapacity(shape_id);
+			b2ShapeId *shape_overlaps = new b2ShapeId[capacity];
+			b2Shape_GetSensorOverlaps(shape_id, shape_overlaps, capacity);
+			for (int i = 0; i < capacity; i++) {
+				Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shape_overlaps[i]));
+				ShapePair pair{ other_shape, self_shape };
+				new_overlaps[pair]++;
+			}
 		}
 	}
 
@@ -128,7 +123,7 @@ void Box2DArea2D::apply_overrides() {
 
 	// Apply overrides
 	for (const auto &[object, overlap_count] : body_overlap_count) {
-		if (!object->is_rigidbody()) {
+		if (!object->is_rigidbody() || object->is_freed()) {
 			continue;
 		}
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(object);

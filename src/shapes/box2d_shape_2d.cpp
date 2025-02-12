@@ -21,7 +21,7 @@ void Box2DShape2D::set_data(const Variant &p_data) {
 
 void Box2DShape2D::update_instances() {
 	for (const auto &[owner, ref_count] : ref_counts_by_body) {
-		owner->shapes_changed();
+		owner->shape_updated(this);
 	}
 }
 

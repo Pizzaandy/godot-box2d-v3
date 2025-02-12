@@ -94,6 +94,7 @@ void Box2DBody2D::set_inertia(float p_inertia) {
 }
 
 Vector2 Box2DBody2D::get_center_of_mass_global() const {
+	ERR_FAIL_COND_V(!in_space, Vector2());
 	return to_godot(b2Body_GetWorldCenterOfMass(body_id));
 }
 

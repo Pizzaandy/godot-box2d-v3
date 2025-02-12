@@ -25,36 +25,11 @@ position = Vector2(846, 836)
 position = Vector2(113, 71)
 shape = SubResource("RectangleShape2D_h7rvq")
 
-[node name="RigidBody2D2" type="RigidBody2D" parent="."]
-position = Vector2(1050, 107)
-rotation = -1.82488
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D2"]
-position = Vector2(39.7925, -4.53443)
-shape = SubResource("CapsuleShape2D_qlqpe")
-
-[node name="RigidBody2D3" type="RigidBody2D" parent="."]
-position = Vector2(1050, 107)
-rotation = -1.82488
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D3"]
-position = Vector2(127.076, -131.273)
-shape = SubResource("CapsuleShape2D_qlqpe")
-
-[node name="RigidBody2D4" type="RigidBody2D" parent="."]
-position = Vector2(1050, 107)
-rotation = -1.82488
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D4"]
-position = Vector2(249.522, -73.6448)
-shape = SubResource("CapsuleShape2D_qlqpe")
-
 [node name="RigidBody2D5" type="RigidBody2D" parent="."]
-position = Vector2(1050, 107)
+position = Vector2(929, 117)
 rotation = -1.82488
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D5"]
-position = Vector2(7.44443, -231.563)
 shape = SubResource("CapsuleShape2D_qlqpe")
 
 [node name="Area2D" type="Area2D" parent="."]

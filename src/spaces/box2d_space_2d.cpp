@@ -155,9 +155,6 @@ void Box2DSpace2D::step(float p_step) {
 		body->apply_constant_forces();
 	}
 
-	b2World_Step(world_id, p_step, substeps);
-	locked = false;
-
 	for (Box2DArea2D *area : areas_to_step) {
 		area->apply_overrides();
 	}
@@ -166,6 +163,9 @@ void Box2DSpace2D::step(float p_step) {
 		body->apply_area_overrides();
 	}
 	bodies_with_overrides.clear();
+
+	b2World_Step(world_id, p_step, substeps);
+	locked = false;
 
 	last_step = p_step;
 }
