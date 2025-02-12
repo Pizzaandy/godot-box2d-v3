@@ -1,5 +1,6 @@
 extends Node2D
 
+
 func _input(event):
 	var ev = event as InputEventMouseButton
 	if ev and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
@@ -10,5 +11,11 @@ func _input(event):
 		query.collide_with_areas = true
 
 		var results = space_state.intersect_point(query)
-		if results.size() > 0:
-			results[0].queue_free()
+		if results.size() == 0:
+			return
+
+		var rigidbodies = results.filter(func(result): return result.collider is RigidBody2D)
+		if rigidbodies.size() == 0:
+			results[0].collider.queue_free()
+		else:
+			rigidbodies[0].collider.queue_free()
