@@ -115,13 +115,6 @@ void Box2DArea2D::update_overlaps() {
 }
 
 void Box2DArea2D::apply_overrides() {
-	// HashSet<Box2DCollisionObject2D *> overlapped_bodies;
-
-	// for (const auto &[shape_pair, count] : overlaps) {
-	// 	overlapped_bodies.insert(shape_pair.other_shape->get_body());
-	// }
-
-	// Apply overrides
 	for (const auto &[object, overlap_count] : body_overlap_count) {
 		if (!object->is_rigidbody() || object->is_freed()) {
 			continue;

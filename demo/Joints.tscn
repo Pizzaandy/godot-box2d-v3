@@ -84,7 +84,7 @@ position = Vector2(1244, 603)
 node_a = NodePath("../RigidBody2D3")
 node_b = NodePath("../RigidBody2D4")
 rest_length = 20.0
-stiffness = 50.0
+stiffness = 10.0
 
 [node name="RigidBody2D3" type="RigidBody2D" parent="."]
 position = Vector2(1246, 543)
