@@ -186,13 +186,7 @@ Vector2 Box2DBody2D::get_linear_velocity() const {
 
 Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
 	ERR_FAIL_COND_V(!in_space, Vector2());
-
-	Vector2 linear = to_godot(b2Body_GetLinearVelocity(body_id));
-	float angular = b2Body_GetAngularVelocity(body_id);
-
-	Vector2 relative_position = p_point - (get_transform().get_origin() + get_center_of_mass());
-
-	return linear + Vector2(-angular * relative_position.y, angular * relative_position.x);
+	return to_godot(b2Body_GetLocalPointVelocity(body_id, to_box2d(p_point)));
 }
 
 void Box2DBody2D::set_angular_velocity(float p_velocity) {

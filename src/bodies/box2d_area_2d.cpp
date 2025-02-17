@@ -258,19 +258,21 @@ void Box2DArea2D::set_gravity_point_enabled(bool p_enabled) {
 
 Vector2 Box2DArea2D::compute_gravity(Vector2 p_position) const {
 	if (gravity_point_enabled) {
-		Vector2 v = get_transform().xform(gravity_direction) - p_position;
+		Vector2 displacement = get_transform().xform(gravity_direction) - p_position;
+
 		if (gravity_point_unit_distance <= 0.0) {
-			return v.normalized() * gravity_strength;
+			return displacement.normalized() * gravity_strength;
 		}
 
-		float v_length_sq = v.length_squared();
-		if (v_length_sq <= 0.0) {
+		float distance_sq = displacement.length_squared();
+
+		if (distance_sq <= 0.0) {
 			return Vector2();
 		}
 
-		float strength = (gravity_strength * gravity_point_unit_distance * gravity_point_unit_distance) / v_length_sq;
+		float adjusted_strength = gravity_strength * (gravity_point_unit_distance * gravity_point_unit_distance) / distance_sq;
 
-		return v.normalized() * strength;
+		return displacement.normalized() * adjusted_strength;
 	}
 
 	return gravity_direction * gravity_strength;

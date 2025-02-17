@@ -1,9 +1,17 @@
 #include "box2d_project_settings.h"
 
-constexpr char DEFAULT_GRAVITY[] = "physics/box_2d/default_gravity";
 constexpr char SUBSTEPS[] = "physics/box_2d/substeps";
 constexpr char PIXELS_PER_METER[] = "physics/box_2d/pixels_per_meter";
-constexpr char PRESOLVE_ENABLED[] = "physics/box_2d/presolve_enabled";
+
+constexpr char CONTACT_HERTZ[] = "physics/box_2d/solver/contact_hertz";
+constexpr char CONTACT_DAMPING_RATIO[] = "physics/box_2d/solver/contact_damping_ratio";
+constexpr char JOINT_HERTZ[] = "physics/box_2d/solver/joint_hertz";
+constexpr char JOINT_DAMPING_RATIO[] = "physics/box_2d/solver/joint_damping_ratio";
+constexpr char FRICTION_MIXING_RULE[] = "physics/box_2d/solver/friction_mixing_rule";
+constexpr char RESTITUTION_MIXING_RULE[] = "physics/box_2d/solver/restitution_mixing_rule";
+
+constexpr char PRESOLVE_ENABLED[] = "physics/box_2d/advanced/presolve_enabled";
+
 constexpr char MAX_THREADS[] = "threading/worker_pool/max_threads";
 
 template <typename TType>
@@ -86,12 +94,15 @@ void register_setting_enum(
 void Box2DProjectSettings::register_settings() {
 	register_setting_ranged(SUBSTEPS, 4, U"1,8,or_greater");
 	register_setting_ranged(PIXELS_PER_METER, 100, U"1,500,or_greater,suffix:px / m", true);
-	register_setting_plain(PRESOLVE_ENABLED, true, true);
-}
 
-int Box2DProjectSettings::get_substeps() {
-	static const auto value = get_setting<int>(SUBSTEPS);
-	return value;
+	register_setting_plain(CONTACT_HERTZ, 30.0);
+	register_setting_plain(CONTACT_DAMPING_RATIO, 10.0);
+	register_setting_plain(JOINT_HERTZ, 60.0);
+	register_setting_plain(JOINT_DAMPING_RATIO, 2.0);
+	register_setting_enum(FRICTION_MIXING_RULE, MIXING_RULE_GODOT, "Minimum (Godot),Geometric Mean (Box2D)");
+	register_setting_enum(RESTITUTION_MIXING_RULE, MIXING_RULE_GODOT, "Additive (Godot),Maximum (Box2D)");
+
+	register_setting_plain(PRESOLVE_ENABLED, true, true);
 }
 
 int Box2DProjectSettings::get_pixels_per_meter() {
@@ -99,12 +110,49 @@ int Box2DProjectSettings::get_pixels_per_meter() {
 	return value;
 }
 
-int32_t Box2DProjectSettings::get_max_threads() {
-	static const auto value = get_setting<int32_t>(MAX_THREADS);
+int Box2DProjectSettings::get_substeps() {
+	static const auto value = get_setting<int>(SUBSTEPS);
+	return value;
+}
+
+float Box2DProjectSettings::get_contact_hertz() {
+	static const auto value = get_setting<float>(CONTACT_HERTZ);
+	return value;
+}
+
+float Box2DProjectSettings::get_contact_damping_ratio() {
+	static const auto value = get_setting<float>(CONTACT_DAMPING_RATIO);
+	return value;
+}
+
+float Box2DProjectSettings::get_joint_hertz() {
+	static const auto value = get_setting<float>(JOINT_HERTZ);
+	return value;
+}
+
+float Box2DProjectSettings::get_joint_damping_ratio() {
+	static const auto value = get_setting<float>(JOINT_DAMPING_RATIO);
 	return value;
 }
 
 bool Box2DProjectSettings::get_presolve_enabled() {
 	static const auto value = get_setting<bool>(PRESOLVE_ENABLED);
+	return value;
+}
+
+MixingRule Box2DProjectSettings::get_friction_mixing_rule() {
+	static const auto value = get_setting<int32_t>(FRICTION_MIXING_RULE);
+	ERR_FAIL_COND_V(value >= MIXING_RULE_MAX, MIXING_RULE_GODOT);
+	return static_cast<MixingRule>(value);
+}
+
+MixingRule Box2DProjectSettings::get_restitution_mixing_rule() {
+	static const auto value = get_setting<int32_t>(RESTITUTION_MIXING_RULE);
+	ERR_FAIL_COND_V(value >= MIXING_RULE_MAX, MIXING_RULE_GODOT);
+	return static_cast<MixingRule>(value);
+}
+
+int32_t Box2DProjectSettings::get_max_threads() {
+	static const auto value = get_setting<int32_t>(MAX_THREADS);
 	return value;
 }

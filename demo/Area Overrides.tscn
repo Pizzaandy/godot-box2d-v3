@@ -40,6 +40,8 @@ shape = SubResource("CircleShape2D_rq1le")
 script = ExtResource("2_gxlct")
 
 [node name="Camera2D" parent="." instance=ExtResource("4_e0duv")]
+position = Vector2(967, 500)
+zoom = Vector2(1, 1)
 
 [node name="Spawner" type="Node2D" parent="."]
 position = Vector2(945, 0)

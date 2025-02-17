@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/body_animator.gd" id="1_o1u2r"]
 [ext_resource type="Script" path="res://scripts/rain_spawner.gd" id="2_whm8o"]
-[ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://scenes/CircleBody.tscn" id="4_6buib"]
+[ext_resource type="PackedScene" uid="uid://dcxotvc8jebfx" path="res://scenes/BoxBody.tscn" id="4_6buib"]
 [ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="4_kk17e"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfuel"]

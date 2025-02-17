@@ -92,11 +92,11 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 	return true;
 }
 
-float friction_callback(float frictionA, int materialA, float frictionB, int materialB) {
+float godot_friction_callback(float frictionA, int materialA, float frictionB, int materialB) {
 	return ABS(MIN(frictionA, frictionB));
 }
 
-float restitution_callback(float restitutionA, int materialA, float restitutionB, int materialB) {
+float godot_restitution_callback(float restitutionA, int materialA, float restitutionB, int materialB) {
 	return CLAMP(restitutionA + restitutionB, 0.0f, 1.0f);
 }
 
@@ -115,14 +115,22 @@ Box2DSpace2D::Box2DSpace2D() {
 		max_tasks = (max_thread_count < hardware_thread_count) ? max_thread_count : hardware_thread_count;
 	}
 
-	max_tasks = CLAMP(max_tasks, 1, 8);
+	max_tasks = CLAMP(max_tasks, 0, 8);
 
 	b2WorldDef world_def = b2DefaultWorldDef();
 	world_def.gravity = to_box2d(default_gravity);
+	world_def.contactHertz = Box2DProjectSettings::get_contact_hertz();
+	world_def.contactDampingRatio = Box2DProjectSettings::get_contact_damping_ratio();
+	world_def.jointHertz = Box2DProjectSettings::get_joint_hertz();
+	world_def.jointDampingRatio = Box2DProjectSettings::get_joint_damping_ratio();
 
-	// TODO: add settings for mixing rules
-	world_def.frictionCallback = friction_callback;
-	world_def.restitutionCallback = restitution_callback;
+	if (Box2DProjectSettings::get_friction_mixing_rule() == MIXING_RULE_GODOT) {
+		world_def.frictionCallback = godot_friction_callback;
+	}
+
+	if (Box2DProjectSettings::get_restitution_mixing_rule() == MIXING_RULE_GODOT) {
+		world_def.restitutionCallback = godot_restitution_callback;
+	}
 
 	world_def.workerCount = max_tasks;
 	world_def.userTaskContext = this;
@@ -166,7 +174,6 @@ void Box2DSpace2D::step(float p_step) {
 
 	b2World_Step(world_id, p_step, substeps);
 	locked = false;
-
 	last_step = p_step;
 }
 
