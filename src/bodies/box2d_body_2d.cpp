@@ -120,23 +120,45 @@ void Box2DBody2D::set_gravity_scale(float p_scale) {
 }
 
 void Box2DBody2D::set_linear_damping(float p_damping) {
-	body_def.linearDamping = p_damping;
-
-	if (!in_space) {
-		return;
-	}
-
-	b2Body_SetLinearDamping(body_id, p_damping);
+	linear_damping = p_damping;
+	update_linear_damping();
 }
 
 void Box2DBody2D::set_angular_damping(float p_damping) {
-	body_def.angularDamping = p_damping;
+	angular_damping = p_damping;
+	update_angular_damping();
+}
 
+void Box2DBody2D::update_linear_damping() {
 	if (!in_space) {
 		return;
 	}
 
-	b2Body_SetAngularDamping(body_id, p_damping);
+	body_def.linearDamping = linear_damping;
+
+	if (linear_damp_mode == PhysicsServer2D::BODY_DAMP_MODE_COMBINE) {
+		Box2DArea2D *default_area = space->get_default_area();
+		ERR_FAIL_NULL(default_area);
+		body_def.linearDamping += default_area->get_linear_damp();
+	}
+
+	b2Body_SetLinearDamping(body_id, body_def.linearDamping);
+}
+
+void Box2DBody2D::update_angular_damping() {
+	if (!in_space) {
+		return;
+	}
+
+	body_def.angularDamping = angular_damping;
+
+	if (angular_damp_mode == PhysicsServer2D::BODY_DAMP_MODE_COMBINE) {
+		Box2DArea2D *default_area = space->get_default_area();
+		ERR_FAIL_NULL(default_area);
+		body_def.angularDamping += space->get_default_area()->get_angular_damp();
+	}
+
+	b2Body_SetAngularDamping(body_id, body_def.angularDamping);
 }
 
 void Box2DBody2D::apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position) {
@@ -618,6 +640,9 @@ void Box2DBody2D::body_created() {
 
 	update_constant_forces_list();
 	update_force_integration_list();
+
+	update_linear_damping();
+	update_angular_damping();
 }
 
 void Box2DBody2D::body_destroyed() {
@@ -633,7 +658,7 @@ void Box2DBody2D::body_destroyed() {
 }
 
 void Box2DBody2D::apply_area_overrides() {
-	if (!in_space || !is_dynamic()) {
+	if (!in_space) {
 		return;
 	}
 
@@ -647,13 +672,13 @@ void Box2DBody2D::apply_area_overrides() {
 		b2Body_ApplyForceToCenter(body_id, to_box2d(area_overrides.total_gravity), true);
 	}
 
-	if (area_overrides.total_linear_damp != body_def.linearDamping) {
+	if (linear_damp_mode == PhysicsServer2D::BODY_DAMP_MODE_COMBINE && area_overrides.total_linear_damp != body_def.linearDamping) {
 		b2Body_SetLinearDamping(body_id, area_overrides.total_linear_damp);
 	} else {
 		b2Body_SetLinearDamping(body_id, body_def.linearDamping);
 	}
 
-	if (area_overrides.total_angular_damp != body_def.angularDamping) {
+	if (angular_damp_mode == PhysicsServer2D::BODY_DAMP_MODE_COMBINE && area_overrides.total_angular_damp != body_def.angularDamping) {
 		b2Body_SetAngularDamping(body_id, area_overrides.total_angular_damp);
 	} else {
 		b2Body_SetAngularDamping(body_id, body_def.angularDamping);

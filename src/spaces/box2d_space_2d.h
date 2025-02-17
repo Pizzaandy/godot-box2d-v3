@@ -61,6 +61,9 @@ public:
 	void set_default_gravity(Vector2 p_gravity);
 	Vector2 get_default_gravity() { return default_gravity; }
 
+	void default_area_linear_damp_changed() { linear_damp_changed = true; }
+	void default_area_angular_damp_changed() { angular_damp_changed = true; }
+
 	void add_active_area(Box2DArea2D *p_area) {
 		areas_to_step.ordered_insert(p_area);
 	}
@@ -106,4 +109,7 @@ private:
 	int max_tasks = -1;
 	int substeps = 4;
 	Vector2 default_gravity = Vector2();
+
+	bool linear_damp_changed = false;
+	bool angular_damp_changed = false;
 };

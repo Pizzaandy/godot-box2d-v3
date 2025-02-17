@@ -47,7 +47,7 @@ shape = SubResource("CapsuleShape2D_xnqn8")
 [node name="RigidBody2D2" type="RigidBody2D" parent="."]
 position = Vector2(270, 443)
 rotation = -0.530987
-constant_torque = 500.0
+constant_torque = 650.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D2"]
 position = Vector2(3.8147e-06, 9.53674e-07)

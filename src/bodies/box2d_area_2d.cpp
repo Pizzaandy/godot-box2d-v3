@@ -18,6 +18,13 @@ void Box2DArea2D::body_destroyed() {
 		space->remove_active_area(this);
 		in_area_step_list = false;
 	}
+
+	const auto overlaps_copy = overlaps;
+	for (const auto &[shape_pair, data] : overlaps_copy) {
+		for (int i = 0; i < data.count; i++) {
+			remove_overlap(shape_pair.other_shape, shape_pair.self_shape);
+		}
+	}
 }
 
 void Box2DArea2D::shapes_changed() {
@@ -70,7 +77,7 @@ void Box2DArea2D::update_overlaps() {
 
 	HashMap<ShapePair, int, ShapePair> new_overlaps;
 
-	for (const auto &[shape_pair, count] : overlaps) {
+	for (const auto &[shape_pair, data] : overlaps) {
 		new_overlaps[shape_pair] = 0;
 	}
 

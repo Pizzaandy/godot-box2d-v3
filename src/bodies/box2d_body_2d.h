@@ -54,10 +54,13 @@ public:
 	void set_center_of_mass(const Vector2 &p_center);
 	float get_gravity_scale() const { return body_def.gravityScale; }
 	void set_gravity_scale(float p_scale);
-	float get_linear_damping() const { return body_def.linearDamping; }
+	float get_linear_damping() const { return linear_damping; }
 	void set_linear_damping(float p_damping);
-	float get_angular_damping() const { return body_def.angularDamping; }
+	float get_angular_damping() const { return angular_damping; }
 	void set_angular_damping(float p_damping);
+
+	void update_linear_damping();
+	void update_angular_damping();
 
 	void apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position);
 	void apply_impulse_center(const Vector2 &p_impulse);
@@ -163,6 +166,9 @@ protected:
 	Callable body_state_callback;
 	Callable force_integration_callback;
 	Variant force_integration_user_data;
+
+	float linear_damping = 0.0;
+	float angular_damping = 0.0;
 
 	float mass = 1.0f;
 	b2MassData mass_data = b2MassData{ 0 };

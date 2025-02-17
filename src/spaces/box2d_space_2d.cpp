@@ -159,6 +159,14 @@ Box2DSpace2D::~Box2DSpace2D() {
 void Box2DSpace2D::step(float p_step) {
 	locked = true;
 
+	if (linear_damp_changed || angular_damp_changed) {
+		// TODO: Notify bodies of change to default damping values here
+		// for (Box2DBody2D* body : bodies)
+		//     body->update_linear_damping();
+		linear_damp_changed = false;
+		angular_damp_changed = false;
+	}
+
 	for (Box2DBody2D *body : constant_force_list) {
 		body->apply_constant_forces();
 	}
@@ -216,7 +224,6 @@ void Box2DSpace2D::sync_state() {
 		const b2SensorEndTouchEvent *end_event = sensor_events.endEvents + i;
 
 		// Sensor end events can occur when overlapping shapes are destroyed or moved.
-
 		bool sensor_shape_exists = b2Shape_IsValid(end_event->sensorShapeId);
 		bool other_shape_exists = b2Shape_IsValid(end_event->visitorShapeId);
 
