@@ -6,6 +6,7 @@
 #include "../shapes/box2d_convex_polygon_shape_2d.h"
 #include "../shapes/box2d_rectangle_shape_2d.h"
 #include "../shapes/box2d_segment_shape_2d.h"
+#include "../shapes/box2d_separation_ray_shape_2d.h"
 
 #include "../joints/box2d_damped_spring_joint_2d.h"
 #include "../joints/box2d_groove_joint_2d.h"
@@ -47,8 +48,10 @@ RID Box2DPhysicsServer2D::_world_boundary_shape_create() {
 }
 
 RID Box2DPhysicsServer2D::_separation_ray_shape_create() {
-	ERR_PRINT_ONCE("Box2D: Separation ray shape is not supported.");
-	return RID();
+	Box2DSeparationRayShape2D *shape = memnew(Box2DSeparationRayShape2D);
+	RID rid = shape_owner.make_rid(shape);
+	shape->set_rid(rid);
+	return rid;
 }
 
 RID Box2DPhysicsServer2D::_segment_shape_create() {

@@ -232,7 +232,7 @@ void Box2DSpace2D::sync_state() {
 		}
 
 		if (sensor_shape_exists && !other_shape_exists) {
-			// Notify the area that a shape has been destroyed
+			// Notify the Area that a shape has been destroyed
 			Box2DArea2D *area = static_cast<Box2DArea2D *>(b2Body_GetUserData(b2Shape_GetBody(end_event->sensorShapeId)));
 			areas_with_destroyed_overlaps.push_back(area);
 			continue;
@@ -250,7 +250,6 @@ void Box2DSpace2D::sync_state() {
 		Box2DArea2D *area = static_cast<Box2DArea2D *>(self_object);
 
 		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(end_event->visitorShapeId));
-		//Box2DCollisionObject2D *other_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(end_event->visitorShapeId)));
 
 		area->remove_overlap(other_shape, self_shape);
 	}

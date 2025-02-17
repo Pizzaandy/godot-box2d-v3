@@ -1,6 +1,7 @@
 #pragma once
 
 #include "box2d_shape_2d.h"
+#include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
 
 class Box2DShape2D;
@@ -25,17 +26,20 @@ public:
 
 	LocalVector<b2ShapeId> shape_ids;
 
-	void set_shape(Box2DShape2D *p_shape) { shape = p_shape; }
-	Box2DShape2D *get_shape_or_null() const { return shape; }
+	void set_shape(Box2DShape2D *p_shape);
+	Box2DShape2D *get_shape() const { return shape; }
 
 	Transform2D get_shape_transform() const;
 	b2ShapeDef get_shape_def() const;
 
 	void build();
 
+	bool is_separation_ray() const { return shape_type == PhysicsServer2D::SHAPE_SEPARATION_RAY; }
+
 	Box2DCollisionObject2D *get_body() const { return body; }
 
 private:
 	Box2DCollisionObject2D *body = nullptr;
 	Box2DShape2D *shape = nullptr;
+	PhysicsServer2D::ShapeType shape_type = PhysicsServer2D::SHAPE_CUSTOM;
 };

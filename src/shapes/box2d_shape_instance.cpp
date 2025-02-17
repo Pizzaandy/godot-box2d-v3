@@ -12,6 +12,7 @@ Box2DShapeInstance::Box2DShapeInstance(
 		disabled(p_disabled) {
 	if (shape) {
 		shape->add_body_reference(body);
+		shape_type = shape->get_type();
 	}
 }
 
@@ -21,6 +22,11 @@ Box2DShapeInstance::~Box2DShapeInstance() {
 	}
 	shape->remove_from_body(body->get_body_id(), this);
 	shape->remove_body_reference(body);
+}
+
+void Box2DShapeInstance::set_shape(Box2DShape2D *p_shape) {
+	shape = p_shape;
+	shape_type = shape->get_type();
 }
 
 void Box2DShapeInstance::build() {

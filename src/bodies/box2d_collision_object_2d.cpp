@@ -11,7 +11,7 @@ Box2DCollisionObject2D::Box2DCollisionObject2D(Type p_type) :
 }
 
 void Box2DCollisionObject2D::set_free() {
-	freed = true;
+	_is_freed = true;
 	set_space(nullptr);
 }
 
@@ -175,7 +175,7 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 RID Box2DCollisionObject2D::get_shape_rid(int p_index) const {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), RID());
 	const Box2DShapeInstance &shape = shapes[p_index];
-	Box2DShape2D *inst = shape.get_shape_or_null();
+	Box2DShape2D *inst = shape.get_shape();
 	ERR_FAIL_COND_V(!inst, RID());
 	return inst->get_rid();
 }
@@ -231,7 +231,7 @@ void Box2DCollisionObject2D::shape_updated(Box2DShape2D *p_shape) {
 	ERR_FAIL_NULL(p_shape);
 
 	for (int i = 0; i < shapes.size(); i++) {
-		if (shapes[i].get_shape_or_null() == p_shape) {
+		if (shapes[i].get_shape() == p_shape) {
 			build_shape(shapes[i]);
 		}
 	}
@@ -254,7 +254,7 @@ void Box2DCollisionObject2D::remove_shape(Box2DShape2D *p_shape) {
 	ERR_FAIL_NULL(p_shape);
 
 	for (int i = 0; i < shapes.size(); i++) {
-		if (shapes[i].get_shape_or_null() == p_shape) {
+		if (shapes[i].get_shape() == p_shape) {
 			on_shape_destroy(shapes[i]);
 			shapes.remove_at(i);
 			i--;

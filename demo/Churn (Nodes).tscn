@@ -45,7 +45,7 @@ shape = SubResource("CapsuleShape2D_ndips")
 [node name="Spawner" type="Node2D" parent="."]
 position = Vector2(1346, -4326)
 script = ExtResource("2_whm8o")
-max_bodies = 3000
+max_bodies = 6000
 spawns_per_second = 500
 body = ExtResource("4_6buib")
 spawn_range = Vector2(-2000, 2000)

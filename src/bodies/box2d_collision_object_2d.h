@@ -25,7 +25,7 @@ public:
 	bool is_rigidbody() const { return type == Type::RIGIDBODY; }
 
 	void set_free();
-	bool is_freed() const { return freed; }
+	bool is_freed() const { return _is_freed; }
 
 	void destroy_body();
 
@@ -101,6 +101,6 @@ protected:
 	b2BodyId body_id = b2_nullBodyId;
 
 	bool in_space = false;
-	bool freed = false;
+	bool _is_freed = false;
 	Type type = Type::RIGIDBODY;
 };
