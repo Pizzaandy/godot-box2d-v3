@@ -1,15 +1,30 @@
+@tool
 extends ItemList
 
-var current_scene = null
+@export var get_scene_list: bool:
+	set(value):
+		get_scenes()
+
+@export var scenes: PackedStringArray
+
 @onready var settings_container: SettingsPanelFinder = $"../../../Panel/SettingsContainer"
 
+var current_scene = null
+
 func _ready() -> void:
+	if not Engine.is_editor_hint():
+		for scene in scenes:
+			add_item(scene)
+
+
+func get_scenes() -> void:
+	scenes.clear()
 	var root_files = DirAccess.get_files_at("res://")
 	for filename in root_files:
 		if not filename.ends_with(".tscn"):
 			continue
 		var name = filename.get_file().trim_suffix(".tscn")
-		add_item(name)
+		scenes.push_back(name)
 
 
 func _on_item_selected(index: int) -> void:
