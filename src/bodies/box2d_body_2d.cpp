@@ -297,7 +297,9 @@ void Box2DBody2D::update_contacts() {
 
 		Box2DShapeInstance *local_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(box2d_contact.shapeIdA));
 		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(box2d_contact.shapeIdB));
-		Box2DBody2D *other_body = static_cast<Box2DBody2D *>(b2Body_GetUserData(b2Shape_GetBody(box2d_contact.shapeIdB)));
+		Box2DBody2D *other_body = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(box2d_contact.shapeIdB)))->as_body();
+
+		ERR_FAIL_NULL(other_body);
 
 		for (int point_index = 0; point_index < box2d_contact.manifold.pointCount; point_index++) {
 			b2ManifoldPoint point = box2d_contact.manifold.points[point_index];
@@ -317,9 +319,9 @@ void Box2DBody2D::update_contacts() {
 			contact.local_position = to_godot(point.point);
 			contact.local_normal = to_godot(box2d_contact.manifold.normal).normalized();
 			contact.depth = depth;
-			contact.local_shape = local_shape->index;
+			contact.local_shape = local_shape->get_index();
 			contact.collider_position = other_body->get_transform().get_origin();
-			contact.collider_shape = other_shape->index;
+			contact.collider_shape = other_shape->get_index();
 			contact.collider_instance_id = other_body->get_instance_id();
 			contact.collider = other_body->get_rid();
 			contact.collider_velocity = other_body->get_velocity_at_local_point(to_godot(point.anchorB));
@@ -438,14 +440,14 @@ TypedArray<RID> Box2DBody2D::get_collision_exceptions() const {
 void Box2DBody2D::set_shape_one_way_collision(int p_index, bool p_one_way, float p_margin) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 	Box2DShapeInstance &shape = shapes[p_index];
-	shape.one_way_collision = p_one_way;
-	shape.one_way_collision_margin = p_margin;
+	shape.set_one_way_collision(p_one_way);
+	shape.set_one_way_collision_margin(p_margin);
 }
 
 bool Box2DBody2D::get_shape_one_way_collision(int p_index) {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), false);
 	Box2DShapeInstance &shape = shapes[p_index];
-	return shape.one_way_collision;
+	return shape.get_one_way_collision();
 }
 
 void Box2DBody2D::update_mass() {

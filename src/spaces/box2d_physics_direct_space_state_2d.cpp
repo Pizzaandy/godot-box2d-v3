@@ -43,11 +43,11 @@ int32_t Box2DDirectSpaceState2D::_intersect_point(
 	b2World_OverlapPoint(world, to_box2d(Vector2()), transform, filter, overlap_callback, &collector);
 
 	for (ShapeOverlap overlap : collector.overlaps) {
-		ERR_FAIL_COND_V(overlap.shape->index < 0, 0);
+		ERR_FAIL_COND_V(overlap.shape->get_index() < 0, 0);
 
 		PhysicsServer2DExtensionShapeResult &result = *p_results++;
 
-		result.shape = overlap.shape->index;
+		result.shape = overlap.shape->get_index();
 		result.rid = overlap.object->get_rid();
 		result.collider_id = overlap.object->get_instance_id();
 		if (result.collider_id.is_valid()) {
@@ -80,11 +80,11 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 
 		if (collector.overlaps.size() > 0) {
 			ShapeOverlap overlap = collector.overlaps[0];
-			ERR_FAIL_COND_V(overlap.shape->index < 0, false);
+			ERR_FAIL_COND_V(overlap.shape->get_index() < 0, false);
 
 			p_result->position = p_from;
 			p_result->normal = Vector2();
-			p_result->shape = overlap.shape->index;
+			p_result->shape = overlap.shape->get_index();
 			p_result->rid = overlap.object->get_rid();
 			p_result->collider_id = overlap.object->get_instance_id();
 			if (p_result->collider_id.is_valid()) {
@@ -106,13 +106,13 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 
 	CastHit hit = collector.nearest_hit;
 
-	ERR_FAIL_COND_V(hit.shape->index < 0, 0);
+	ERR_FAIL_COND_V(hit.shape->get_index() < 0, 0);
 
 	PhysicsServer2DExtensionRayResult &result = *p_result;
 
 	result.position = to_godot(hit.point);
 	result.normal = to_godot(hit.normal).normalized();
-	result.shape = hit.shape->index;
+	result.shape = hit.shape->get_index();
 	result.rid = hit.object->get_rid();
 	result.collider_id = hit.object->get_instance_id();
 	if (result.collider_id.is_valid()) {
@@ -149,11 +149,11 @@ int32_t Box2DDirectSpaceState2D::_intersect_shape(
 	box2d_cast_shape(world, shape_geometry, b2Transform_identity, to_box2d(p_motion), filter, cast_callback_all, &collector);
 
 	for (CastHit hit : collector.hits) {
-		ERR_FAIL_COND_V(hit.shape->index < 0, 0);
+		ERR_FAIL_COND_V(hit.shape->get_index() < 0, 0);
 
 		PhysicsServer2DExtensionShapeResult &result = *p_result++;
 
-		result.shape = hit.shape->index;
+		result.shape = hit.shape->get_index();
 		result.rid = hit.object->get_rid();
 		result.collider_id = hit.object->get_instance_id();
 		if (result.collider_id.is_valid()) {
@@ -302,7 +302,7 @@ bool Box2DDirectSpaceState2D::_rest_info(
 		p_rest_info->normal = result.normal;
 		p_rest_info->rid = overlap.object->get_rid();
 		p_rest_info->collider_id = overlap.object->get_instance_id();
-		p_rest_info->shape = overlap.shape->index;
+		p_rest_info->shape = overlap.shape->get_index();
 
 		Box2DBody2D *body = overlap.object->as_body();
 		if (body) {
@@ -349,7 +349,7 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 	result["point"] = to_godot(hit.point);
 	result["destination"] = start.get_origin() + (hit.fraction * motion);
 	result["normal"] = to_godot(hit.normal).normalized();
-	result["shape"] = hit.shape->index;
+	result["shape"] = hit.shape->get_index();
 	result["rid"] = hit.object->get_rid();
 	ObjectID id = hit.object->get_instance_id();
 	result["collider_id"] = id;
@@ -395,7 +395,7 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 		result["point"] = to_godot(hit.point);
 		result["destination"] = start.get_origin() + (hit.fraction * motion);
 		result["normal"] = to_godot(hit.normal).normalized();
-		result["shape"] = hit.shape->index;
+		result["shape"] = hit.shape->get_index();
 		result["rid"] = hit.object->get_rid();
 		ObjectID id = hit.object->get_instance_id();
 		result["collider_id"] = id;

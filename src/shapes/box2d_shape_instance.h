@@ -18,16 +18,25 @@ public:
 
 	~Box2DShapeInstance();
 
-	int index = -1;
-	Transform2D transform;
-	bool disabled = false;
-	bool one_way_collision = false;
-	float one_way_collision_margin = 0.0;
-
 	LocalVector<b2ShapeId> shape_ids;
 
 	void set_shape(Box2DShape2D *p_shape);
 	Box2DShape2D *get_shape() const { return shape; }
+
+	void set_index(int p_index) { index = p_index; }
+	int get_index() const { return index; }
+
+	void set_transform(const Transform2D &p_transform) { transform = p_transform; }
+	Transform2D get_transform() const { return transform; }
+
+	void set_disabled(bool p_disabled) { disabled = p_disabled; }
+	bool get_disabled() const { return disabled; }
+
+	void set_one_way_collision(bool p_one_way) { one_way_collision = p_one_way; }
+	bool get_one_way_collision() const { return one_way_collision; }
+
+	void set_one_way_collision_margin(float p_margin) { one_way_collision_margin = p_margin; }
+	float get_one_way_collision_margin() const { return one_way_collision_margin; }
 
 	Transform2D get_shape_transform() const;
 	b2ShapeDef get_shape_def();
@@ -42,4 +51,10 @@ private:
 	Box2DCollisionObject2D *object = nullptr;
 	Box2DShape2D *shape = nullptr;
 	PhysicsServer2D::ShapeType shape_type = PhysicsServer2D::SHAPE_CUSTOM;
+
+	int index = -1;
+	Transform2D transform;
+	bool disabled = false;
+	bool one_way_collision = false;
+	float one_way_collision_margin = 0.0;
 };

@@ -51,7 +51,7 @@ public:
 		}
 	};
 
-	struct BodyAndOverlapCount {
+	struct ObjectAndOverlapCount {
 		Box2DCollisionObject2D *object = nullptr;
 		int count = 0;
 	};
@@ -129,8 +129,8 @@ protected:
 
 	// overlaps is a HashMap to account for redundant sensor events from compound shapes.
 	// value = number of simultaneous overlap events between two shape instances
-	HashMap<ShapePair, BodyAndOverlapCount, ShapePair> overlaps;
-	HashMap<Box2DCollisionObject2D *, int> body_overlap_count;
+	HashMap<ShapePair, ObjectAndOverlapCount, ShapePair> overlaps;
+	HashMap<Box2DCollisionObject2D *, int> object_overlap_count;
 
 	uint64_t modify_mask_bits(uint32_t p_mask) override;
 	uint64_t modify_layer_bits(uint32_t p_layer) override;

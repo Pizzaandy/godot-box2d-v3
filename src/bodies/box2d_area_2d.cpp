@@ -39,10 +39,10 @@ void Box2DArea2D::add_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeInsta
 				p_other_shape->get_collision_object()->get_type(),
 				PhysicsServer2D::AREA_BODY_ADDED,
 				p_other_shape->get_collision_object(),
-				p_other_shape->index,
-				p_self_shape->index);
+				p_other_shape->get_index(),
+				p_self_shape->get_index());
 
-		body_overlap_count[p_other_shape->get_collision_object()]++;
+		object_overlap_count[p_other_shape->get_collision_object()]++;
 	}
 
 	overlaps[pair].object = p_other_shape->get_collision_object();
@@ -59,11 +59,11 @@ void Box2DArea2D::remove_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeIn
 				object->get_type(),
 				PhysicsServer2D::AREA_BODY_REMOVED,
 				object,
-				p_other_shape->index,
-				p_self_shape->index);
+				p_other_shape->get_index(),
+				p_self_shape->get_index());
 
-		if (--body_overlap_count[object] <= 0) {
-			body_overlap_count.erase(object);
+		if (--object_overlap_count[object] <= 0) {
+			object_overlap_count.erase(object);
 			Box2DBody2D *body = object->as_body();
 			if (body) {
 				body->apply_area_overrides();
@@ -122,7 +122,7 @@ void Box2DArea2D::update_overlaps() {
 }
 
 void Box2DArea2D::apply_overrides() {
-	for (const auto &[object, overlap_count] : body_overlap_count) {
+	for (const auto &[object, overlap_count] : object_overlap_count) {
 		Box2DBody2D *body = object->as_body();
 		if (!body || object->is_freed()) {
 			continue;
