@@ -41,15 +41,12 @@ void finish_task_callback(void *taskPtr, void *userContext) {
 }
 
 bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *manifold, void *context) {
-	Box2DCollisionObject2D *object_a = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)));
-	Box2DCollisionObject2D *object_b = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)));
+	const Box2DBody2D *body_a = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)))->as_body();
+	const Box2DBody2D *body_b = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)))->as_body();
 
-	if (object_a->is_area() || object_b->is_area()) {
+	if (!body_a || !body_b) {
 		return true;
 	}
-
-	Box2DBody2D *body_a = static_cast<Box2DBody2D *>(object_a);
-	Box2DBody2D *body_b = static_cast<Box2DBody2D *>(object_b);
 
 	if (body_a->is_collision_exception(body_b->get_rid()) ||
 			body_b->is_collision_exception(body_a->get_rid())) {
@@ -195,7 +192,7 @@ void Box2DSpace2D::sync_state() {
 	for (int i = 0; i < body_events.moveCount; ++i) {
 		const b2BodyMoveEvent *event = body_events.moveEvents + i;
 		Box2DCollisionObject2D *object = static_cast<Box2DCollisionObject2D *>(event->userData);
-		if (!object->is_rigidbody()) {
+		if (!object->is_body()) {
 			continue;
 		}
 		Box2DBody2D *body = static_cast<Box2DBody2D *>(object);

@@ -52,14 +52,14 @@ protected:
 
 /// Overlap query result
 struct ShapeOverlap {
-	Box2DCollisionObject2D *body = nullptr;
+	Box2DCollisionObject2D *object = nullptr;
 	Box2DShapeInstance *shape = nullptr;
 	b2ShapeId shape_id;
 };
 
 /// Cast query result
 struct CastHit {
-	Box2DCollisionObject2D *body;
+	Box2DCollisionObject2D *object;
 	Box2DShapeInstance *shape;
 	b2ShapeId shape_id;
 	b2Vec2 point;

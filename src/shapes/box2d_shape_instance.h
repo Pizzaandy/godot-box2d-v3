@@ -9,7 +9,7 @@ class Box2DCollisionObject2D;
 
 class Box2DShapeInstance {
 public:
-	explicit Box2DShapeInstance(Box2DCollisionObject2D *p_body,
+	explicit Box2DShapeInstance(Box2DCollisionObject2D *p_object,
 			Box2DShape2D *p_shape,
 			const Transform2D &p_transform,
 			bool p_disabled);
@@ -30,16 +30,16 @@ public:
 	Box2DShape2D *get_shape() const { return shape; }
 
 	Transform2D get_shape_transform() const;
-	b2ShapeDef get_shape_def() const;
+	b2ShapeDef get_shape_def();
 
 	void build();
 
 	bool is_separation_ray() const { return shape_type == PhysicsServer2D::SHAPE_SEPARATION_RAY; }
 
-	Box2DCollisionObject2D *get_body() const { return body; }
+	Box2DCollisionObject2D *get_collision_object() const { return object; }
 
 private:
-	Box2DCollisionObject2D *body = nullptr;
+	Box2DCollisionObject2D *object = nullptr;
 	Box2DShape2D *shape = nullptr;
 	PhysicsServer2D::ShapeType shape_type = PhysicsServer2D::SHAPE_CUSTOM;
 };

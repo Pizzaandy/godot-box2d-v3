@@ -36,37 +36,37 @@ void Box2DArea2D::add_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeInsta
 
 	if (++overlaps[pair].count == 1) {
 		report_event(
-				p_other_shape->get_body()->get_type(),
+				p_other_shape->get_collision_object()->get_type(),
 				PhysicsServer2D::AREA_BODY_ADDED,
-				p_other_shape->get_body(),
+				p_other_shape->get_collision_object(),
 				p_other_shape->index,
 				p_self_shape->index);
 
-		body_overlap_count[p_other_shape->get_body()]++;
+		body_overlap_count[p_other_shape->get_collision_object()]++;
 	}
 
-	overlaps[pair].body = p_other_shape->get_body();
+	overlaps[pair].object = p_other_shape->get_collision_object();
 }
 
 void Box2DArea2D::remove_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeInstance *p_self_shape) {
 	ShapePair pair{ p_other_shape, p_self_shape };
 
 	if (--overlaps[pair].count <= 0) {
-		Box2DCollisionObject2D *body = overlaps[pair].body;
+		Box2DCollisionObject2D *object = overlaps[pair].object;
 		overlaps.erase(pair);
 
 		report_event(
-				body->get_type(),
+				object->get_type(),
 				PhysicsServer2D::AREA_BODY_REMOVED,
-				body,
+				object,
 				p_other_shape->index,
 				p_self_shape->index);
 
-		if (--body_overlap_count[body] <= 0) {
-			body_overlap_count.erase(body);
-			if (body->is_rigidbody()) {
-				Box2DBody2D *rigidbody = static_cast<Box2DBody2D *>(body);
-				rigidbody->apply_area_overrides();
+		if (--body_overlap_count[object] <= 0) {
+			body_overlap_count.erase(object);
+			Box2DBody2D *body = object->as_body();
+			if (body) {
+				body->apply_area_overrides();
 			}
 		}
 	}
@@ -123,10 +123,10 @@ void Box2DArea2D::update_overlaps() {
 
 void Box2DArea2D::apply_overrides() {
 	for (const auto &[object, overlap_count] : body_overlap_count) {
-		if (!object->is_rigidbody() || object->is_freed()) {
+		Box2DBody2D *body = object->as_body();
+		if (!body || object->is_freed()) {
 			continue;
 		}
-		Box2DBody2D *body = static_cast<Box2DBody2D *>(object);
 
 		Box2DBody2D::AreaOverrideAccumulator &overrides = body->area_overrides;
 

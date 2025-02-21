@@ -27,15 +27,15 @@ float cast_callback_nearest(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, floa
 	NearestCastHitCollector *collector = static_cast<NearestCastHitCollector *>(context);
 
 	b2BodyId body_id = b2Shape_GetBody(shapeId);
-	Box2DCollisionObject2D *body = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(body_id));
+	Box2DCollisionObject2D *object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(body_id));
 	Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
 
-	if (collector->filter.is_excluded(body->get_rid(), body->is_area())) {
+	if (collector->filter.is_excluded(object->get_rid(), object->is_area())) {
 		return -1;
 	}
 
 	collector->hit = true;
-	collector->nearest_hit = CastHit{ body, shape, shapeId, point, normal, fraction };
+	collector->nearest_hit = CastHit{ object, shape, shapeId, point, normal, fraction };
 
 	return fraction;
 }
@@ -45,10 +45,10 @@ float cast_callback_all(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fr
 	CastHitCollector *collector = static_cast<CastHitCollector *>(context);
 
 	b2BodyId body_id = b2Shape_GetBody(shapeId);
-	Box2DCollisionObject2D *body = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(body_id));
+	Box2DCollisionObject2D *object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(body_id));
 	Box2DShapeInstance *shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
 
-	if (collector->filter.is_excluded(body->get_rid(), body->is_area())) {
+	if (collector->filter.is_excluded(object->get_rid(), object->is_area())) {
 		return -1;
 	}
 
@@ -56,7 +56,7 @@ float cast_callback_all(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fr
 		return -1;
 	}
 
-	collector->hits.push_back(CastHit{ body, shape, shapeId, point, normal, fraction });
+	collector->hits.push_back(CastHit{ object, shape, shapeId, point, normal, fraction });
 
 	if (collector->hits.size() >= collector->max_results) {
 		return 0;

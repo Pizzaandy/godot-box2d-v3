@@ -29,14 +29,14 @@ public:
 	void set_data(const Variant &p_data);
 	Variant get_data() const { return data; }
 
-	void add_body_reference(Box2DCollisionObject2D *p_owner);
-	void remove_body_reference(Box2DCollisionObject2D *p_owner);
-	void remove_from_all_bodies();
+	void add_object_reference(Box2DCollisionObject2D *p_owner);
+	void remove_object_reference(Box2DCollisionObject2D *p_owner);
+	void remove_from_all_objects();
 
 protected:
 	void update_instances();
 
 	RID rid;
 	Variant data;
-	HashMap<Box2DCollisionObject2D *, int> ref_counts_by_body;
+	HashMap<Box2DCollisionObject2D *, int> ref_counts_by_object;
 };

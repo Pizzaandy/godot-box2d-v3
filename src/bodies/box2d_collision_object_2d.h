@@ -10,6 +10,7 @@
 
 class Box2DSpace2D;
 class Box2DArea2D;
+class Box2DBody2D;
 
 class Box2DCollisionObject2D {
 public:
@@ -21,8 +22,15 @@ public:
 	explicit Box2DCollisionObject2D(Type p_type);
 
 	Type get_type() const { return type; }
+
 	bool is_area() const { return type == Type::AREA; }
-	bool is_rigidbody() const { return type == Type::RIGIDBODY; }
+	bool is_body() const { return type == Type::RIGIDBODY; }
+
+	Box2DArea2D *as_area() { return is_area() ? reinterpret_cast<Box2DArea2D *>(this) : nullptr; }
+	Box2DBody2D *as_body() { return is_body() ? reinterpret_cast<Box2DBody2D *>(this) : nullptr; }
+
+	const Box2DArea2D *as_area() const { return is_area() ? reinterpret_cast<const Box2DArea2D *>(this) : nullptr; }
+	const Box2DBody2D *as_body() const { return is_body() ? reinterpret_cast<const Box2DBody2D *>(this) : nullptr; }
 
 	void set_free();
 	bool is_freed() const { return _is_freed; }

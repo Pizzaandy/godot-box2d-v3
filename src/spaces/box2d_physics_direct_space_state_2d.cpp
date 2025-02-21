@@ -48,8 +48,8 @@ int32_t Box2DDirectSpaceState2D::_intersect_point(
 		PhysicsServer2DExtensionShapeResult &result = *p_results++;
 
 		result.shape = overlap.shape->index;
-		result.rid = overlap.body->get_rid();
-		result.collider_id = overlap.body->get_instance_id();
+		result.rid = overlap.object->get_rid();
+		result.collider_id = overlap.object->get_instance_id();
 		if (result.collider_id.is_valid()) {
 			result.collider = get_instance_hack(result.collider_id);
 		}
@@ -85,8 +85,8 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 			p_result->position = p_from;
 			p_result->normal = Vector2();
 			p_result->shape = overlap.shape->index;
-			p_result->rid = overlap.body->get_rid();
-			p_result->collider_id = overlap.body->get_instance_id();
+			p_result->rid = overlap.object->get_rid();
+			p_result->collider_id = overlap.object->get_instance_id();
 			if (p_result->collider_id.is_valid()) {
 				p_result->collider = get_instance_hack(p_result->collider_id);
 			}
@@ -113,8 +113,8 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 	result.position = to_godot(hit.point);
 	result.normal = to_godot(hit.normal).normalized();
 	result.shape = hit.shape->index;
-	result.rid = hit.body->get_rid();
-	result.collider_id = hit.body->get_instance_id();
+	result.rid = hit.object->get_rid();
+	result.collider_id = hit.object->get_instance_id();
 	if (result.collider_id.is_valid()) {
 		result.collider = get_instance_hack(result.collider_id);
 	}
@@ -154,8 +154,8 @@ int32_t Box2DDirectSpaceState2D::_intersect_shape(
 		PhysicsServer2DExtensionShapeResult &result = *p_result++;
 
 		result.shape = hit.shape->index;
-		result.rid = hit.body->get_rid();
-		result.collider_id = hit.body->get_instance_id();
+		result.rid = hit.object->get_rid();
+		result.collider_id = hit.object->get_instance_id();
 		if (result.collider_id.is_valid()) {
 			result.collider = get_instance_hack(result.collider_id);
 		}
@@ -291,26 +291,24 @@ bool Box2DDirectSpaceState2D::_rest_info(
 				shape_geometry,
 				b2Transform_identity,
 				get_shape_geometry(overlap.shape_id),
-				to_box2d(overlap.body->get_transform()),
+				to_box2d(overlap.object->get_transform()),
 				false);
 
 		if (result.point_count == 0) {
 			continue;
 		}
 
-		Box2DCollisionObject2D *body = static_cast<Box2DCollisionObject2D *>(overlap.body);
-
 		p_rest_info->point = result.points[0].point;
 		p_rest_info->normal = result.normal;
-		p_rest_info->rid = body->get_rid();
-		p_rest_info->collider_id = body->get_instance_id();
+		p_rest_info->rid = overlap.object->get_rid();
+		p_rest_info->collider_id = overlap.object->get_instance_id();
 		p_rest_info->shape = overlap.shape->index;
 
-		if (body->is_area()) {
-			p_rest_info->linear_velocity = Vector2();
+		Box2DBody2D *body = overlap.object->as_body();
+		if (body) {
+			p_rest_info->linear_velocity = body->get_velocity_at_local_point(result.points[0].point);
 		} else {
-			Box2DBody2D *rigidbody = static_cast<Box2DBody2D *>(body);
-			p_rest_info->linear_velocity = rigidbody->get_velocity_at_local_point(result.points[0].point);
+			p_rest_info->linear_velocity = Vector2();
 		}
 
 		return true;
@@ -352,8 +350,8 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 	result["destination"] = start.get_origin() + (hit.fraction * motion);
 	result["normal"] = to_godot(hit.normal).normalized();
 	result["shape"] = hit.shape->index;
-	result["rid"] = hit.body->get_rid();
-	ObjectID id = hit.body->get_instance_id();
+	result["rid"] = hit.object->get_rid();
+	ObjectID id = hit.object->get_instance_id();
 	result["collider_id"] = id;
 	if (id.is_valid()) {
 		result["collider"] = get_instance_hack(id);
@@ -398,8 +396,8 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 		result["destination"] = start.get_origin() + (hit.fraction * motion);
 		result["normal"] = to_godot(hit.normal).normalized();
 		result["shape"] = hit.shape->index;
-		result["rid"] = hit.body->get_rid();
-		ObjectID id = hit.body->get_instance_id();
+		result["rid"] = hit.object->get_rid();
+		ObjectID id = hit.object->get_instance_id();
 		result["collider_id"] = id;
 		if (id.is_valid()) {
 			result["collider"] = get_instance_hack(id);

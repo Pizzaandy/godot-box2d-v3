@@ -52,7 +52,7 @@ public:
 	};
 
 	struct BodyAndOverlapCount {
-		Box2DCollisionObject2D *body = nullptr;
+		Box2DCollisionObject2D *object = nullptr;
 		int count = 0;
 	};
 
