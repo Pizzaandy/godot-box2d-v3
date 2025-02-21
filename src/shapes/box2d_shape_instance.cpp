@@ -19,7 +19,7 @@ Box2DShapeInstance::~Box2DShapeInstance() {
 	if (!shape || !object) {
 		return;
 	}
-	shape->remove_from_body(object->get_body_id(), this);
+	shape->remove_from_body(this);
 	shape->remove_object_reference(object);
 }
 
@@ -32,13 +32,13 @@ void Box2DShapeInstance::build() {
 	ERR_FAIL_COND(!shape);
 	ERR_FAIL_COND(!object);
 
-	shape->remove_from_body(object->get_body_id(), this);
+	shape->remove_from_body(this);
 
 	if (disabled) {
 		return;
 	}
 
-	shape->add_to_body(object->get_body_id(), this);
+	shape->add_to_body(this);
 }
 
 Transform2D Box2DShapeInstance::get_shape_transform() const {

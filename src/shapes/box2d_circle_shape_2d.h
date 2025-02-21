@@ -5,7 +5,7 @@
 
 class Box2DCircleShape2D : public Box2DShape2D {
 public:
-	void add_to_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const override;
+	void add_to_body(Box2DShapeInstance *p_instance) const override;
 
 	ShapeGeometry get_shape_geometry(const Transform2D &p_transform) const override;
 	PhysicsServer2D::ShapeType get_type() const override { return PhysicsServer2D::ShapeType::SHAPE_CIRCLE; }

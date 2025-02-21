@@ -18,8 +18,6 @@ public:
 
 	~Box2DShapeInstance();
 
-	LocalVector<b2ShapeId> shape_ids;
-
 	void set_shape(Box2DShape2D *p_shape);
 	Box2DShape2D *get_shape() const { return shape; }
 
@@ -43,6 +41,10 @@ public:
 
 	void build();
 
+	void add_shape_id(b2ShapeId p_id) { shape_ids.push_back(p_id); }
+	const LocalVector<b2ShapeId> &get_shape_ids() { return shape_ids; }
+	void clear_shape_ids() { shape_ids.clear(); }
+
 	bool is_separation_ray() const { return shape_type == PhysicsServer2D::SHAPE_SEPARATION_RAY; }
 
 	Box2DCollisionObject2D *get_collision_object() const { return object; }
@@ -51,6 +53,8 @@ private:
 	Box2DCollisionObject2D *object = nullptr;
 	Box2DShape2D *shape = nullptr;
 	PhysicsServer2D::ShapeType shape_type = PhysicsServer2D::SHAPE_CUSTOM;
+
+	LocalVector<b2ShapeId> shape_ids;
 
 	int index = -1;
 	Transform2D transform;

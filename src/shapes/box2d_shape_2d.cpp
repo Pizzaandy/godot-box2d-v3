@@ -5,13 +5,13 @@ Box2DShape2D::~Box2DShape2D() {
 	remove_from_all_objects();
 }
 
-void Box2DShape2D::remove_from_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const {
-	for (b2ShapeId shape_id : p_instance->shape_ids) {
+void Box2DShape2D::remove_from_body(Box2DShapeInstance *p_instance) const {
+	for (b2ShapeId shape_id : p_instance->get_shape_ids()) {
 		if (b2Shape_IsValid(shape_id)) {
 			b2DestroyShape(shape_id, false);
 		}
 	}
-	p_instance->shape_ids.clear();
+	p_instance->clear_shape_ids();
 }
 
 void Box2DShape2D::set_data(const Variant &p_data) {

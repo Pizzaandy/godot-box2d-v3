@@ -15,8 +15,8 @@ public:
 	virtual ~Box2DShape2D();
 
 	/// Note: This does not validate data
-	virtual void add_to_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const = 0;
-	virtual void remove_from_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const;
+	virtual void add_to_body(Box2DShapeInstance *p_instance) const = 0;
+	virtual void remove_from_body(Box2DShapeInstance *p_instance) const;
 
 	/// Return the shape geometry modified by the given transform.
 	virtual ShapeGeometry get_shape_geometry(const Transform2D &p_transform) const = 0;

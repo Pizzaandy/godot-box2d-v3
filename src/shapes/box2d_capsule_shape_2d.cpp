@@ -1,13 +1,14 @@
 #include "box2d_capsule_shape_2d.h"
+#include "../bodies/box2d_collision_object_2d.h"
 
-void Box2DCapsuleShape2D::add_to_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const {
+void Box2DCapsuleShape2D::add_to_body(Box2DShapeInstance *p_instance) const {
 	b2Capsule shape;
 	if (!make_capsule(p_instance->get_shape_transform(), data, shape)) {
 		return;
 	}
 	b2ShapeDef shape_def = p_instance->get_shape_def();
-	b2ShapeId id = b2CreateCapsuleShape(p_body_id, &shape_def, &shape);
-	p_instance->shape_ids.push_back(id);
+	b2ShapeId id = b2CreateCapsuleShape(p_instance->get_collision_object()->get_body_id(), &shape_def, &shape);
+	p_instance->add_shape_id(id);
 }
 
 ShapeGeometry Box2DCapsuleShape2D::get_shape_geometry(const Transform2D &p_transform) const {

@@ -1,6 +1,7 @@
 #include "box2d_separation_ray_shape_2d.h"
+#include "../bodies/box2d_collision_object_2d.h"
 
-void Box2DSeparationRayShape2D::add_to_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const {
+void Box2DSeparationRayShape2D::add_to_body(Box2DShapeInstance *p_instance) const {
 	b2Segment shape;
 	if (!make_separation_ray(p_instance->get_shape_transform(), data, shape)) {
 		return;
@@ -8,8 +9,8 @@ void Box2DSeparationRayShape2D::add_to_body(b2BodyId p_body_id, Box2DShapeInstan
 	b2ShapeDef shape_def = p_instance->get_shape_def();
 	shape_def.filter = b2Filter{ 0, 0, 0 };
 
-	b2ShapeId id = b2CreateSegmentShape(p_body_id, &shape_def, &shape);
-	p_instance->shape_ids.push_back(id);
+	b2ShapeId id = b2CreateSegmentShape(p_instance->get_collision_object()->get_body_id(), &shape_def, &shape);
+	p_instance->add_shape_id(id);
 }
 
 ShapeGeometry Box2DSeparationRayShape2D::get_shape_geometry(const Transform2D &p_transform) const {

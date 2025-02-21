@@ -1,7 +1,7 @@
-
 #include "box2d_concave_polygon_shape_2d.h"
+#include "../bodies/box2d_collision_object_2d.h"
 
-void Box2DConcavePolygonShape2D::add_to_body(b2BodyId p_body_id, Box2DShapeInstance *p_instance) const {
+void Box2DConcavePolygonShape2D::add_to_body(Box2DShapeInstance *p_instance) const {
 	Variant::Type type = data.get_type();
 	ERR_FAIL_COND(type != Variant::PACKED_VECTOR2_ARRAY);
 
@@ -19,8 +19,8 @@ void Box2DConcavePolygonShape2D::add_to_body(b2BodyId p_body_id, Box2DShapeInsta
 		b2Segment segment;
 		segment.point1 = point_a;
 		segment.point2 = point_b;
-		b2ShapeId id = b2CreateSegmentShape(p_body_id, &shape_def, &segment);
-		p_instance->shape_ids.push_back(id);
+		b2ShapeId id = b2CreateSegmentShape(p_instance->get_collision_object()->get_body_id(), &shape_def, &segment);
+		p_instance->add_shape_id(id);
 	}
 }
 
