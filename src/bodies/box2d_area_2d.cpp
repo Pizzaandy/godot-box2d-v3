@@ -1,6 +1,7 @@
 #include "box2d_area_2d.h"
 #include "../spaces/box2d_space_2d.h"
 #include "box2d_body_2d.h"
+#include <godot_cpp/templates/local_vector.hpp>
 
 Box2DArea2D::Box2DArea2D() :
 		Box2DCollisionObject2D(Type::AREA) {
@@ -19,12 +20,14 @@ void Box2DArea2D::body_destroyed() {
 		in_area_step_list = false;
 	}
 
-	const auto overlaps_copy = overlaps;
-	for (const auto &[shape_pair, data] : overlaps_copy) {
-		for (int i = 0; i < data.count; i++) {
-			remove_overlap(shape_pair.other_shape, shape_pair.self_shape);
-		}
-	}
+	// Areas do not emit events when they are freed - consistent with Godot Physics
+
+	// const auto overlaps_copy = overlaps;
+	// for (const auto &[shape_pair, data] : overlaps_copy) {
+	// 	for (int i = 0; i < data.count; i++) {
+	// 		remove_overlap(shape_pair.other_shape, shape_pair.self_shape);
+	// 	}
+	// }
 }
 
 void Box2DArea2D::shapes_changed() {
@@ -35,10 +38,11 @@ void Box2DArea2D::add_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeInsta
 	ShapePair pair{ p_other_shape, p_self_shape };
 
 	if (++overlaps[pair].count == 1) {
+		Box2DCollisionObject2D *object = p_other_shape->get_collision_object();
 		report_event(
-				p_other_shape->get_collision_object()->get_type(),
+				object->get_type(),
 				PhysicsServer2D::AREA_BODY_ADDED,
-				p_other_shape->get_collision_object(),
+				object,
 				p_other_shape->get_index(),
 				p_self_shape->get_index());
 
@@ -82,14 +86,18 @@ void Box2DArea2D::update_overlaps() {
 	}
 
 	if (in_space) {
+		LocalVector<b2ShapeId> shape_overlaps;
+
 		BodyShapeRange range(body_id);
 		for (b2ShapeId shape_id : range) {
 			Box2DShapeInstance *self_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shape_id));
 
 			int capacity = b2Shape_GetSensorCapacity(shape_id);
-			b2ShapeId *shape_overlaps = new b2ShapeId[capacity];
-			b2Shape_GetSensorOverlaps(shape_id, shape_overlaps, capacity);
-			for (int i = 0; i < capacity; i++) {
+			shape_overlaps.resize(capacity);
+
+			int overlap_count = b2Shape_GetSensorOverlaps(shape_id, shape_overlaps.ptr(), capacity);
+
+			for (int i = 0; i < overlap_count; i++) {
 				Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shape_overlaps[i]));
 				ShapePair pair{ other_shape, self_shape };
 				new_overlaps[pair]++;
@@ -97,15 +105,21 @@ void Box2DArea2D::update_overlaps() {
 		}
 	}
 
+	// TODO: Evaluate whether to make this consistent with Godot Physics.
+	// Godot Physics exits all its current overlaps shapes and re-enters the ones that are remaining.
+	// This code, which only reports differences in overlaps, is more intuitive and consistent with how Areas are presented in the docs.
+
 	for (const auto &[shape_pair, count] : new_overlaps) {
-		if (!overlaps.has(shape_pair)) {
+		auto it = overlaps.find(shape_pair);
+
+		if (it == overlaps.end()) {
 			for (int i = 0; i < count; i++) {
 				add_overlap(shape_pair.other_shape, shape_pair.self_shape);
 			}
 			continue;
 		}
 
-		int difference = count - overlaps[shape_pair].count;
+		int difference = count - it->value.count;
 
 		if (difference == 0) {
 			continue;

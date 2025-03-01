@@ -16,6 +16,8 @@ func _input(event):
 
 		var rigidbodies = results.filter(func(result): return result.collider is RigidBody2D)
 		if rigidbodies.size() == 0:
-			results[0].collider.queue_free()
+			var rid = results[0].collider.get_rid()
+			PhysicsServer2D.body_remove_shape(rid, results[0].shape)
 		else:
-			rigidbodies[0].collider.queue_free()
+			var rid = rigidbodies[0].collider.get_rid()
+			PhysicsServer2D.body_remove_shape(rid, rigidbodies[0].shape)

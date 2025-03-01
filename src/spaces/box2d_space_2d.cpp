@@ -192,10 +192,10 @@ void Box2DSpace2D::sync_state() {
 	for (int i = 0; i < body_events.moveCount; ++i) {
 		const b2BodyMoveEvent *event = body_events.moveEvents + i;
 		Box2DCollisionObject2D *object = static_cast<Box2DCollisionObject2D *>(event->userData);
-		if (!object->is_body()) {
+		Box2DBody2D *body = object->as_body();
+		if (!body) {
 			continue;
 		}
-		Box2DBody2D *body = static_cast<Box2DBody2D *>(object);
 		body->sync_state(event->transform, event->fellAsleep);
 	}
 
@@ -207,15 +207,15 @@ void Box2DSpace2D::sync_state() {
 		Box2DShapeInstance *self_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(begin_event->sensorShapeId));
 		Box2DCollisionObject2D *self_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(begin_event->sensorShapeId)));
 		ERR_CONTINUE_MSG(!self_object->is_area(), "Received a sensor event from a Rigidbody. This should never happen!");
-		Box2DArea2D *area = static_cast<Box2DArea2D *>(self_object);
+
+		Box2DArea2D *area = self_object->as_area();
 
 		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(begin_event->visitorShapeId));
-		//Box2DCollisionObject2D *other_object = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(begin_event->visitorShapeId)));
 
 		area->add_overlap(other_shape, self_shape);
 	}
 
-	LocalVector<Box2DArea2D *> areas_with_destroyed_overlaps;
+	HashSet<Box2DArea2D *> areas_with_destroyed_overlaps;
 
 	for (int i = 0; i < sensor_events.endCount; ++i) {
 		const b2SensorEndTouchEvent *end_event = sensor_events.endEvents + i;
@@ -228,16 +228,15 @@ void Box2DSpace2D::sync_state() {
 			continue;
 		}
 
-		if (sensor_shape_exists && !other_shape_exists) {
-			// Notify the Area that a shape has been destroyed
-			Box2DArea2D *area = static_cast<Box2DArea2D *>(b2Body_GetUserData(b2Shape_GetBody(end_event->sensorShapeId)));
-			areas_with_destroyed_overlaps.push_back(area);
+		if (!sensor_shape_exists && other_shape_exists) {
+			// Areas update overlaps on their own when destroyed or modified.
 			continue;
 		}
 
-		if (!sensor_shape_exists && other_shape_exists) {
-			// Areas update their overlaps when destroyed or modified.
-			continue;
+		if (sensor_shape_exists && !other_shape_exists) {
+			// Notify the Area that a shape has been destroyed
+			Box2DArea2D *area = static_cast<Box2DArea2D *>(b2Body_GetUserData(b2Shape_GetBody(end_event->sensorShapeId)));
+			areas_with_destroyed_overlaps.insert(area);
 		}
 
 		Box2DShapeInstance *self_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(end_event->sensorShapeId));

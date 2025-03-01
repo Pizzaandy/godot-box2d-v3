@@ -203,7 +203,11 @@ Array Box2DPhysicsServer2D::space_get_body_move_events(const RID &p_space) const
 
 	for (int i = 0; i < body_events.moveCount; ++i) {
 		const b2BodyMoveEvent *event = body_events.moveEvents + i;
-		Box2DBody2D *body = static_cast<Box2DBody2D *>(event->userData);
+		Box2DCollisionObject2D *object = static_cast<Box2DCollisionObject2D *>(event->userData);
+		Box2DBody2D *body = object->as_body();
+		if (!body) {
+			continue;
+		}
 		results.push_back(body->get_user_data());
 		results.push_back(body->get_transform());
 	}
