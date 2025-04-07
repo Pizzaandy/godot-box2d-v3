@@ -11,8 +11,12 @@ Box2DBody2D::Box2DBody2D() :
 	if (Box2DProjectSettings::get_presolve_enabled()) {
 		shape_def.enablePreSolveEvents = true;
 	}
-	shape_def.restitution = 0.0;
-	shape_def.friction = 1.0;
+	shape_def.material.restitution = 0.0;
+	shape_def.material.friction = 1.0;
+
+	const uint32_t default_bitmask = 1u << 0;
+	set_collision_layer(default_bitmask);
+	set_collision_mask(default_bitmask);
 }
 
 Box2DBody2D::~Box2DBody2D() {
@@ -32,7 +36,7 @@ void Box2DBody2D::set_bullet(bool p_bullet) {
 }
 
 void Box2DBody2D::set_bounce(float p_bounce) {
-	shape_def.restitution = p_bounce;
+	shape_def.material.restitution = p_bounce;
 
 	if (!in_space) {
 		return;
@@ -40,12 +44,12 @@ void Box2DBody2D::set_bounce(float p_bounce) {
 
 	BodyShapeRange range(body_id);
 	for (b2ShapeId id : range) {
-		b2Shape_SetRestitution(id, shape_def.restitution);
+		b2Shape_SetRestitution(id, shape_def.material.restitution);
 	}
 }
 
 void Box2DBody2D::set_friction(float p_friction) {
-	shape_def.friction = p_friction;
+	shape_def.material.friction = p_friction;
 
 	if (!in_space) {
 		return;
@@ -53,7 +57,7 @@ void Box2DBody2D::set_friction(float p_friction) {
 
 	BodyShapeRange range(body_id);
 	for (b2ShapeId id : range) {
-		b2Shape_SetFriction(id, shape_def.friction);
+		b2Shape_SetFriction(id, shape_def.material.friction);
 	}
 }
 
@@ -256,11 +260,11 @@ void Box2DBody2D::sync_state(const b2Transform &p_transform, bool p_fell_asleep)
 
 	sleeping = p_fell_asleep;
 
-	current_transform.set_origin(to_godot(p_transform.p));
-	current_transform.set_rotation_scale_and_skew(
+	current_transform = Transform2D(
 			b2Rot_GetAngle(p_transform.q),
 			current_transform.get_scale(),
-			current_transform.get_skew());
+			current_transform.get_skew(),
+			to_godot(p_transform.p));
 
 	if (body_state_callback.is_valid()) {
 		TracyZoneScoped("Body State Callback");
@@ -306,7 +310,7 @@ void Box2DBody2D::update_contacts() {
 
 			float depth = -to_godot(point.separation);
 
-			if (contact_ignore_speculative && point.maxNormalImpulse <= 0.0) {
+			if (contact_ignore_speculative && point.totalNormalImpulse <= 0.0) {
 				// contact is speculative
 				continue;
 			}
@@ -657,6 +661,11 @@ void Box2DBody2D::body_destroyed() {
 		space->remove_force_integration_body(this);
 		in_force_integration_list = false;
 	}
+}
+
+uint64_t Box2DBody2D::modify_mask_bits(uint32_t p_mask) {
+	uint64_t result = (uint64_t)p_mask | BODY_MASK_BIT;
+	return result;
 }
 
 void Box2DBody2D::apply_area_overrides() {

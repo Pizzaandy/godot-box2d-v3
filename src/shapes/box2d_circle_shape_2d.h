@@ -7,7 +7,9 @@ class Box2DCircleShape2D : public Box2DShape2D {
 public:
 	void add_to_body(Box2DShapeInstance *p_instance) const override;
 
-	ShapeGeometry get_shape_geometry(const Transform2D &p_transform) const override;
+	int cast(const CastQuery &p_query, LocalVector<CastHit> &p_results) const override;
+	int overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const override;
+
 	PhysicsServer2D::ShapeType get_type() const override { return PhysicsServer2D::ShapeType::SHAPE_CIRCLE; }
 
 	static bool make_circle(const Transform2D &p_transform, const Variant &p_data, b2Circle &p_circle);

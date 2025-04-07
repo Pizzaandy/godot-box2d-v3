@@ -133,7 +133,6 @@ protected:
 	HashMap<Box2DCollisionObject2D *, int> object_overlap_count;
 
 	uint64_t modify_mask_bits(uint32_t p_mask) override;
-	uint64_t modify_layer_bits(uint32_t p_layer) override;
 
 	int priority = 0;
 	bool monitorable = false;

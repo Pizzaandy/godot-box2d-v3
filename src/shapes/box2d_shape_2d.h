@@ -1,9 +1,11 @@
 #pragma once
 
 #include "../box2d_globals.h"
+#include "../spaces/box2d_query.h"
 #include "box2d_shape_instance.h"
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
+#include <godot_cpp/templates/local_vector.hpp>
 
 using namespace godot;
 
@@ -18,8 +20,8 @@ public:
 	virtual void add_to_body(Box2DShapeInstance *p_instance) const = 0;
 	virtual void remove_from_body(Box2DShapeInstance *p_instance) const;
 
-	/// Return the shape geometry modified by the given transform.
-	virtual ShapeGeometry get_shape_geometry(const Transform2D &p_transform) const = 0;
+	virtual int cast(const CastQuery &p_query, LocalVector<CastHit> &p_results) const = 0;
+	virtual int overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const = 0;
 
 	virtual PhysicsServer2D::ShapeType get_type() const = 0;
 

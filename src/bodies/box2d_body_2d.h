@@ -40,9 +40,9 @@ public:
 
 	void set_bullet(bool p_bullet);
 	bool get_bullet() const { return body_def.isBullet; }
-	float get_bounce() const { return shape_def.restitution; }
+	float get_bounce() const { return shape_def.material.restitution; }
 	void set_bounce(float p_bounce);
-	float get_friction() const { return shape_def.friction; }
+	float get_friction() const { return shape_def.material.friction; }
 	void set_friction(float p_friction);
 	void reset_mass();
 	float get_mass() const { return mass_data.mass; }
@@ -146,6 +146,8 @@ public:
 protected:
 	void body_created() override;
 	void body_destroyed() override;
+
+	uint64_t modify_mask_bits(uint32_t p_mask) override;
 
 	Box2DDirectBodyState2D *direct_state = nullptr;
 

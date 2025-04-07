@@ -1,9 +1,7 @@
 #pragma once
 
 #include "box2d_body_2d.h"
-#include <godot_cpp/classes/physics_direct_body_state2d.hpp>
 #include <godot_cpp/classes/physics_direct_body_state2d_extension.hpp>
-#include <godot_cpp/classes/physics_server2d.hpp>
 
 using namespace godot;
 

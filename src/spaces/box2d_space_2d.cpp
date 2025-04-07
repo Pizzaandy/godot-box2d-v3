@@ -183,6 +183,8 @@ void Box2DSpace2D::step(float p_step) {
 }
 
 void Box2DSpace2D::sync_state() {
+	TracyZoneScoped("Box2DSpace2D::sync_state");
+
 	for (Box2DBody2D *body : force_integration_list) {
 		body->call_force_integration_callback();
 	}

@@ -3,10 +3,13 @@
 #include "../box2d_globals.h"
 
 #include <godot_cpp/classes/physics_direct_space_state2d_extension.hpp>
+#include <godot_cpp/templates/local_vector.hpp>
 
 using namespace godot;
 
 class Box2DSpace2D;
+class CastHit;
+class ShapeOverlap;
 
 class Box2DDirectSpaceState2D : public PhysicsDirectSpaceState2DExtension {
 	GDCLASS(Box2DDirectSpaceState2D, PhysicsDirectSpaceState2DExtension);
@@ -31,7 +34,7 @@ public:
 		return reinterpret_cast<Object *>((GodotObject *)(internal::gdextension_interface_object_get_instance_from_id(p_object_id)));
 	}
 
-	b2QueryFilter make_filter(uint64_t p_collision_mask);
+	b2QueryFilter make_filter(uint64_t p_collision_mask, bool p_collide_bodies, bool p_collide_areas);
 
 private:
 	static void _bind_methods();

@@ -6,8 +6,7 @@
 
 Box2DCollisionObject2D::Box2DCollisionObject2D(Type p_type) :
 		type(p_type) {
-	set_collision_mask(1);
-	set_collision_layer(1);
+	shape_def.enableSensorEvents = true;
 }
 
 void Box2DCollisionObject2D::set_free() {
@@ -116,7 +115,7 @@ void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 }
 
 void Box2DCollisionObject2D::set_collision_mask(uint32_t p_mask) {
-	shape_def.filter.maskBits = modify_mask_bits(p_mask) | COMMON_MASK_BIT;
+	shape_def.filter.maskBits = modify_mask_bits(p_mask);
 
 	if (!in_space) {
 		return;

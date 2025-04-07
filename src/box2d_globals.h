@@ -16,12 +16,14 @@ using namespace godot;
 
 extern float BOX2D_PIXELS_PER_METER;
 
-/// Mask bit used by all Box2D shapes.
-/// This allows queries to find objects with a mask of 0 (consistent with Godot physics).
-const uint64_t COMMON_MASK_BIT = 1ULL << 63;
+/// Mask bit used by all bodies.
+const uint64_t BODY_MASK_BIT = (1ULL << 63);
 
-/// Mask bit used by monitorable areas.
-const uint64_t AREA_MONITORABLE_MASK_BIT = 1ULL << 62;
+/// Mask bit used by all areas.
+const uint64_t AREA_MASK_BIT = (1ULL << 62);
+
+/// Mask bit used by all monitorable areas.
+const uint64_t AREA_MONITORABLE_MASK_BIT = (1ULL << 61);
 
 _FORCE_INLINE_ void box2d_set_pixels_per_meter(float p_value) {
 	BOX2D_PIXELS_PER_METER = p_value;
@@ -274,5 +276,3 @@ void box2d_overlap_shape(
 		const b2QueryFilter &p_filter,
 		b2OverlapResultFcn *fcn,
 		void *context);
-
-ShapeGeometry get_shape_geometry(const b2ShapeId &p_shape);

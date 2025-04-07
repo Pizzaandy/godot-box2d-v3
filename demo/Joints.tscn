@@ -74,26 +74,26 @@ position = Vector2(665, 466)
 zoom = Vector2(1, 1)
 
 [node name="DampedSpringJoint2D2" type="DampedSpringJoint2D" parent="."]
-position = Vector2(1243, 479)
+position = Vector2(1259, 267)
 node_a = NodePath("../RigidBody2D3")
 node_b = NodePath("../StaticBody2D")
 stiffness = 50.0
 
 [node name="DampedSpringJoint2D3" type="DampedSpringJoint2D" parent="."]
-position = Vector2(1244, 603)
+position = Vector2(1260, 391)
 node_a = NodePath("../RigidBody2D3")
 node_b = NodePath("../RigidBody2D4")
 rest_length = 20.0
 stiffness = 10.0
 
 [node name="RigidBody2D3" type="RigidBody2D" parent="."]
-position = Vector2(1246, 543)
+position = Vector2(1262, 331)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D3"]
 shape = SubResource("CircleShape2D_xbkjp")
 
 [node name="RigidBody2D4" type="RigidBody2D" parent="."]
-position = Vector2(1245, 665)
+position = Vector2(1261, 453)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D4"]
 shape = SubResource("CircleShape2D_xbkjp")

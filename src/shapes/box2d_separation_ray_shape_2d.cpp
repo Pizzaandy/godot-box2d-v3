@@ -13,15 +13,6 @@ void Box2DSeparationRayShape2D::add_to_body(Box2DShapeInstance *p_instance) cons
 	p_instance->add_shape_id(id);
 }
 
-ShapeGeometry Box2DSeparationRayShape2D::get_shape_geometry(const Transform2D &p_transform) const {
-	ShapeGeometry shape;
-	shape.type = ShapeGeometry::Type::SEGMENT;
-	if (!make_separation_ray(p_transform, data, shape.segment)) {
-		return ShapeGeometry::invalid();
-	}
-	return shape;
-}
-
 bool Box2DSeparationRayShape2D::make_separation_ray(const Transform2D &p_transform, const Variant &p_data, b2Segment &p_segment) {
 	Variant::Type type = p_data.get_type();
 	ERR_FAIL_COND_V(type != Variant::DICTIONARY, false);

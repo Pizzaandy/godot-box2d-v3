@@ -8,6 +8,10 @@ Box2DArea2D::Box2DArea2D() :
 	body_def.type = b2_kinematicBody;
 	mode = PhysicsServer2D::BODY_MODE_KINEMATIC;
 	shape_def.isSensor = true;
+
+	const uint32_t default_bitmask = 1u << 0;
+	set_collision_layer(default_bitmask);
+	set_collision_mask(default_bitmask);
 }
 
 void Box2DArea2D::body_created() {
@@ -87,13 +91,17 @@ void Box2DArea2D::update_overlaps() {
 
 	if (in_space) {
 		LocalVector<b2ShapeId> shape_overlaps;
+		shape_overlaps.reserve(overlaps.size());
 
 		BodyShapeRange range(body_id);
 		for (b2ShapeId shape_id : range) {
 			Box2DShapeInstance *self_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shape_id));
 
 			int capacity = b2Shape_GetSensorCapacity(shape_id);
-			shape_overlaps.resize(capacity);
+
+			if (capacity > shape_overlaps.size()) {
+				shape_overlaps.resize(capacity);
+			}
 
 			int overlap_count = b2Shape_GetSensorOverlaps(shape_id, shape_overlaps.ptr(), capacity);
 
@@ -322,9 +330,11 @@ void Box2DArea2D::set_monitorable(float p_monitorable) {
 }
 
 uint64_t Box2DArea2D::modify_mask_bits(uint32_t p_mask) {
-	return monitorable ? p_mask | AREA_MONITORABLE_MASK_BIT : p_mask;
-}
+	uint64_t result = (uint64_t)p_mask | AREA_MASK_BIT;
 
-uint64_t Box2DArea2D::modify_layer_bits(uint32_t p_layer) {
-	return p_layer | AREA_MONITORABLE_MASK_BIT;
+	if (monitorable) {
+		result |= AREA_MONITORABLE_MASK_BIT;
+	}
+
+	return result;
 }

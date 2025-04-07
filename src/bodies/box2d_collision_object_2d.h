@@ -4,7 +4,7 @@
 #include "../box2d_project_settings.h"
 #include "../shapes/box2d_shape_2d.h"
 #include "../shapes/box2d_shape_instance.h"
-#include "../spaces/box2d_query_collectors.h"
+#include "../spaces/box2d_query.h"
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
 

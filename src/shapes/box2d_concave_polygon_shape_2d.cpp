@@ -23,7 +23,3 @@ void Box2DConcavePolygonShape2D::add_to_body(Box2DShapeInstance *p_instance) con
 		p_instance->add_shape_id(id);
 	}
 }
-
-ShapeGeometry Box2DConcavePolygonShape2D::get_shape_geometry(const Transform2D &p_transform) const {
-	ERR_FAIL_V_MSG(ShapeGeometry::invalid(), "Box2D: Overlap and shape cast queries are not supported for concave polygons.");
-}
