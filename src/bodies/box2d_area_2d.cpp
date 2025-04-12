@@ -39,10 +39,15 @@ void Box2DArea2D::shapes_changed() {
 }
 
 void Box2DArea2D::add_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeInstance *p_self_shape) {
+	Box2DCollisionObject2D *object = p_other_shape->get_collision_object();
+	Box2DArea2D *area = object->as_area();
+	if (area && !area->get_monitorable()) {
+		return;
+	}
+
 	ShapePair pair{ p_other_shape, p_self_shape };
 
 	if (++overlaps[pair].count == 1) {
-		Box2DCollisionObject2D *object = p_other_shape->get_collision_object();
 		report_event(
 				object->get_type(),
 				PhysicsServer2D::AREA_BODY_ADDED,
@@ -57,11 +62,19 @@ void Box2DArea2D::add_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeInsta
 }
 
 void Box2DArea2D::remove_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeInstance *p_self_shape) {
+	Box2DCollisionObject2D *object = p_other_shape->get_collision_object();
+	Box2DArea2D *area = object->as_area();
+	if (area && !area->get_monitorable()) {
+		return;
+	}
+
 	ShapePair pair{ p_other_shape, p_self_shape };
 
 	if (--overlaps[pair].count <= 0) {
-		Box2DCollisionObject2D *object = overlaps[pair].object;
-		overlaps.erase(pair);
+		bool overlap_existed = overlaps.erase(pair);
+		if (!overlap_existed) {
+			return;
+		}
 
 		report_event(
 				object->get_type(),
@@ -323,18 +336,12 @@ void Box2DArea2D::set_priority(float p_priority) {
 	}
 }
 
-void Box2DArea2D::set_monitorable(float p_monitorable) {
+void Box2DArea2D::set_monitorable(bool p_monitorable) {
 	monitorable = p_monitorable;
-
 	set_collision_mask(shape_def.filter.maskBits);
 }
 
 uint64_t Box2DArea2D::modify_mask_bits(uint32_t p_mask) {
 	uint64_t result = (uint64_t)p_mask | AREA_MASK_BIT;
-
-	if (monitorable) {
-		result |= AREA_MONITORABLE_MASK_BIT;
-	}
-
 	return result;
 }

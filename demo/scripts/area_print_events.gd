@@ -5,16 +5,26 @@ func _ready() -> void:
 	body_exited.connect(on_body_exited)
 	body_shape_entered.connect(on_body_shape_entered)
 	body_shape_exited.connect(on_body_shape_exited)
+	area_shape_entered.connect(on_area_shape_entered)
+	area_shape_exited.connect(on_area_shape_exited)
 	area_entered.connect(on_area_entered)
 	area_exited.connect(on_area_exited)
 
 
 func on_body_shape_entered(body_rid: RID, body: Node2D, body_shape_index: int, local_shape_index: int) -> void:
-	print("shape entered, node: %s, shape: %s" % [body.name, body_shape_index])
+	print("body shape entered, node: %s, shape: %s" % [body.name, body_shape_index])
 
 
 func on_body_shape_exited(body_rid: RID, body: Node2D, body_shape_index: int, local_shape_index: int) -> void:
-	print("shape exited, node: %s, shape: %s" % [body.name if body else "null", body_shape_index])
+	print("body shape exited, node: %s, shape: %s" % [body.name if body else "null", body_shape_index])
+
+
+func on_area_shape_entered(area_rid: RID, area: Node2D, area_shape_index: int, local_shape_index: int) -> void:
+	print("area shape entered, node: %s, shape: %s" % [area.name, area_shape_index])
+
+
+func on_area_shape_exited(area_rid: RID, area: Node2D, area_shape_index: int, local_shape_index: int) -> void:
+	print("area shape exited, node: %s, shape: %s" % [area.name if area else "null", area_shape_index])
 
 
 func on_body_entered(body: Node2D) -> void:

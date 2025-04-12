@@ -111,7 +111,7 @@ public:
 	void set_priority(float p_priority);
 	int get_priority() const { return priority; }
 
-	void set_monitorable(float p_monitorable);
+	void set_monitorable(bool p_monitorable);
 	bool get_monitorable() const { return monitorable; }
 
 	void set_body_monitor_callback(const Callable &p_callback) { body_monitor_callback = p_callback; }
@@ -127,7 +127,7 @@ protected:
 	void body_created() override;
 	void body_destroyed() override;
 
-	// overlaps is a HashMap to account for redundant sensor events from compound shapes.
+	// `overlaps` is a HashMap to account for redundant sensor events from compound shapes.
 	// value = number of simultaneous overlap events between two shape instances
 	HashMap<ShapePair, ObjectAndOverlapCount, ShapePair> overlaps;
 	HashMap<Box2DCollisionObject2D *, int> object_overlap_count;
