@@ -3,7 +3,7 @@
 
 void Box2DCapsuleShape2D::add_to_body(Box2DShapeInstance *p_instance) const {
 	b2Capsule shape;
-	if (!make_capsule(p_instance->get_shape_transform(), data, shape)) {
+	if (!make_capsule(p_instance->get_global_transform(), data, shape)) {
 		return;
 	}
 	b2ShapeDef shape_def = p_instance->get_shape_def();
@@ -13,22 +13,24 @@ void Box2DCapsuleShape2D::add_to_body(Box2DShapeInstance *p_instance) const {
 
 int Box2DCapsuleShape2D::cast(const CastQuery &p_query, LocalVector<CastHit> &p_results) const {
 	b2Capsule shape;
-	if (!make_capsule(p_query.origin, data, shape)) {
+	if (!make_capsule(p_query.transform, data, shape)) {
 		return 0;
 	}
-	CastQueryCollector collector(p_query.max_results, p_query.filter, p_results, p_query.find_nearest);
-	b2World_CastCapsule(p_query.world, &shape, to_box2d(p_query.translation), p_query.filter.filter, cast_callback, &collector);
-	return collector.results.size();
+	CastQueryCollector collector(p_query, p_results);
+	b2ShapeProxy proxy = box2d_make_shape_proxy(shape);
+	b2World_CastShape(p_query.world, &proxy, to_box2d(p_query.translation), p_query.filter.filter, cast_callback, &collector);
+	return collector.count;
 }
 
 int Box2DCapsuleShape2D::overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const {
 	b2Capsule shape;
-	if (!make_capsule(p_query.origin, data, shape)) {
+	if (!make_capsule(p_query.transform, data, shape)) {
 		return 0;
 	}
-	OverlapQueryCollector collector(p_query.max_results, p_query.filter, p_results);
-	b2World_OverlapCapsule(p_query.world, &shape, b2Transform_identity, p_query.filter.filter, overlap_callback, &collector);
-	return collector.results.size();
+	OverlapQueryCollector collector(p_query, p_results);
+	b2ShapeProxy proxy = box2d_make_shape_proxy(shape);
+	b2World_OverlapShape(p_query.world, &proxy, p_query.filter.filter, overlap_callback, &collector);
+	return collector.count;
 }
 
 bool Box2DCapsuleShape2D::make_capsule(const Transform2D &p_transform, const Variant &p_data, b2Capsule &p_capsule) {

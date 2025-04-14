@@ -4,9 +4,20 @@ extends Node2D
 var circle_rid: RID
 var capsule_rid: RID
 var rectangle_rid: RID
+var polygon_rid: RID
 
 var shape_color: Color
 var query: Query = Query.RAY
+
+var collide_areas = true
+var collide_bodies = true
+
+var polygon_points = [
+	Vector2(-30, 30), Vector2(30, 30),
+	Vector2(30, 30), Vector2(30, -30),
+	Vector2(30, -30), Vector2(-30, -30),
+	Vector2(-30, -30), Vector2(-30, 30)
+]
 
 enum Query {
 	RAY,
@@ -26,6 +37,9 @@ func _ready() -> void:
 	rectangle_rid = PhysicsServer2D.rectangle_shape_create()
 	PhysicsServer2D.shape_set_data(rectangle_rid, Vector2(30, 30))
 
+	polygon_rid = PhysicsServer2D.concave_polygon_shape_create()
+	PhysicsServer2D.shape_set_data(polygon_rid, PackedVector2Array(polygon_points))
+
 	shape_color = Color.DIM_GRAY
 	shape_color.a = 0.6
 
@@ -38,67 +52,53 @@ func _physics_process(delta: float) -> void:
 func _draw() -> void:
 	draw_set_transform_matrix(global_transform.affine_inverse())
 
-	var ray_count = 16 if query != Query.RAY else 1000
+	var ray_count = 32 if query != Query.RAY else 1000
 	for i in range(ray_count):
 		var angle = i * (2 * PI / ray_count)
 		var ray = Vector2.from_angle(angle) * 2000
 		match query:
 			Query.RAY:
-				test_raycast(ray)
+				cast_ray(ray)
 			Query.CIRCLE:
-				test_circle(ray)
+				var point = cast_shape(ray, circle_rid)
+				draw_circle(point, 30, shape_color)
 			Query.RECTANGLE:
-				test_rectangle(ray)
+				var point = cast_shape(ray, rectangle_rid)
+				draw_rect(Rect2(point - Vector2(30, 30), Vector2(60, 60)), shape_color)
+			Query.POLYGON:
+				var point = cast_shape(ray, polygon_rid)
+				for j in range(0, polygon_points.size(), 2):
+					var point_a = point + polygon_points[j]
+					var point_b = point + polygon_points[j + 1]
+					draw_line(point_a, point_b, shape_color, 2.0)
 
 
-func test_raycast(ray: Vector2):
+func cast_ray(ray: Vector2):
 	var parameters = PhysicsRayQueryParameters2D.new()
 	parameters.from = global_position
 	parameters.to = global_position + ray
 	parameters.hit_from_inside = true
 	var result = get_world_2d().direct_space_state.intersect_ray(parameters)
 	if result:
-		draw_line(result["position"], result["position"] + result["normal"] * 25, Color.RED)
+		#draw_line(result["position"], result["position"] + result["normal"] * 25, Color.RED)
 		draw_line(global_position, result["position"], Color.BLACK)
 	else:
 		draw_line(global_position, global_position + ray, Color.BLACK)
 
 
-func test_circle(ray: Vector2):
+func cast_shape(ray: Vector2, shape_rid: RID) -> Vector2:
 	var parameters = PhysicsShapeQueryParameters2D.new()
 	parameters.transform = global_transform
 	parameters.motion = ray
-	parameters.shape_rid = circle_rid
+	parameters.shape_rid = shape_rid
+	parameters.collide_with_bodies = collide_bodies
+	parameters.collide_with_areas = collide_areas
 	var fractions = get_world_2d().direct_space_state.cast_motion(parameters)
 	if not fractions:
-		return
-	draw_line(global_position, global_position + (ray * fractions[0]), Color.BLACK)
-	draw_circle(global_position + (ray * fractions[0]), 30, shape_color)
-
-
-func test_rectangle(ray: Vector2):
-	var parameters = PhysicsShapeQueryParameters2D.new()
-	parameters.transform = global_transform
-	parameters.motion = ray
-	parameters.shape_rid = rectangle_rid
-	var fractions = get_world_2d().direct_space_state.cast_motion(parameters)
-	if not fractions:
-		return
+		return parameters.transform.origin
 	var end_point = global_position + (ray * fractions[0])
 	draw_line(global_position, end_point, Color.BLACK)
-	draw_rect(Rect2(end_point - Vector2(30, 30), Vector2(60, 60)), shape_color)
-
-
-func test_rest_info():
-	var parameters = PhysicsShapeQueryParameters2D.new()
-	parameters.transform = global_transform
-	parameters.shape_rid = circle_rid
-	var result = get_world_2d().direct_space_state.get_rest_info(parameters)
-	draw_circle(global_position, 30, shape_color)
-	if not result:
-		return
-	draw_line(result["point"], result["point"] + result["normal"] * 25, Color.RED)
-	draw_circle(result["point"], 3, Color.ORANGE)
+	return end_point
 
 
 func test_point():
@@ -117,3 +117,7 @@ func _on_circle_pressed() -> void:
 
 func _on_rectangle_pressed() -> void:
 	query = Query.RECTANGLE
+
+
+func _on_polygon_pressed() -> void:
+	query = Query.POLYGON

@@ -36,7 +36,7 @@ public:
 	void set_one_way_collision_margin(float p_margin) { one_way_collision_margin = p_margin; }
 	float get_one_way_collision_margin() const { return one_way_collision_margin; }
 
-	Transform2D get_shape_transform() const;
+	Transform2D get_global_transform() const;
 	b2ShapeDef get_shape_def();
 
 	void build();

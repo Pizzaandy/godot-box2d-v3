@@ -3,7 +3,7 @@
 
 void Box2DSeparationRayShape2D::add_to_body(Box2DShapeInstance *p_instance) const {
 	b2Segment shape;
-	if (!make_separation_ray(p_instance->get_shape_transform(), data, shape)) {
+	if (!make_separation_ray(p_instance->get_global_transform(), data, shape)) {
 		return;
 	}
 	b2ShapeDef shape_def = p_instance->get_shape_def();

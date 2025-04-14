@@ -71,10 +71,7 @@ void Box2DArea2D::remove_overlap(Box2DShapeInstance *p_other_shape, Box2DShapeIn
 	ShapePair pair{ p_other_shape, p_self_shape };
 
 	if (--overlaps[pair].count <= 0) {
-		bool overlap_existed = overlaps.erase(pair);
-		if (!overlap_existed) {
-			return;
-		}
+		overlaps.erase(pair);
 
 		report_event(
 				object->get_type(),

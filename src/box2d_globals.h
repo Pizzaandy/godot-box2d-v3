@@ -53,36 +53,6 @@ _FORCE_INLINE_ b2Transform to_box2d(Transform2D p_transform) {
 	return b2Transform{ to_box2d(p_transform.get_origin()), b2MakeRot(p_transform.get_rotation()) };
 }
 
-/// Represents a Box2D shape geometry type.
-struct ShapeGeometry {
-	enum Type {
-		INVALID,
-		CIRCLE,
-		CAPSULE,
-		SEGMENT,
-		POLYGON,
-		CHAIN_SEGMENT,
-	};
-
-	Type type = Type::INVALID;
-
-	union {
-		b2Capsule capsule;
-		b2Circle circle;
-		b2Polygon polygon;
-		b2Segment segment;
-		b2ChainSegment chain_segment;
-	};
-
-	_FORCE_INLINE_ bool is_valid() {
-		return type != Type::INVALID;
-	}
-
-	_FORCE_INLINE_ static ShapeGeometry invalid() {
-		return {};
-	}
-};
-
 /// Range for iterating body shapes.
 class BodyShapeRange {
 public:
@@ -244,35 +214,87 @@ private:
 
 struct ShapeCollidePoint {
 	Vector2 point;
-	float separation;
+	/// Positive if penetrating
+	float depth;
 };
 
 struct ShapeCollideResult {
 	ShapeCollidePoint points[2];
-	Vector2 normal = {};
+	Vector2 normal = Vector2();
 	int32_t point_count = 0;
 };
 
+struct Box2DShapeGeometry {
+	b2ShapeType type = b2ShapeType::b2_shapeTypeCount;
+
+	union {
+		b2Capsule capsule;
+		b2Circle circle;
+		b2Polygon polygon;
+		b2Segment segment;
+		b2ChainSegment chain_segment;
+	};
+
+	Box2DShapeGeometry(const b2Capsule &p_shape) :
+			type(b2ShapeType::b2_capsuleShape) {
+		capsule = p_shape;
+	}
+
+	Box2DShapeGeometry(const b2Circle &p_shape) :
+			type(b2ShapeType::b2_circleShape) {
+		circle = p_shape;
+	}
+
+	Box2DShapeGeometry(const b2Polygon &p_shape) :
+			type(b2ShapeType::b2_polygonShape) {
+		polygon = p_shape;
+	}
+
+	Box2DShapeGeometry(const b2Segment &p_shape) :
+			type(b2ShapeType::b2_segmentShape) {
+		segment = p_shape;
+	}
+
+	Box2DShapeGeometry(const b2ChainSegment &p_shape) :
+			type(b2ShapeType::b2_chainSegmentShape) {
+		chain_segment = p_shape;
+	}
+
+	Box2DShapeGeometry(const b2ShapeId &p_shape_id) {
+		type = b2Shape_GetType(p_shape_id);
+		switch (type) {
+			case b2ShapeType::b2_capsuleShape: {
+				capsule = b2Shape_GetCapsule(p_shape_id);
+				break;
+			}
+			case b2ShapeType::b2_circleShape: {
+				circle = b2Shape_GetCircle(p_shape_id);
+				break;
+			}
+			case b2ShapeType::b2_polygonShape: {
+				polygon = b2Shape_GetPolygon(p_shape_id);
+				break;
+			}
+			case b2ShapeType::b2_segmentShape: {
+				segment = b2Shape_GetSegment(p_shape_id);
+				break;
+			}
+			case b2ShapeType::b2_chainSegmentShape: {
+				chain_segment = b2Shape_GetChainSegment(p_shape_id);
+				break;
+			}
+			default: {
+				ERR_FAIL_MSG("Unknown shape type");
+			}
+		}
+	}
+};
+
 ShapeCollideResult box2d_collide_shapes(
-		const ShapeGeometry &p_shape_a,
+		const Box2DShapeGeometry &p_shape_a,
 		const b2Transform &xfa,
-		const ShapeGeometry &p_shape_b,
-		const b2Transform &xf,
-		bool p_swapped = false);
+		const Box2DShapeGeometry &p_shape_b,
+		const b2Transform &xfb,
+		bool p_swapped);
 
-void box2d_cast_shape(
-		const b2WorldId &p_world,
-		const ShapeGeometry &p_shape,
-		const b2Transform &p_transform,
-		const b2Vec2 &p_motion,
-		const b2QueryFilter &p_filter,
-		b2CastResultFcn *fcn,
-		void *context);
-
-void box2d_overlap_shape(
-		const b2WorldId &p_world,
-		const ShapeGeometry &p_shape,
-		const b2Transform &p_transform,
-		const b2QueryFilter &p_filter,
-		b2OverlapResultFcn *fcn,
-		void *context);
+b2ShapeProxy box2d_make_shape_proxy(const Box2DShapeGeometry &p_shape);

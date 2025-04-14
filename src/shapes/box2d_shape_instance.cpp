@@ -41,7 +41,7 @@ void Box2DShapeInstance::build() {
 	shape->add_to_body(this);
 }
 
-Transform2D Box2DShapeInstance::get_shape_transform() const {
+Transform2D Box2DShapeInstance::get_global_transform() const {
 	Transform2D parent_transform = object->get_transform();
 	Transform2D parent_scale_and_skew = Transform2D(0.0, parent_transform.get_scale(), parent_transform.get_skew(), Vector2());
 	return parent_scale_and_skew * transform;

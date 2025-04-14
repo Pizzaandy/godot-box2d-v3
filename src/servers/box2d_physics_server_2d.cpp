@@ -1262,7 +1262,7 @@ void Box2DPhysicsServer2D::_step(float p_step) {
 
 	if (active) {
 		for (Box2DSpace2D *active_space : active_spaces) {
-			active_space->step((float)p_step);
+			active_space->step(p_step);
 		}
 	}
 

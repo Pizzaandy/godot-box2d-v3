@@ -20,9 +20,9 @@ public:
 	explicit Box2DDirectBodyState2D(Box2DBody2D *p_body) :
 			body(p_body) {}
 
-	// virtual Vector2 _get_total_gravity() const override;
-	// virtual double _get_total_angular_damp() const override;
-	// virtual double _get_total_linear_damp() const override;
+	Vector2 _get_total_gravity() const override;
+	float _get_total_angular_damp() const override;
+	float _get_total_linear_damp() const override;
 
 	Vector2 _get_center_of_mass() const override;
 	Vector2 _get_center_of_mass_local() const override;

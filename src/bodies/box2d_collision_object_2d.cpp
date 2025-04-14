@@ -147,6 +147,8 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 			return;
 		}
 
+		//b2Body_SetKinematicTarget(body_id, to_box2d(p_transform), last_step);
+
 		Vector2 current_position = current_transform.get_origin();
 		Vector2 linear = (position - current_position) / last_step;
 
@@ -158,6 +160,9 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 		b2Body_SetAngularVelocity(body_id, (float)angular);
 	} else {
 		b2Body_SetTransform(body_id, to_box2d(position), b2MakeRot(rotation));
+	}
+
+	if (!b2Body_IsAwake(body_id)) {
 		b2Body_SetAwake(body_id, true);
 	}
 
@@ -229,9 +234,9 @@ void Box2DCollisionObject2D::set_shape(int p_index, Box2DShape2D *p_shape) {
 void Box2DCollisionObject2D::shape_updated(Box2DShape2D *p_shape) {
 	ERR_FAIL_NULL(p_shape);
 
-	for (int i = 0; i < shapes.size(); i++) {
-		if (shapes[i].get_shape() == p_shape) {
-			build_shape(shapes[i]);
+	for (Box2DShapeInstance &shape : shapes) {
+		if (shape.get_shape() == p_shape) {
+			build_shape(shape);
 		}
 	}
 

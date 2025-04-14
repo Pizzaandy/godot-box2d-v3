@@ -3,26 +3,24 @@
 #include "../spaces/box2d_physics_direct_space_state_2d.h"
 #include "../spaces/box2d_query.h"
 
-// Vector2 Box2DDirectBodyState2D::_get_total_gravity() const {
-// 	ERR_FAIL_COND_V(body->get_space(), Vector2());
+Vector2 Box2DDirectBodyState2D::_get_total_gravity() const {
+	ERR_FAIL_COND_V(body->get_space(), Vector2());
+	Vector2 total = body->area_overrides.total_gravity;
+	if (!body->area_overrides.skip_world_gravity) {
+		total += body->get_space()->get_default_gravity();
+	}
+	return total;
+}
 
-// 	if (body->using_area_gravity) {
-// 		return body->total_gravity;
-// 	} else {
-// 		Vector2 default_gravity = body->get_space()->get_default_area_param(PhysicsServer2D::AREA_PARAM_GRAVITY);
-// 		return body->gravity_scale * default_gravity;
-// 	}
-// }
+float Box2DDirectBodyState2D::_get_total_angular_damp() const {
+	ERR_FAIL_COND_V(body->get_space(), 0.0);
+	return body->area_overrides.total_angular_damp;
+}
 
-// double Box2DDirectBodyState2D::_get_total_angular_damp() const {
-// 	ERR_FAIL_COND_V(body->get_space(), 0.0);
-// 	return body->total_angular_damping;
-// }
-
-// double Box2DDirectBodyState2D::_get_total_linear_damp() const {
-// 	ERR_FAIL_COND_V(body->get_space(), 0.0);
-// 	return body->total_linear_damping;
-// }
+float Box2DDirectBodyState2D::_get_total_linear_damp() const {
+	ERR_FAIL_COND_V(body->get_space(), 0.0);
+	return body->area_overrides.total_linear_damp;
+}
 
 Vector2 Box2DDirectBodyState2D::_get_center_of_mass() const {
 	return body->get_center_of_mass_global();

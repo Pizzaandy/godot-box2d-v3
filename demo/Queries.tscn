@@ -149,7 +149,7 @@ offset_bottom = 629.0
 text = "CW
 "
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="Area2D" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D5" type="CollisionShape2D" parent="Area2D"]
 position = Vector2(343, 301)
@@ -165,3 +165,4 @@ shape = SubResource("RectangleShape2D_72i8i")
 [connection signal="pressed" from="_Settings/Raycast" to="QueryTester" method="_on_raycast_pressed"]
 [connection signal="pressed" from="_Settings/Circle" to="QueryTester" method="_on_circle_pressed"]
 [connection signal="pressed" from="_Settings/Rectangle" to="QueryTester" method="_on_rectangle_pressed"]
+[connection signal="pressed" from="_Settings/Polygon" to="QueryTester" method="_on_polygon_pressed"]

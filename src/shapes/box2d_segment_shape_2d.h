@@ -7,6 +7,7 @@ class Box2DSegmentShape2D : public Box2DShape2D {
 public:
 	void add_to_body(Box2DShapeInstance *p_instance) const override;
 
+	// Shape-casting segments is not supported
 	int cast(const CastQuery &p_query, LocalVector<CastHit> &p_results) const override;
 	int overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const override;
 
