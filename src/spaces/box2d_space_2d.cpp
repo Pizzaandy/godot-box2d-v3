@@ -66,7 +66,7 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 	Box2DShapeInstance *shape_a = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdA));
 	Box2DShapeInstance *shape_b = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdB));
 
-	Vector2 contact_normal = to_godot(manifold->normal).normalized();
+	Vector2 contact_normal = to_godot_normalized(manifold->normal);
 
 	if (shape_a->get_one_way_collision()) {
 		Vector2 one_way_normal = -(shape_a->get_transform() * body_a->get_transform()).columns[1].normalized();

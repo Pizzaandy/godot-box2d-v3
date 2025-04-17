@@ -969,6 +969,70 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 		bool p_collide_separation_ray,
 		bool p_recovery_as_collision,
 		PhysicsServer2DExtensionMotionResult *p_result) const {
+	Box2DBody2D *body = body_owner.get_or_null(p_body);
+	ERR_FAIL_NULL_V(body, false);
+
+	static thread_local LocalVector<CharacterCollideResult> collide_results;
+	static thread_local LocalVector<CharacterCastResult> cast_results;
+
+	Transform2D transform = p_from;
+
+	bool recovered = false;
+	Vector2 recovery = Vector2();
+
+	p_margin = MAX(p_margin, 0.0001f);
+
+	// 1) Recover from overlaps
+	const int iterations = 8;
+	const float recover_ratio = 0.4f;
+
+	for (int i = 0; i < iterations; i++) {
+		int count = body->character_collide(transform, p_margin, collide_results);
+
+		if (count == 0) {
+			break;
+		}
+
+		for (CharacterCollideResult &collision : collide_results) {
+			Vector2 recover_step = collision.normal * (collision.depth * recover_ratio);
+			recovery += recover_step;
+			transform.set_origin(transform.get_origin() + recover_step);
+			recovered = true;
+		}
+	}
+
+	// 2) Shape cast
+	CharacterCastResult cast_result = body->character_cast(transform, p_margin, p_motion);
+
+	if (cast_result.hit) {
+		float safe_fraction = box2d_compute_safe_fraction(cast_result.unsafe_fraction, p_motion.length());
+
+		p_result->travel = (p_motion * safe_fraction) + recovery;
+		p_result->remainder = p_motion * (1 - safe_fraction);
+
+		p_result->collision_point = cast_result.point;
+		p_result->collision_normal = cast_result.normal;
+		p_result->collider_velocity = Vector2(); // placeholder
+		p_result->collision_depth = 0.0f; // placeholder
+		p_result->collision_safe_fraction = safe_fraction;
+		p_result->collision_unsafe_fraction = cast_result.unsafe_fraction;
+		p_result->collision_local_shape = cast_result.shape->get_index();
+
+		Box2DCollisionObject2D *object = cast_result.other_shape->get_collision_object();
+		p_result->collider_id = object->get_instance_id();
+		p_result->collider = object->get_rid();
+		p_result->collider_shape = cast_result.other_shape->get_index();
+
+		return true;
+	} else {
+		p_result->travel = p_motion;
+		p_result->remainder = Vector2();
+		p_result->collision_safe_fraction = 1.0f;
+		p_result->collision_unsafe_fraction = 1.0f;
+
+		return false;
+	}
+
 	return false;
 }
 
@@ -1237,6 +1301,10 @@ void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 		areas_to_delete.push_back(area);
 	} else if (space_owner.owns(p_rid)) {
 		Box2DSpace2D *space = space_owner.get_or_null(p_rid);
+		Box2DArea2D *default_area = space->get_default_area();
+		if (default_area) {
+			_free_rid(default_area->get_rid());
+		}
 		active_spaces.erase(space);
 		space_owner.free(p_rid);
 		memdelete(space);

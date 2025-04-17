@@ -37,6 +37,7 @@ public:
 	float get_one_way_collision_margin() const { return one_way_collision_margin; }
 
 	Transform2D get_global_transform() const;
+	Transform2D get_global_transform_with_parent_transform(const Transform2D &p_parent_transform) const;
 	b2ShapeDef get_shape_def();
 
 	void build();

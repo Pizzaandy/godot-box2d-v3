@@ -1,0 +1,54 @@
+[gd_scene load_steps=8 format=3 uid="uid://d4lt8s00uk8e7"]
+
+[ext_resource type="Script" path="res://scripts/override_timescale.gd" id="1_x1558"]
+[ext_resource type="Script" path="res://scripts/body_destroyer.gd" id="3_bghif"]
+[ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="4_3gho3"]
+[ext_resource type="Script" path="res://scripts/default_character_2d.gd" id="4_5ouet"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_k0kwk"]
+radius = 99.5038
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_q40ig"]
+size = Vector2(379, 94)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_lj7go"]
+radius = 30.992
+height = 96.0049
+
+[node name="Areas" type="Node2D"]
+script = ExtResource("1_x1558")
+
+[node name="StaticBody2D" type="AnimatableBody2D" parent="."]
+position = Vector2(1208, 482)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(-3, -29)
+shape = SubResource("CircleShape2D_k0kwk")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(-230.5, -12)
+rotation = -0.199228
+shape = SubResource("RectangleShape2D_q40ig")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
+position = Vector2(-84, -66)
+rotation = 0.00033644
+polygon = PackedVector2Array(-866.053, -158.709, -759.035, -102.745, -711.006, -18.7608, -550.007, -20.8149, -495.988, 35.1668, -377.995, 13.1272, -256.972, 84.0865, -561.955, 134.189, -924.982, 52.3112, -962.053, -158.676)
+
+[node name="Node2D" type="Node2D" parent="."]
+script = ExtResource("3_bghif")
+
+[node name="Camera2D" parent="." instance=ExtResource("4_3gho3")]
+position = Vector2(967, 500)
+zoom = Vector2(1, 1)
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
+position = Vector2(977, 237)
+rotation = 0.00260896
+floor_constant_speed = true
+floor_max_angle = 0.872665
+floor_snap_length = 100.0
+script = ExtResource("4_5ouet")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="CharacterBody2D"]
+shape = SubResource("CapsuleShape2D_lj7go")

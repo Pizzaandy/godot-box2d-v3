@@ -119,7 +119,7 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 	PhysicsServer2DExtensionRayResult &result = *p_result;
 
 	result.position = to_godot(hit.point);
-	result.normal = to_godot(hit.normal).normalized();
+	result.normal = to_godot_normalized(hit.normal);
 	result.shape = hit.shape->get_index();
 	result.rid = hit.object->get_rid();
 	result.collider_id = hit.object->get_instance_id();
@@ -220,13 +220,12 @@ bool Box2DDirectSpaceState2D::_cast_motion(
 	CastHit &hit = cast_results[index];
 	ERR_FAIL_COND_V(hit.shape->get_index() < 0, 0);
 
-	// B2_LINEAR_SLOP * 2
-	const float adjustment = 0.01f;
+	const float adjustment = BOX2D_LINEAR_SLOP * 2.0f;
 
 	float distance = hit.fraction * p_motion.length();
 	float adjusted_distance = MAX(0.0f, distance - adjustment);
 
-	*p_closest_safe = adjusted_distance / p_motion.length();
+	*p_closest_safe = box2d_compute_safe_fraction(hit.fraction, p_motion.length());
 	*p_closest_unsafe = hit.fraction;
 
 	return true;
@@ -348,7 +347,7 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 	Dictionary result;
 	result["point"] = to_godot(hit.point);
 	result["destination"] = transform.get_origin() + (hit.fraction * motion);
-	result["normal"] = to_godot(hit.normal).normalized();
+	result["normal"] = to_godot_normalized(hit.normal);
 	result["shape"] = hit.shape->get_index();
 	result["rid"] = hit.object->get_rid();
 	ObjectID id = hit.object->get_instance_id();
@@ -403,7 +402,7 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 		Dictionary result;
 		result["point"] = to_godot(hit.point);
 		result["destination"] = transform.get_origin() + (hit.fraction * motion);
-		result["normal"] = to_godot(hit.normal).normalized();
+		result["normal"] = to_godot_normalized(hit.normal);
 		result["shape"] = hit.shape->get_index();
 		result["rid"] = hit.object->get_rid();
 		ObjectID id = hit.object->get_instance_id();

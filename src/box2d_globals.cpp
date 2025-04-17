@@ -1,6 +1,20 @@
 #include "box2d_globals.h"
 
 float BOX2D_PIXELS_PER_METER = 1;
+float BOX2D_LINEAR_SLOP = 0.005f;
+
+// TODO: revisit, consider implementing Godot-style cast function
+float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distance) {
+	if (p_total_distance <= 0.0f) {
+		return 0.0f;
+	}
+
+	float distance = p_unsafe_fraction * p_total_distance;
+	const float adjustment = 1.5f * BOX2D_LINEAR_SLOP;
+	float adjusted_distance = MAX(0.0f, distance - adjustment);
+
+	return adjusted_distance / p_total_distance;
+}
 
 ShapeCollideResult box2d_collide_shapes(
 		const Box2DShapeGeometry &p_shape_a,
@@ -9,9 +23,9 @@ ShapeCollideResult box2d_collide_shapes(
 		const b2Transform &xfb,
 		bool p_swapped) {
 	b2ShapeType type_a = p_shape_a.type;
-	b2ShapeType type_b = p_shape_a.type;
+	b2ShapeType type_b = p_shape_b.type;
 
-	b2Manifold manifold;
+	b2Manifold manifold = { 0 };
 
 	switch (type_a) {
 		case b2ShapeType::b2_capsuleShape: {
@@ -31,7 +45,7 @@ ShapeCollideResult box2d_collide_shapes(
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
 				}
 				default: {
-					return {};
+					ERR_FAIL_V({});
 				}
 			}
 			break;
@@ -50,7 +64,7 @@ ShapeCollideResult box2d_collide_shapes(
 					break;
 				}
 				default: {
-					return {};
+					ERR_FAIL_V({});
 				}
 			}
 			break;
@@ -75,7 +89,7 @@ ShapeCollideResult box2d_collide_shapes(
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
 				}
 				default: {
-					return {};
+					ERR_FAIL_V({});
 				}
 			}
 			break;
@@ -95,17 +109,12 @@ ShapeCollideResult box2d_collide_shapes(
 					manifold = b2CollideSegmentAndPolygon(&a, xfa, &p_shape_b.polygon, xfb);
 					break;
 				}
-				case b2ShapeType::b2_segmentShape: {
-					b2Segment b = p_shape_b.segment;
-					b2Capsule capsule_b;
-					capsule_b.radius = 0.0;
-					capsule_b.center1 = b.point1;
-					capsule_b.center2 = b.point2;
-					b2CollideSegmentAndCapsule(&p_shape_a.segment, xfa, &capsule_b, xfb);
-				}
-				case b2ShapeType::b2_chainSegmentShape:
-				default: {
+				case b2ShapeType::b2_segmentShape:
+				case b2ShapeType::b2_chainSegmentShape: {
 					return {};
+				}
+				default: {
+					ERR_FAIL_V({});
 				}
 			}
 			break;
@@ -128,15 +137,17 @@ ShapeCollideResult box2d_collide_shapes(
 					break;
 				}
 				case b2ShapeType::b2_segmentShape:
-				case b2ShapeType::b2_chainSegmentShape:
-				default: {
+				case b2ShapeType::b2_chainSegmentShape: {
 					return {};
+				}
+				default: {
+					ERR_FAIL_V({});
 				}
 			}
 			break;
 		}
 		default: {
-			return {};
+			ERR_FAIL_V({});
 		}
 	}
 
@@ -148,10 +159,10 @@ ShapeCollideResult box2d_collide_shapes(
 		return result;
 	}
 
-	result.normal = to_godot(manifold.normal).normalized();
+	result.normal = -to_godot_normalized(manifold.normal);
 
 	if (p_swapped) {
-		result.normal *= -1;
+		result.normal *= -1.0f;
 	}
 
 	for (int i = 0; i < manifold.pointCount; i++) {

@@ -71,11 +71,30 @@ struct ShapeOverlap {
 	Box2DCollisionObject2D *object = nullptr;
 	Box2DShapeInstance *shape = nullptr;
 	b2ShapeId shape_id;
-	ShapeCollideResult collision;
 
 	bool operator==(const ShapeOverlap &p_other) const {
 		return B2_ID_EQUALS(p_other.shape_id, shape_id);
 	}
+};
+
+struct CharacterCollideResult {
+	Vector2 normal = Vector2();
+	float depth = 0.0f;
+	b2ShapeId shape_id = b2_nullShapeId;
+	Box2DShapeInstance *shape = nullptr;
+	b2ShapeId other_shape_id = b2_nullShapeId;
+	Box2DShapeInstance *other_shape = nullptr;
+};
+
+struct CharacterCastResult {
+	bool hit = false;
+	Vector2 point = Vector2();
+	Vector2 normal = Vector2();
+	float unsafe_fraction = 1.0f;
+	b2ShapeId shape_id = b2_nullShapeId;
+	Box2DShapeInstance *shape = nullptr;
+	b2ShapeId other_shape_id = b2_nullShapeId;
+	Box2DShapeInstance *other_shape = nullptr;
 };
 
 /// Cast query result

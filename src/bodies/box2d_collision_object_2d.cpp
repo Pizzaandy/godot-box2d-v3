@@ -20,7 +20,7 @@ void Box2DCollisionObject2D::destroy_body() {
 		body_destroyed();
 	}
 
-	in_space = false;
+	space = nullptr;
 	body_id = b2_nullBodyId;
 }
 
@@ -46,8 +46,6 @@ void Box2DCollisionObject2D::set_space(Box2DSpace2D *p_space) {
 	body_def.userData = this;
 	body_id = b2CreateBody(space->get_world_id(), &body_def);
 
-	in_space = true;
-
 	rebuild_all_shapes();
 
 	body_created();
@@ -64,14 +62,14 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 	switch (p_mode) {
 		case PhysicsServer2D::BODY_MODE_STATIC:
 			body_def.type = b2_staticBody;
-			if (!in_space) {
+			if (!in_space()) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_staticBody);
 			break;
 		case PhysicsServer2D::BODY_MODE_KINEMATIC:
 			body_def.type = b2_kinematicBody;
-			if (!in_space) {
+			if (!in_space()) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_kinematicBody);
@@ -79,7 +77,7 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 		case PhysicsServer2D::BODY_MODE_RIGID:
 			body_def.type = b2_dynamicBody;
 			body_def.fixedRotation = false;
-			if (!in_space) {
+			if (!in_space()) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
@@ -88,7 +86,7 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 		case PhysicsServer2D::BODY_MODE_RIGID_LINEAR:
 			body_def.type = b2_dynamicBody;
 			body_def.fixedRotation = true;
-			if (!in_space) {
+			if (!in_space()) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
@@ -104,7 +102,7 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 	shape_def.filter.categoryBits = modify_layer_bits(p_layer);
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -117,7 +115,7 @@ void Box2DCollisionObject2D::set_collision_layer(uint32_t p_layer) {
 void Box2DCollisionObject2D::set_collision_mask(uint32_t p_mask) {
 	shape_def.filter.maskBits = modify_mask_bits(p_mask);
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -128,7 +126,7 @@ void Box2DCollisionObject2D::set_collision_mask(uint32_t p_mask) {
 }
 
 void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool p_move_kinematic) {
-	if (!in_space) {
+	if (!in_space()) {
 		current_transform = p_transform;
 		return;
 	}
@@ -162,14 +160,14 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 		b2Body_SetTransform(body_id, to_box2d(position), b2MakeRot(rotation));
 	}
 
-	if (!b2Body_IsAwake(body_id)) {
-		b2Body_SetAwake(body_id, true);
-	}
-
 	bool scale_changed = !current_transform.get_scale().is_equal_approx(p_transform.get_scale());
 	bool skew_changed = !Math::is_equal_approx(current_transform.get_skew(), p_transform.get_skew());
 
 	current_transform = p_transform;
+
+	if (!b2Body_IsAwake(body_id)) {
+		b2Body_SetAwake(body_id, true);
+	}
 
 	if (scale_changed || skew_changed) {
 		rebuild_all_shapes();
@@ -195,7 +193,7 @@ void Box2DCollisionObject2D::set_shape_disabled(int p_index, bool p_disabled) {
 }
 
 void Box2DCollisionObject2D::build_shape(Box2DShapeInstance &p_shape, bool p_shapes_changed) {
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -298,4 +296,125 @@ Transform2D Box2DCollisionObject2D::get_shape_transform(int p_index) const {
 	// TODO: more const references and pointers
 	const Box2DShapeInstance &shape = shapes[p_index];
 	return shape.get_transform();
+}
+
+bool character_overlap_callback(b2ShapeId shapeId, void *context) {
+	// TODO: handle one-way collisions
+	auto *ctx = static_cast<Box2DCollisionObject2D::CharacterCollideContext *>(context);
+
+	Box2DShapeInstance *this_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(ctx->shape_id));
+	Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
+
+	b2BodyId this_body_id = b2Shape_GetBody(ctx->shape_id);
+	b2BodyId other_body_id = b2Shape_GetBody(shapeId);
+
+	if (B2_ID_EQUALS(this_body_id, other_body_id)) {
+		return true;
+	}
+
+	ShapeCollideResult result = box2d_collide_shapes(ctx->shape_geometry, ctx->transform, shapeId, b2Body_GetTransform(other_body_id));
+
+	float depth = 0.0f;
+
+	if (result.point_count == 2) {
+		depth = MAX(result.points[0].depth, result.points[1].depth);
+	} else if (result.point_count == 1) {
+		depth = result.points[0].depth;
+	} else {
+		return true;
+	}
+
+	ctx->results.push_back(CharacterCollideResult{ result.normal, depth, ctx->shape_id, this_shape, shapeId, other_shape });
+
+	return true;
+}
+
+int Box2DCollisionObject2D::character_collide(
+		const Transform2D &p_from,
+		float p_margin,
+		LocalVector<CharacterCollideResult> &p_results) {
+	ERR_FAIL_COND_V(!in_space(), 0);
+
+	p_results.clear();
+
+	b2QueryFilter filter;
+	filter.categoryBits = shape_def.filter.categoryBits;
+	filter.maskBits = shape_def.filter.maskBits;
+
+	BodyShapeRange range(body_id);
+
+	for (b2ShapeId shape_id : range) {
+		Box2DShapeGeometry geometry(shape_id);
+		geometry = geometry.inflated(p_margin);
+
+		b2Transform xf = to_box2d(p_from);
+		b2ShapeProxy proxy = box2d_make_shape_proxy(geometry);
+		proxy = b2MakeOffsetProxy(proxy.points, proxy.count, proxy.radius, xf.p, xf.q);
+
+		CharacterCollideContext context{ shape_id, xf, geometry, p_results };
+		b2World_OverlapShape(space->get_world_id(), &proxy, filter, character_overlap_callback, &context);
+	}
+
+	return p_results.size();
+}
+
+static float character_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
+	// TODO: handle one-way collisions
+	auto *ctx = static_cast<Box2DCollisionObject2D::CharacterCastContext *>(context);
+
+	Box2DShapeInstance *this_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(ctx->shape_id));
+	Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeId));
+
+	b2BodyId this_body_id = b2Shape_GetBody(ctx->shape_id);
+	b2BodyId other_body_id = b2Shape_GetBody(shapeId);
+
+	if (B2_ID_EQUALS(this_body_id, other_body_id)) {
+		return true;
+	}
+
+	if (fraction >= ctx->result.unsafe_fraction) {
+		return -1.0f;
+	}
+
+	if (ctx->motion.dot(to_godot_normalized(normal)) > -CMP_EPSILON) {
+		return -1.0f;
+	}
+
+	ctx->result.hit = true;
+	ctx->result.point = to_godot(point);
+	ctx->result.normal = to_godot_normalized(normal);
+	ctx->result.unsafe_fraction = fraction;
+	ctx->result.shape_id = ctx->shape_id;
+	ctx->result.shape = this_shape;
+	ctx->result.other_shape_id = shapeId;
+	ctx->result.other_shape = other_shape;
+
+	return fraction;
+}
+
+CharacterCastResult Box2DCollisionObject2D::character_cast(const Transform2D &p_from, float p_margin, Vector2 p_motion) {
+	ERR_FAIL_COND_V(!in_space(), {});
+
+	b2QueryFilter filter;
+	filter.categoryBits = shape_def.filter.categoryBits;
+	filter.maskBits = shape_def.filter.maskBits;
+
+	BodyShapeRange range(body_id);
+	CharacterCastResult result;
+
+	Vector2 motion = p_motion;
+
+	for (b2ShapeId shape_id : range) {
+		Box2DShapeGeometry geometry(shape_id);
+		geometry = geometry.inflated(p_margin);
+
+		b2Transform xf = to_box2d(p_from);
+		b2ShapeProxy proxy = box2d_make_shape_proxy(geometry);
+		proxy = b2MakeOffsetProxy(proxy.points, proxy.count, proxy.radius, xf.p, xf.q);
+
+		CharacterCastContext context{ shape_id, xf, geometry, result, motion };
+		b2World_CastShape(space->get_world_id(), &proxy, to_box2d(motion), filter, character_cast_callback, &context);
+	}
+
+	return result;
 }

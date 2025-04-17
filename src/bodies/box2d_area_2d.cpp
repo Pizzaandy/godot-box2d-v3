@@ -99,7 +99,7 @@ void Box2DArea2D::update_overlaps() {
 		new_overlaps[shape_pair] = 0;
 	}
 
-	if (in_space) {
+	if (in_space()) {
 		LocalVector<b2ShapeId> shape_overlaps;
 		shape_overlaps.reserve(overlaps.size());
 
@@ -197,7 +197,7 @@ void Box2DArea2D::apply_overrides() {
 }
 
 void Box2DArea2D::update_area_step_list() {
-	if (!in_space || is_default_area()) {
+	if (!in_space() || is_default_area()) {
 		return;
 	}
 

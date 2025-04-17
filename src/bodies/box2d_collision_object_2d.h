@@ -42,6 +42,7 @@ public:
 
 	void set_space(Box2DSpace2D *p_space);
 	Box2DSpace2D *get_space() const { return space; }
+	bool in_space() const { return space; }
 
 	void set_mode(PhysicsServer2D::BodyMode p_mode);
 	PhysicsServer2D::BodyMode get_mode() const { return mode; }
@@ -83,6 +84,24 @@ public:
 
 	virtual void shapes_changed() {};
 
+	struct CharacterCollideContext {
+		b2ShapeId shape_id;
+		b2Transform transform;
+		Box2DShapeGeometry shape_geometry;
+		LocalVector<CharacterCollideResult> &results;
+	};
+
+	struct CharacterCastContext {
+		b2ShapeId shape_id;
+		b2Transform transform;
+		Box2DShapeGeometry shape_geometry;
+		CharacterCastResult &result;
+		Vector2 motion;
+	};
+
+	int character_collide(const Transform2D &p_from, float p_margin, LocalVector<CharacterCollideResult> &p_results);
+	CharacterCastResult character_cast(const Transform2D &p_from, float p_margin, Vector2 p_motion);
+
 protected:
 	void build_shape(Box2DShapeInstance &p_shape, bool p_shapes_changed = true);
 	void rebuild_all_shapes();
@@ -108,7 +127,6 @@ protected:
 	b2ShapeDef shape_def = b2DefaultShapeDef();
 	b2BodyId body_id = b2_nullBodyId;
 
-	bool in_space = false;
 	bool _is_freed = false;
 	Type type = Type::RIGIDBODY;
 };

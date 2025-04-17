@@ -15,8 +15,9 @@ layout_mode = 2
 [node name="ItemList" type="ItemList" parent="ScenePanel/MarginContainer"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+focus_mode = 0
 script = ExtResource("1_45eq1")
-scenes = PackedStringArray("Area Overrides", "Areas", "Body Properties", "Churn (Nodes)", "Churn (Optimized)", "Contact Monitor", "Joints", "Queries")
+scenes = PackedStringArray("Area Overrides", "Areas", "Body Properties", "Character", "Churn (Nodes)", "Churn (Optimized)", "Contact Monitor", "Joints", "Queries")
 
 [node name="Panel" type="PanelContainer" parent="."]
 anchors_preset = 1

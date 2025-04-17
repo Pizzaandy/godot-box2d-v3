@@ -28,7 +28,7 @@ Box2DBody2D::~Box2DBody2D() {
 void Box2DBody2D::set_bullet(bool p_bullet) {
 	body_def.isBullet = p_bullet;
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -38,7 +38,7 @@ void Box2DBody2D::set_bullet(bool p_bullet) {
 void Box2DBody2D::set_bounce(float p_bounce) {
 	shape_def.material.restitution = p_bounce;
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -51,7 +51,7 @@ void Box2DBody2D::set_bounce(float p_bounce) {
 void Box2DBody2D::set_friction(float p_friction) {
 	shape_def.material.friction = p_friction;
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -65,7 +65,7 @@ void Box2DBody2D::reset_mass() {
 	override_inertia = false;
 	override_center_of_mass = false;
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -75,7 +75,7 @@ void Box2DBody2D::reset_mass() {
 void Box2DBody2D::set_mass(float p_mass) {
 	mass = p_mass;
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -90,7 +90,7 @@ void Box2DBody2D::set_inertia(float p_inertia) {
 		override_inertia = true;
 	}
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -98,7 +98,7 @@ void Box2DBody2D::set_inertia(float p_inertia) {
 }
 
 Vector2 Box2DBody2D::get_center_of_mass_global() const {
-	ERR_FAIL_COND_V(!in_space, Vector2());
+	ERR_FAIL_COND_V(!in_space(), Vector2());
 	return to_godot(b2Body_GetWorldCenterOfMass(body_id));
 }
 
@@ -106,7 +106,7 @@ void Box2DBody2D::set_center_of_mass(const Vector2 &p_center) {
 	center_of_mass = p_center;
 	override_center_of_mass = true;
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -116,7 +116,7 @@ void Box2DBody2D::set_center_of_mass(const Vector2 &p_center) {
 void Box2DBody2D::set_gravity_scale(float p_scale) {
 	body_def.gravityScale = p_scale;
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -134,7 +134,7 @@ void Box2DBody2D::set_angular_damping(float p_damping) {
 }
 
 void Box2DBody2D::update_linear_damping() {
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -150,7 +150,7 @@ void Box2DBody2D::update_linear_damping() {
 }
 
 void Box2DBody2D::update_angular_damping() {
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -166,39 +166,39 @@ void Box2DBody2D::update_angular_damping() {
 }
 
 void Box2DBody2D::apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position) {
-	ERR_FAIL_COND(!in_space);
+	ERR_FAIL_COND(!in_space());
 	Vector2 point = current_transform.get_origin() + p_position;
 	b2Body_ApplyLinearImpulse(body_id, to_box2d(p_impulse), to_box2d(point), true);
 }
 
 void Box2DBody2D::apply_impulse_center(const Vector2 &p_impulse) {
-	ERR_FAIL_COND(!in_space);
+	ERR_FAIL_COND(!in_space());
 	b2Body_ApplyLinearImpulseToCenter(body_id, to_box2d(p_impulse), true);
 }
 
 void Box2DBody2D::apply_torque(float p_torque) {
-	ERR_FAIL_COND(!in_space);
+	ERR_FAIL_COND(!in_space());
 	b2Body_ApplyTorque(body_id, to_box2d(p_torque), true);
 }
 
 void Box2DBody2D::apply_torque_impulse(float p_impulse) {
-	ERR_FAIL_COND(!in_space);
+	ERR_FAIL_COND(!in_space());
 	b2Body_ApplyAngularImpulse(body_id, to_box2d(p_impulse), true);
 }
 
 void Box2DBody2D::apply_force(const Vector2 &p_force, const Vector2 &p_position) {
-	ERR_FAIL_COND(!in_space);
+	ERR_FAIL_COND(!in_space());
 	Vector2 point = current_transform.get_origin() + p_position;
 	b2Body_ApplyForce(body_id, to_box2d(p_force), to_box2d(point), true);
 }
 
 void Box2DBody2D::apply_central_force(const Vector2 &p_force) {
-	ERR_FAIL_COND(!in_space);
+	ERR_FAIL_COND(!in_space());
 	b2Body_ApplyForceToCenter(body_id, to_box2d(p_force), true);
 }
 
 void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
-	if (!in_space) {
+	if (!in_space()) {
 		initial_linear_velocity = p_velocity;
 		return;
 	}
@@ -206,17 +206,17 @@ void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
 }
 
 Vector2 Box2DBody2D::get_linear_velocity() const {
-	ERR_FAIL_COND_V(!in_space, Vector2());
+	ERR_FAIL_COND_V(!in_space(), Vector2());
 	return to_godot(b2Body_GetLinearVelocity(body_id));
 }
 
 Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
-	ERR_FAIL_COND_V(!in_space, Vector2());
+	ERR_FAIL_COND_V(!in_space(), Vector2());
 	return to_godot(b2Body_GetLocalPointVelocity(body_id, to_box2d(p_point)));
 }
 
 void Box2DBody2D::set_angular_velocity(float p_velocity) {
-	if (!in_space) {
+	if (!in_space()) {
 		initial_angular_velocity = p_velocity;
 		return;
 	}
@@ -224,7 +224,7 @@ void Box2DBody2D::set_angular_velocity(float p_velocity) {
 }
 
 float Box2DBody2D::get_angular_velocity() const {
-	ERR_FAIL_COND_V(!in_space, 0.0);
+	ERR_FAIL_COND_V(!in_space(), 0.0);
 	float angular_velocity = b2Body_GetAngularVelocity(body_id);
 	return angular_velocity;
 }
@@ -232,7 +232,7 @@ float Box2DBody2D::get_angular_velocity() const {
 void Box2DBody2D::set_sleep_state(bool p_sleeping) {
 	sleeping = p_sleeping;
 
-	if (!in_space) {
+	if (!in_space()) {
 		// Sleep state can be set before the body is created.
 		body_def.isAwake = !p_sleeping;
 		return;
@@ -244,7 +244,7 @@ void Box2DBody2D::set_sleep_state(bool p_sleeping) {
 void Box2DBody2D::set_sleep_enabled(bool p_can_sleep) {
 	body_def.enableSleep = p_can_sleep;
 
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -252,7 +252,7 @@ void Box2DBody2D::set_sleep_enabled(bool p_can_sleep) {
 }
 
 void Box2DBody2D::sync_state(const b2Transform &p_transform, bool p_fell_asleep) {
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -283,7 +283,7 @@ void Box2DBody2D::sync_state(const b2Transform &p_transform, bool p_fell_asleep)
 
 /// Lazily update contacts. This will only run when the user queries contact info once per step.
 void Box2DBody2D::update_contacts() {
-	if (!in_space || queried_contacts) {
+	if (!in_space() || queried_contacts) {
 		return;
 	}
 
@@ -321,7 +321,7 @@ void Box2DBody2D::update_contacts() {
 
 			Contact contact;
 			contact.local_position = to_godot(point.point);
-			contact.local_normal = to_godot(box2d_contact.manifold.normal).normalized();
+			contact.local_normal = to_godot_normalized(box2d_contact.manifold.normal);
 			contact.depth = depth;
 			contact.local_shape = local_shape->get_index();
 			contact.collider_position = other_body->get_transform().get_origin();
@@ -352,69 +352,69 @@ void Box2DBody2D::update_contacts() {
 }
 
 int32_t Box2DBody2D::get_contact_count() {
-	ERR_FAIL_COND_V(!in_space, 0);
+	ERR_FAIL_COND_V(!in_space(), 0);
 	update_contacts();
 	return contacts.size();
 }
 
 Vector2 Box2DBody2D::get_contact_local_position(int p_contact_idx) {
-	ERR_FAIL_COND_V(!in_space, Vector2());
+	ERR_FAIL_COND_V(!in_space(), Vector2());
 	update_contacts();
 	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
 	return contacts[p_contact_idx].local_position;
 }
 
 Vector2 Box2DBody2D::get_contact_local_normal(int p_contact_idx) {
-	ERR_FAIL_COND_V(!in_space, Vector2());
+	ERR_FAIL_COND_V(!in_space(), Vector2());
 	update_contacts();
 	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
 	return contacts[p_contact_idx].local_normal;
 }
 
 int Box2DBody2D::get_contact_local_shape(int p_contact_idx) {
-	ERR_FAIL_COND_V(!in_space, -1);
+	ERR_FAIL_COND_V(!in_space(), -1);
 	update_contacts();
 	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), -1);
 	return contacts[p_contact_idx].local_shape;
 }
 
 RID Box2DBody2D::get_contact_collider(int p_contact_idx) {
-	ERR_FAIL_COND_V(!in_space, RID());
+	ERR_FAIL_COND_V(!in_space(), RID());
 	update_contacts();
 	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), RID());
 	return contacts[p_contact_idx].collider;
 }
 
 Vector2 Box2DBody2D::get_contact_collider_position(int p_contact_idx) {
-	ERR_FAIL_COND_V(!in_space, Vector2());
+	ERR_FAIL_COND_V(!in_space(), Vector2());
 	update_contacts();
 	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
 	return contacts[p_contact_idx].collider_position;
 }
 
 uint64_t Box2DBody2D::get_contact_collider_id(int p_contact_idx) {
-	ERR_FAIL_COND_V(!in_space, -1);
+	ERR_FAIL_COND_V(!in_space(), -1);
 	update_contacts();
 	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), -1);
 	return contacts[p_contact_idx].collider_instance_id;
 }
 
 int Box2DBody2D::get_contact_collider_shape(int p_contact_idx) {
-	ERR_FAIL_COND_V(!in_space, -1);
+	ERR_FAIL_COND_V(!in_space(), -1);
 	update_contacts();
 	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), -1);
 	return contacts[p_contact_idx].collider_shape;
 }
 
 Vector2 Box2DBody2D::get_contact_impulse(int p_contact_idx) {
-	ERR_FAIL_COND_V(!in_space, Vector2());
+	ERR_FAIL_COND_V(!in_space(), Vector2());
 	update_contacts();
 	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
 	return contacts[p_contact_idx].impulse;
 }
 
 Vector2 Box2DBody2D::get_contact_collider_velocity_at_position(int p_contact_idx) {
-	ERR_FAIL_COND_V(!in_space, Vector2());
+	ERR_FAIL_COND_V(!in_space(), Vector2());
 	update_contacts();
 	ERR_FAIL_INDEX_V(p_contact_idx, contacts.size(), Vector2());
 	return contacts[p_contact_idx].collider_velocity;
@@ -455,7 +455,7 @@ bool Box2DBody2D::get_shape_one_way_collision(int p_index) {
 }
 
 void Box2DBody2D::update_mass() {
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -539,7 +539,7 @@ void Box2DBody2D::set_constant_torque(float p_torque) {
 }
 
 void Box2DBody2D::update_constant_forces_list() {
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -561,7 +561,7 @@ void Box2DBody2D::update_constant_forces_list() {
 }
 
 void Box2DBody2D::apply_constant_forces() {
-	ERR_FAIL_COND(!in_space);
+	ERR_FAIL_COND(!in_space());
 
 	if (!Math::is_zero_approx(constant_torque)) {
 		apply_torque(constant_torque);
@@ -573,7 +573,7 @@ void Box2DBody2D::apply_constant_forces() {
 }
 
 void Box2DBody2D::update_force_integration_list() {
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -593,7 +593,7 @@ void Box2DBody2D::update_force_integration_list() {
 }
 
 void Box2DBody2D::call_force_integration_callback() {
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 
@@ -669,7 +669,7 @@ uint64_t Box2DBody2D::modify_mask_bits(uint32_t p_mask) {
 }
 
 void Box2DBody2D::apply_area_overrides() {
-	if (!in_space) {
+	if (!in_space()) {
 		return;
 	}
 

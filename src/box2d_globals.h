@@ -15,6 +15,7 @@
 using namespace godot;
 
 extern float BOX2D_PIXELS_PER_METER;
+extern float BOX2D_LINEAR_SLOP;
 
 /// Mask bit used by all bodies.
 const uint64_t BODY_MASK_BIT = (1ULL << 63);
@@ -34,9 +35,17 @@ _FORCE_INLINE_ Vector2 to_godot(const b2Vec2 p_vec) {
 	return Vector2(scale * p_vec.x, scale * p_vec.y);
 }
 
+_FORCE_INLINE_ Vector2 to_godot_normalized(const b2Vec2 p_vec) {
+	return Vector2(p_vec.x, p_vec.y).normalized();
+}
+
 _FORCE_INLINE_ b2Vec2 to_box2d(const Vector2 p_vec) {
 	float scale = 1 / BOX2D_PIXELS_PER_METER;
 	return scale * b2Vec2{ (float)p_vec.x, (float)p_vec.y };
+}
+
+_FORCE_INLINE_ b2Vec2 to_box2d_normalized(const Vector2 p_vec) {
+	return b2Normalize(b2Vec2{ p_vec.x, p_vec.y });
 }
 
 _FORCE_INLINE_ float to_box2d(float p_length) {
@@ -213,9 +222,9 @@ private:
 };
 
 struct ShapeCollidePoint {
-	Vector2 point;
+	Vector2 point = Vector2();
 	/// Positive if penetrating
-	float depth;
+	float depth = 0.0f;
 };
 
 struct ShapeCollideResult {
@@ -234,6 +243,8 @@ struct Box2DShapeGeometry {
 		b2Segment segment;
 		b2ChainSegment chain_segment;
 	};
+
+	explicit Box2DShapeGeometry() = default;
 
 	Box2DShapeGeometry(const b2Capsule &p_shape) :
 			type(b2ShapeType::b2_capsuleShape) {
@@ -284,17 +295,50 @@ struct Box2DShapeGeometry {
 				break;
 			}
 			default: {
-				ERR_FAIL_MSG("Unknown shape type");
+				ERR_FAIL_MSG("Invalid shape type");
+			}
+		}
+	}
+
+	Box2DShapeGeometry inflated(float p_radius) {
+		p_radius = to_box2d(p_radius);
+		switch (type) {
+			case b2ShapeType::b2_capsuleShape: {
+				capsule.radius += p_radius;
+				return Box2DShapeGeometry(capsule);
+			}
+			case b2ShapeType::b2_circleShape: {
+				circle.radius += p_radius;
+				return Box2DShapeGeometry(circle);
+			}
+			case b2ShapeType::b2_polygonShape: {
+				polygon.radius += p_radius;
+				return Box2DShapeGeometry(polygon);
+			}
+			case b2ShapeType::b2_segmentShape: {
+				b2Capsule capsule;
+				capsule.center1 = segment.point1;
+				capsule.center2 = segment.point2;
+				capsule.radius = p_radius;
+				return Box2DShapeGeometry(capsule);
+			}
+			case b2ShapeType::b2_chainSegmentShape: {
+				ERR_FAIL_V_MSG(Box2DShapeGeometry(chain_segment), "Chain segments cannot have a radius");
+			}
+			default: {
+				ERR_FAIL_V_MSG(Box2DShapeGeometry(), "Invalid shape type");
 			}
 		}
 	}
 };
+
+float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distance);
 
 ShapeCollideResult box2d_collide_shapes(
 		const Box2DShapeGeometry &p_shape_a,
 		const b2Transform &xfa,
 		const Box2DShapeGeometry &p_shape_b,
 		const b2Transform &xfb,
-		bool p_swapped);
+		bool p_swapped = false);
 
 b2ShapeProxy box2d_make_shape_proxy(const Box2DShapeGeometry &p_shape);
