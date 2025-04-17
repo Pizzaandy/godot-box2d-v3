@@ -45,7 +45,7 @@ _FORCE_INLINE_ b2Vec2 to_box2d(const Vector2 p_vec) {
 }
 
 _FORCE_INLINE_ b2Vec2 to_box2d_normalized(const Vector2 p_vec) {
-	return b2Normalize(b2Vec2{ p_vec.x, p_vec.y });
+	return b2Normalize(b2Vec2{ (float)p_vec.x, (float)p_vec.y });
 }
 
 _FORCE_INLINE_ float to_box2d(float p_length) {
