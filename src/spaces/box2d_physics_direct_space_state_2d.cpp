@@ -220,11 +220,6 @@ bool Box2DDirectSpaceState2D::_cast_motion(
 	CastHit &hit = cast_results[index];
 	ERR_FAIL_COND_V(hit.shape->get_index() < 0, 0);
 
-	const float adjustment = BOX2D_LINEAR_SLOP * 2.0f;
-
-	float distance = hit.fraction * p_motion.length();
-	float adjusted_distance = MAX(0.0f, distance - adjustment);
-
 	*p_closest_safe = box2d_compute_safe_fraction(hit.fraction, p_motion.length());
 	*p_closest_unsafe = hit.fraction;
 

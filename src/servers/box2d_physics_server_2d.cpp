@@ -977,7 +977,6 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 
 	Transform2D transform = p_from;
 
-	bool recovered = false;
 	Vector2 recovery = Vector2();
 
 	p_margin = MAX(p_margin, 0.0001f);
@@ -985,7 +984,7 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 	// 1) Recover from overlaps
 	const int iterations = 8;
 	const float recover_ratio = 0.4f;
-	const float min_contact_depth = 0.05f * p_margin;
+	const float min_contact_depth = 0.05f * to_godot(BOX2D_LINEAR_SLOP);
 
 	for (int i = 0; i < iterations; i++) {
 		int count = body->character_collide(transform, p_margin, collide_results);
@@ -994,14 +993,20 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 			break;
 		}
 
+		bool any_collided = false;
+
 		for (CharacterCollideResult &collision : collide_results) {
 			if (collision.depth < min_contact_depth) {
 				continue;
 			}
+			any_collided = true;
 			Vector2 recover_step = collision.normal * (collision.depth * recover_ratio);
 			recovery += recover_step;
 			transform.set_origin(transform.get_origin() + recover_step);
-			recovered = true;
+		}
+
+		if (!any_collided) {
+			break;
 		}
 	}
 

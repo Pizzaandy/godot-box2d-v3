@@ -376,7 +376,7 @@ static float character_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 nor
 		return -1.0f;
 	}
 
-	if (ctx->motion.dot(to_godot_normalized(normal)) > -CMP_EPSILON) {
+	if (ctx->motion.dot(to_godot_normalized(normal)) > -2.0f * CMP_EPSILON) {
 		return -1.0f;
 	}
 
