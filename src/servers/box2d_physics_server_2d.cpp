@@ -984,7 +984,7 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 	// 1) Recover from overlaps
 	const int iterations = 8;
 	const float recover_ratio = 0.4f;
-	const float min_contact_depth = 0.05f * to_godot(BOX2D_LINEAR_SLOP);
+	const float min_contact_depth = 0.5f * to_godot(BOX2D_LINEAR_SLOP);
 
 	for (int i = 0; i < iterations; i++) {
 		int count = body->character_collide(transform, p_margin, collide_results);
