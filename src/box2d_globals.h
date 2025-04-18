@@ -233,7 +233,7 @@ struct ShapeCollideResult {
 	int32_t point_count = 0;
 };
 
-struct Box2DShapeGeometry {
+struct Box2DShapePrimitive {
 	b2ShapeType type = b2ShapeType::b2_shapeTypeCount;
 
 	union {
@@ -244,34 +244,24 @@ struct Box2DShapeGeometry {
 		b2ChainSegment chain_segment;
 	};
 
-	explicit Box2DShapeGeometry() = default;
+	explicit Box2DShapePrimitive() = default;
 
-	Box2DShapeGeometry(const b2Capsule &p_shape) :
-			type(b2ShapeType::b2_capsuleShape) {
-		capsule = p_shape;
-	}
+	Box2DShapePrimitive(const b2Capsule &p_shape) :
+			type(b2ShapeType::b2_capsuleShape), capsule(p_shape) {}
 
-	Box2DShapeGeometry(const b2Circle &p_shape) :
-			type(b2ShapeType::b2_circleShape) {
-		circle = p_shape;
-	}
+	Box2DShapePrimitive(const b2Circle &p_shape) :
+			type(b2ShapeType::b2_circleShape), circle(p_shape) {}
 
-	Box2DShapeGeometry(const b2Polygon &p_shape) :
-			type(b2ShapeType::b2_polygonShape) {
-		polygon = p_shape;
-	}
+	Box2DShapePrimitive(const b2Polygon &p_shape) :
+			type(b2ShapeType::b2_polygonShape), polygon(p_shape) {}
 
-	Box2DShapeGeometry(const b2Segment &p_shape) :
-			type(b2ShapeType::b2_segmentShape) {
-		segment = p_shape;
-	}
+	Box2DShapePrimitive(const b2Segment &p_shape) :
+			type(b2ShapeType::b2_segmentShape), segment(p_shape) {}
 
-	Box2DShapeGeometry(const b2ChainSegment &p_shape) :
-			type(b2ShapeType::b2_chainSegmentShape) {
-		chain_segment = p_shape;
-	}
+	Box2DShapePrimitive(const b2ChainSegment &p_shape) :
+			type(b2ShapeType::b2_chainSegmentShape), chain_segment(p_shape) {}
 
-	Box2DShapeGeometry(const b2ShapeId &p_shape_id) {
+	Box2DShapePrimitive(const b2ShapeId &p_shape_id) {
 		type = b2Shape_GetType(p_shape_id);
 		switch (type) {
 			case b2ShapeType::b2_capsuleShape: {
@@ -300,33 +290,51 @@ struct Box2DShapeGeometry {
 		}
 	}
 
-	Box2DShapeGeometry inflated(float p_radius) {
+	b2ShapeProxy get_proxy() {
+		switch (type) {
+			case b2ShapeType::b2_capsuleShape:
+				return b2MakeProxy(&capsule.center1, 2, capsule.radius);
+			case b2ShapeType::b2_circleShape:
+				return b2MakeProxy(&circle.center, 1, circle.radius);
+			case b2ShapeType::b2_polygonShape:
+				return b2MakeProxy(polygon.vertices, polygon.count, polygon.radius);
+			case b2ShapeType::b2_segmentShape:
+				return b2MakeProxy(&segment.point1, 2, 0.0f);
+			case b2ShapeType::b2_chainSegmentShape:
+				return b2MakeProxy(&chain_segment.segment.point1, 2, 0.0f);
+			default: {
+				ERR_FAIL_V_MSG(b2ShapeProxy{ 0 }, "Invalid shape type");
+			}
+		}
+	}
+
+	Box2DShapePrimitive inflated(float p_radius) {
 		p_radius = to_box2d(p_radius);
 		switch (type) {
 			case b2ShapeType::b2_capsuleShape: {
 				capsule.radius += p_radius;
-				return Box2DShapeGeometry(capsule);
+				return Box2DShapePrimitive(capsule);
 			}
 			case b2ShapeType::b2_circleShape: {
 				circle.radius += p_radius;
-				return Box2DShapeGeometry(circle);
+				return Box2DShapePrimitive(circle);
 			}
 			case b2ShapeType::b2_polygonShape: {
 				polygon.radius += p_radius;
-				return Box2DShapeGeometry(polygon);
+				return Box2DShapePrimitive(polygon);
 			}
 			case b2ShapeType::b2_segmentShape: {
 				b2Capsule capsule;
 				capsule.center1 = segment.point1;
 				capsule.center2 = segment.point2;
 				capsule.radius = p_radius;
-				return Box2DShapeGeometry(capsule);
+				return Box2DShapePrimitive(capsule);
 			}
 			case b2ShapeType::b2_chainSegmentShape: {
-				ERR_FAIL_V_MSG(Box2DShapeGeometry(chain_segment), "Chain segments cannot have a radius");
+				ERR_FAIL_V_MSG(Box2DShapePrimitive(chain_segment), "Chain segments cannot have a radius");
 			}
 			default: {
-				ERR_FAIL_V_MSG(Box2DShapeGeometry(), "Invalid shape type");
+				ERR_FAIL_V_MSG(Box2DShapePrimitive(), "Invalid shape type");
 			}
 		}
 	}
@@ -335,10 +343,8 @@ struct Box2DShapeGeometry {
 float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distance);
 
 ShapeCollideResult box2d_collide_shapes(
-		const Box2DShapeGeometry &p_shape_a,
+		const Box2DShapePrimitive &p_shape_a,
 		const b2Transform &xfa,
-		const Box2DShapeGeometry &p_shape_b,
+		const Box2DShapePrimitive &p_shape_b,
 		const b2Transform &xfb,
 		bool p_swapped = false);
-
-b2ShapeProxy box2d_make_shape_proxy(const Box2DShapeGeometry &p_shape);

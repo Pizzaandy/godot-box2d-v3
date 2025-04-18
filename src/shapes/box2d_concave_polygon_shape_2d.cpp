@@ -21,63 +21,6 @@ void Box2DConcavePolygonShape2D::add_to_body(Box2DShapeInstance *p_instance) con
 	}
 }
 
-// int Box2DConcavePolygonShape2D::cast(const CastQuery &p_query, LocalVector<CastHit> &p_results) const {
-// 	Variant::Type type = data.get_type();
-// 	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY, 0);
-// 	PackedVector2Array arr = data;
-// 	ERR_FAIL_COND_V(arr.size() % 2, 0);
-
-// 	CastQuery query = p_query;
-// 	LocalVector<CastHit> results;
-
-// 	Transform2D shape_transform = p_query.transform;
-// 	b2Capsule capsule;
-// 	capsule.radius = 0.0;
-
-// 	for (int i = 0; i < arr.size() - 1; i++) {
-// 		capsule.center1 = to_box2d(shape_transform.xform(arr[i]));
-// 		capsule.center2 = to_box2d(shape_transform.xform(arr[i + 1]));
-
-// 		CastQueryCollector collector(p_query, results);
-// 		b2ShapeProxy proxy = box2d_make_shape_proxy(capsule);
-// 		b2World_CastShape(p_query.world, &proxy, to_box2d(p_query.translation), p_query.filter.filter, cast_callback, &collector);
-// 		query.max_results -= collector.count;
-// 		if (query.max_results <= 0) {
-// 			break;
-// 		}
-// 		if (collector.count == 0) {
-// 			continue;
-// 		}
-// 		if (p_query.find_nearest) {
-// 			CastHit last_hit = results[results.size() - 1];
-// 			if (last_hit.fraction <= 0.0) {
-// 				break;
-// 			}
-// 			query.translation *= last_hit.fraction;
-// 		}
-// 	}
-
-// 	// For each shape hit, keep the nearest CastHit only
-// 	int i = 0;
-// 	while (i < results.size()) {
-// 		int j = i + 1;
-// 		while (j < results.size()) {
-// 			if (results[j] == results[i]) {
-// 				results.remove_at(j);
-// 			} else {
-// 				++j;
-// 			}
-// 		}
-// 		++i;
-// 	}
-
-// 	for (CastHit &hit : results) {
-// 		p_results.push_back(hit);
-// 	}
-
-// 	return results.size();
-// }
-
 int Box2DConcavePolygonShape2D::overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const {
 	Variant::Type type = data.get_type();
 	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY, 0);
@@ -96,7 +39,7 @@ int Box2DConcavePolygonShape2D::overlap(const OverlapQuery &p_query, LocalVector
 		capsule.center2 = to_box2d(shape_transform.xform(arr[i + 1]));
 
 		OverlapQueryCollector collector(query, results);
-		b2ShapeProxy proxy = box2d_make_shape_proxy(capsule);
+		b2ShapeProxy proxy = Box2DShapePrimitive(capsule).get_proxy();
 		b2World_OverlapShape(p_query.world, &proxy, p_query.filter.filter, overlap_callback, &collector);
 		query.max_results -= collector.count;
 		if (query.max_results <= 0) {

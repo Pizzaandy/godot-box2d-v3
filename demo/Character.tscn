@@ -33,7 +33,7 @@ shape = SubResource("RectangleShape2D_q40ig")
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
 position = Vector2(-84, -66)
 rotation = 0.00033644
-polygon = PackedVector2Array(-866.053, -158.709, -759.035, -102.745, -711.006, -18.7608, -550.007, -20.8149, -495.988, 35.1668, -377.995, 13.1272, -256.972, 84.0865, -561.955, 134.189, -924.982, 52.3112, -962.053, -158.676)
+polygon = PackedVector2Array(-881.028, -81.7036, -824.034, -99.7228, -753.027, -79.7467, -711.006, -18.7608, -550.007, -20.8149, -490.99, 29.1652, -377.995, 13.1272, -256.972, 84.0865, -561.955, 134.189, -924.982, 52.3112, -936.045, -132.685)
 
 [node name="Node2D" type="Node2D" parent="."]
 script = ExtResource("3_bghif")
@@ -48,7 +48,12 @@ rotation = 0.00260896
 floor_constant_speed = true
 floor_max_angle = 0.872665
 floor_snap_length = 100.0
+safe_margin = 0.001
 script = ExtResource("4_5ouet")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="CharacterBody2D"]
 shape = SubResource("CapsuleShape2D_lj7go")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="CharacterBody2D"]
+build_mode = 1
+polygon = PackedVector2Array(-102.06, -22.7338, -62.039, -14.8382, -52.9711, 11.1382, -85.9998, 0.224365, -112.974, 10.2948)

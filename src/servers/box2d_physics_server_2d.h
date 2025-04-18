@@ -146,7 +146,7 @@ public:
 
 	void _body_set_pickable(const RID &p_body, bool p_pickable) override {}
 	PhysicsDirectBodyState2D *_body_get_direct_state(const RID &p_body) override;
-	bool _body_test_motion(const RID &p_body, const Transform2D &p_from, const Vector2 &p_motion, float p_margin, bool p_collide_separation_ray, bool p_recovery_as_collision, PhysicsServer2DExtensionMotionResult *p_result) const;
+	bool _body_test_motion(const RID &p_body, const Transform2D &p_from, const Vector2 &p_motion, float p_margin, bool p_collide_separation_ray, bool p_recovery_as_collision, PhysicsServer2DExtensionMotionResult *p_result) const override;
 
 	RID _joint_create() override;
 	void _joint_clear(const RID &p_joint) override;

@@ -7,7 +7,7 @@ Box2DGrooveJoint2D::Box2DGrooveJoint2D(const Vector2 &p_a_groove1, const Vector2
 		return;
 	}
 
-	ERR_FAIL_COND(!p_body_a->get_space());
+	ERR_FAIL_COND(!p_body_a->in_space());
 	ERR_FAIL_COND(p_body_a->get_space() != p_body_b->get_space());
 	space = p_body_a->get_space();
 

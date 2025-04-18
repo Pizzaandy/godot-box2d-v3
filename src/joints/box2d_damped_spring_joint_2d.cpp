@@ -7,7 +7,7 @@ Box2DDampedSpringJoint2D::Box2DDampedSpringJoint2D(const Vector2 &p_anchor_a, co
 		return;
 	}
 
-	ERR_FAIL_COND(!p_body_a->get_space());
+	ERR_FAIL_COND(!p_body_a->in_space());
 	ERR_FAIL_COND(p_body_a->get_space() != p_body_b->get_space());
 	space = p_body_a->get_space();
 

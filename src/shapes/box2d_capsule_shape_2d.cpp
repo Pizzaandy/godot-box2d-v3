@@ -17,7 +17,7 @@ int Box2DCapsuleShape2D::cast(const CastQuery &p_query, LocalVector<CastHit> &p_
 		return 0;
 	}
 	CastQueryCollector collector(p_query, p_results);
-	b2ShapeProxy proxy = box2d_make_shape_proxy(shape);
+	b2ShapeProxy proxy = Box2DShapePrimitive(shape).get_proxy();
 	b2World_CastShape(p_query.world, &proxy, to_box2d(p_query.translation), p_query.filter.filter, cast_callback, &collector);
 	return collector.count;
 }
@@ -28,7 +28,7 @@ int Box2DCapsuleShape2D::overlap(const OverlapQuery &p_query, LocalVector<ShapeO
 		return 0;
 	}
 	OverlapQueryCollector collector(p_query, p_results);
-	b2ShapeProxy proxy = box2d_make_shape_proxy(shape);
+	b2ShapeProxy proxy = Box2DShapePrimitive(shape).get_proxy();
 	b2World_OverlapShape(p_query.world, &proxy, p_query.filter.filter, overlap_callback, &collector);
 	return collector.count;
 }

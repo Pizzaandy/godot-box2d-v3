@@ -87,14 +87,14 @@ public:
 	struct CharacterCollideContext {
 		b2ShapeId shape_id;
 		b2Transform transform;
-		Box2DShapeGeometry shape_geometry;
+		Box2DShapePrimitive shape;
 		LocalVector<CharacterCollideResult> &results;
 	};
 
 	struct CharacterCastContext {
 		b2ShapeId shape_id;
 		b2Transform transform;
-		Box2DShapeGeometry shape_geometry;
+		Box2DShapePrimitive shape;
 		CharacterCastResult &result;
 		Vector2 motion;
 	};

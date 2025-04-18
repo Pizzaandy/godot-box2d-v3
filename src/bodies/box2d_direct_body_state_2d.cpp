@@ -4,7 +4,7 @@
 #include "../spaces/box2d_query.h"
 
 Vector2 Box2DDirectBodyState2D::_get_total_gravity() const {
-	ERR_FAIL_NULL_V(body->get_space(), Vector2());
+	ERR_FAIL_COND_V(!body->in_space(), Vector2());
 	Vector2 total = body->area_overrides.total_gravity;
 	if (!body->area_overrides.skip_world_gravity) {
 		total += body->get_space()->get_default_gravity();
@@ -13,12 +13,12 @@ Vector2 Box2DDirectBodyState2D::_get_total_gravity() const {
 }
 
 float Box2DDirectBodyState2D::_get_total_angular_damp() const {
-	ERR_FAIL_COND_V(body->get_space(), 0.0);
+	ERR_FAIL_COND_V(!body->in_space(), 0.0);
 	return body->area_overrides.total_angular_damp;
 }
 
 float Box2DDirectBodyState2D::_get_total_linear_damp() const {
-	ERR_FAIL_COND_V(body->get_space(), 0.0);
+	ERR_FAIL_COND_V(!body->in_space(), 0.0);
 	return body->area_overrides.total_linear_damp;
 }
 

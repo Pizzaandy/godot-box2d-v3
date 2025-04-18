@@ -17,9 +17,9 @@ float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distanc
 }
 
 ShapeCollideResult box2d_collide_shapes(
-		const Box2DShapeGeometry &p_shape_a,
+		const Box2DShapePrimitive &p_shape_a,
 		const b2Transform &xfa,
-		const Box2DShapeGeometry &p_shape_b,
+		const Box2DShapePrimitive &p_shape_b,
 		const b2Transform &xfb,
 		bool p_swapped) {
 	b2ShapeType type_a = p_shape_a.type;
@@ -171,24 +171,4 @@ ShapeCollideResult box2d_collide_shapes(
 	}
 
 	return result;
-}
-
-b2ShapeProxy box2d_make_shape_proxy(const Box2DShapeGeometry &p_shape) {
-	switch (p_shape.type) {
-		case b2_capsuleShape:
-			return b2MakeProxy(&p_shape.capsule.center1, 2, p_shape.capsule.radius);
-		case b2_circleShape:
-			return b2MakeProxy(&p_shape.circle.center, 1, p_shape.circle.radius);
-		case b2_polygonShape:
-			return b2MakeProxy(p_shape.polygon.vertices, p_shape.polygon.count, p_shape.polygon.radius);
-		case b2_segmentShape:
-			return b2MakeProxy(&p_shape.segment.point1, 2, 0.0f);
-		case b2_chainSegmentShape:
-			return b2MakeProxy(&p_shape.chain_segment.segment.point1, 2, 0.0f);
-		default: {
-			B2_ASSERT(false);
-			b2ShapeProxy empty = { 0 };
-			return empty;
-		}
-	}
 }
