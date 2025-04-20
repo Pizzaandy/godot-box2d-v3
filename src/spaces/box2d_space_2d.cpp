@@ -73,7 +73,7 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 	if (shape_a->get_one_way_collision()) {
 		Vector2 one_way_normal = -(shape_a->get_transform() * body_a->get_transform()).columns[1].normalized();
 		Vector2 velocity = body_b->get_linear_velocity();
-		float max_allowed_depth = velocity.length() * Math::max(velocity.normalized().dot(one_way_normal), 0.0f) + shape_a->get_one_way_collision_margin();
+		float max_allowed_depth = velocity.length() * Math::max(velocity.normalized().dot(one_way_normal), real_t(0.0f)) + shape_a->get_one_way_collision_margin();
 		if (contact_normal.dot(one_way_normal) <= 0.0 || depth > max_allowed_depth) {
 			return false;
 		}
@@ -82,7 +82,7 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 	if (shape_b->get_one_way_collision()) {
 		Vector2 one_way_normal = -(shape_b->get_transform() * body_b->get_transform()).columns[1].normalized();
 		Vector2 velocity = body_a->get_linear_velocity();
-		float max_allowed_depth = velocity.length() * Math::max(velocity.normalized().dot(one_way_normal), 0.0f) + shape_b->get_one_way_collision_margin();
+		float max_allowed_depth = velocity.length() * Math::max(velocity.normalized().dot(one_way_normal), real_t(0.0f)) + shape_b->get_one_way_collision_margin();
 		if (contact_normal.dot(one_way_normal) <= 0.0 || depth > max_allowed_depth) {
 			return false;
 		}
