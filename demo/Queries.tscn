@@ -34,21 +34,44 @@ offset_left = 2038.0
 offset_right = 2180.0
 offset_bottom = 136.0
 
-[node name="Raycast" type="Button" parent="_Settings"]
+[node name="HBoxContainer" type="HBoxContainer" parent="_Settings"]
 layout_mode = 2
-text = "Ray"
 
-[node name="Circle" type="Button" parent="_Settings"]
+[node name="Shape" type="VBoxContainer" parent="_Settings/HBoxContainer"]
+layout_mode = 2
+
+[node name="Circle" type="Button" parent="_Settings/HBoxContainer/Shape"]
 layout_mode = 2
 text = "Circle"
 
-[node name="Rectangle" type="Button" parent="_Settings"]
+[node name="Capsule" type="Button" parent="_Settings/HBoxContainer/Shape"]
+layout_mode = 2
+text = "Capsule"
+
+[node name="Rectangle" type="Button" parent="_Settings/HBoxContainer/Shape"]
 layout_mode = 2
 text = "Rectangle"
 
-[node name="Polygon" type="Button" parent="_Settings"]
+[node name="Polygon" type="Button" parent="_Settings/HBoxContainer/Shape"]
 layout_mode = 2
 text = "Polygon"
+
+[node name="Query" type="VBoxContainer" parent="_Settings/HBoxContainer"]
+layout_mode = 2
+
+[node name="IntersectRay" type="Button" parent="_Settings/HBoxContainer/Query"]
+layout_mode = 2
+text = "intersect_ray
+"
+
+[node name="CastMotion" type="Button" parent="_Settings/HBoxContainer/Query"]
+layout_mode = 2
+text = "cast_motion
+"
+
+[node name="CollideShape" type="Button" parent="_Settings/HBoxContainer/Query"]
+layout_mode = 2
+text = "collide_shape"
 
 [node name="QueryTester" type="Node2D" parent="."]
 position = Vector2(172.175, -179.065)
@@ -162,7 +185,10 @@ position = Vector2(743, 138)
 position = Vector2(45.1434, 53)
 shape = SubResource("RectangleShape2D_72i8i")
 
-[connection signal="pressed" from="_Settings/Raycast" to="QueryTester" method="_on_raycast_pressed"]
-[connection signal="pressed" from="_Settings/Circle" to="QueryTester" method="_on_circle_pressed"]
-[connection signal="pressed" from="_Settings/Rectangle" to="QueryTester" method="_on_rectangle_pressed"]
-[connection signal="pressed" from="_Settings/Polygon" to="QueryTester" method="_on_polygon_pressed"]
+[connection signal="pressed" from="_Settings/HBoxContainer/Shape/Circle" to="QueryTester" method="_on_circle_pressed"]
+[connection signal="pressed" from="_Settings/HBoxContainer/Shape/Capsule" to="QueryTester" method="_on_capsule_pressed"]
+[connection signal="pressed" from="_Settings/HBoxContainer/Shape/Rectangle" to="QueryTester" method="_on_rectangle_pressed"]
+[connection signal="pressed" from="_Settings/HBoxContainer/Shape/Polygon" to="QueryTester" method="_on_polygon_pressed"]
+[connection signal="pressed" from="_Settings/HBoxContainer/Query/IntersectRay" to="QueryTester" method="_on_intersect_ray_pressed"]
+[connection signal="pressed" from="_Settings/HBoxContainer/Query/CastMotion" to="QueryTester" method="_on_cast_motion_pressed"]
+[connection signal="pressed" from="_Settings/HBoxContainer/Query/CollideShape" to="QueryTester" method="_on_collide_shape_pressed"]

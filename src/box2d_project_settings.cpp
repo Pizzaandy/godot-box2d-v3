@@ -140,16 +140,16 @@ bool Box2DProjectSettings::get_presolve_enabled() {
 	return value;
 }
 
-MixingRule Box2DProjectSettings::get_friction_mixing_rule() {
+Box2DMixingRule Box2DProjectSettings::get_friction_mixing_rule() {
 	static const auto value = get_setting<int32_t>(FRICTION_MIXING_RULE);
 	ERR_FAIL_COND_V(value >= MIXING_RULE_MAX, MIXING_RULE_GODOT);
-	return static_cast<MixingRule>(value);
+	return static_cast<Box2DMixingRule>(value);
 }
 
-MixingRule Box2DProjectSettings::get_restitution_mixing_rule() {
+Box2DMixingRule Box2DProjectSettings::get_restitution_mixing_rule() {
 	static const auto value = get_setting<int32_t>(RESTITUTION_MIXING_RULE);
 	ERR_FAIL_COND_V(value >= MIXING_RULE_MAX, MIXING_RULE_GODOT);
-	return static_cast<MixingRule>(value);
+	return static_cast<Box2DMixingRule>(value);
 }
 
 int32_t Box2DProjectSettings::get_max_threads() {

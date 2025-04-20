@@ -12,26 +12,20 @@ void Box2DConvexPolygonShape2D::add_to_body(Box2DShapeInstance *p_instance) cons
 	p_instance->add_shape_id(id);
 }
 
-int Box2DConvexPolygonShape2D::cast(const CastQuery &p_query, LocalVector<CastHit> &p_results) const {
+int Box2DConvexPolygonShape2D::cast(const CastQuery &p_query, const Transform2D &p_transform, LocalVector<CastHit> &p_results) const {
 	b2Polygon shape;
-	if (!make_polygon(p_query.transform, data, shape)) {
+	if (!make_polygon(p_transform, data, shape)) {
 		return 0;
 	}
-	CastQueryCollector collector(p_query, p_results);
-	b2ShapeProxy proxy = Box2DShapePrimitive(shape).get_proxy();
-	b2World_CastShape(p_query.world, &proxy, to_box2d(p_query.translation), p_query.filter.filter, cast_callback, &collector);
-	return collector.count;
+	return box2d_cast_shape(shape, p_query, p_results);
 }
 
-int Box2DConvexPolygonShape2D::overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const {
+int Box2DConvexPolygonShape2D::overlap(const OverlapQuery &p_query, const Transform2D &p_transform, LocalVector<ShapeOverlap> &p_results) const {
 	b2Polygon shape;
-	if (!make_polygon(p_query.transform, data, shape)) {
+	if (!make_polygon(p_transform, data, shape)) {
 		return 0;
 	}
-	OverlapQueryCollector collector(p_query, p_results);
-	b2ShapeProxy proxy = Box2DShapePrimitive(shape).get_proxy();
-	b2World_OverlapShape(p_query.world, &proxy, p_query.filter.filter, overlap_callback, &collector);
-	return collector.count;
+	return box2d_overlap_shape(shape, p_query, p_results);
 }
 
 bool Box2DConvexPolygonShape2D::make_polygon(const Transform2D &p_transform, const Variant &p_data, b2Polygon &p_polygon) {

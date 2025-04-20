@@ -38,6 +38,7 @@ shape = SubResource("CapsuleShape2D_d05bq")
 
 [node name="RigidBody2D2" type="RigidBody2D" parent="."]
 position = Vector2(-25, 30)
+skew = -0.670206
 script = ExtResource("2_yl0l3")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D2"]

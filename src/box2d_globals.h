@@ -1,9 +1,9 @@
 #pragma once
 
 #include "box2d/box2d.h"
+#include <godot_cpp/templates/local_vector.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
-#include <godot_cpp/variant/vector2.hpp>
 
 #ifdef TRACY_ENABLE
 #include "../tracy/public/tracy/Tracy.hpp"
@@ -231,6 +231,15 @@ struct ShapeCollideResult {
 	ShapeCollidePoint points[2];
 	Vector2 normal = Vector2();
 	int32_t point_count = 0;
+
+	ShapeCollidePoint get_deepest_point() const {
+		ERR_FAIL_COND_V(point_count == 0, {});
+		if (point_count == 2) {
+			return points[0].depth > points[1].depth ? points[0] : points[1];
+		} else {
+			return points[0];
+		}
+	}
 };
 
 struct Box2DShapePrimitive {
@@ -244,7 +253,7 @@ struct Box2DShapePrimitive {
 		b2ChainSegment chain_segment;
 	};
 
-	explicit Box2DShapePrimitive() = default;
+	Box2DShapePrimitive() = default;
 
 	Box2DShapePrimitive(const b2Capsule &p_shape) :
 			type(b2ShapeType::b2_capsuleShape), capsule(p_shape) {}
@@ -290,7 +299,7 @@ struct Box2DShapePrimitive {
 		}
 	}
 
-	b2ShapeProxy get_proxy() {
+	b2ShapeProxy get_proxy() const {
 		switch (type) {
 			case b2ShapeType::b2_capsuleShape:
 				return b2MakeProxy(&capsule.center1, 2, capsule.radius);
@@ -308,27 +317,33 @@ struct Box2DShapePrimitive {
 		}
 	}
 
-	Box2DShapePrimitive inflated(float p_radius) {
+	Box2DShapePrimitive inflated(float p_radius) const {
 		p_radius = to_box2d(p_radius);
+		Box2DShapePrimitive result;
+
 		switch (type) {
 			case b2ShapeType::b2_capsuleShape: {
-				capsule.radius += p_radius;
-				return Box2DShapePrimitive(capsule);
+				result = Box2DShapePrimitive(capsule);
+				result.capsule.radius += p_radius;
+				return result;
 			}
 			case b2ShapeType::b2_circleShape: {
-				circle.radius += p_radius;
-				return Box2DShapePrimitive(circle);
+				result = Box2DShapePrimitive(circle);
+				result.circle.radius += p_radius;
+				return result;
 			}
 			case b2ShapeType::b2_polygonShape: {
-				polygon.radius += p_radius;
-				return Box2DShapePrimitive(polygon);
+				result = Box2DShapePrimitive(polygon);
+				result.polygon.radius += p_radius;
+				return result;
 			}
 			case b2ShapeType::b2_segmentShape: {
 				b2Capsule capsule;
 				capsule.center1 = segment.point1;
 				capsule.center2 = segment.point2;
 				capsule.radius = p_radius;
-				return Box2DShapePrimitive(capsule);
+				result = Box2DShapePrimitive(capsule);
+				return result;
 			}
 			case b2ShapeType::b2_chainSegmentShape: {
 				ERR_FAIL_V_MSG(Box2DShapePrimitive(chain_segment), "Chain segments cannot have a radius");

@@ -11,7 +11,7 @@ float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distanc
 
 	float distance = p_unsafe_fraction * p_total_distance;
 	const float adjustment = 1.5f * to_godot(BOX2D_LINEAR_SLOP);
-	float adjusted_distance = MAX(0.0f, distance - adjustment);
+	float adjusted_distance = Math::max(0.0f, distance - adjustment);
 
 	return adjusted_distance / p_total_distance;
 }

@@ -23,11 +23,13 @@ void group_task_function(void *p_userdata, uint32_t worker_index) {
 void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t minRange, void *taskContext, void *userContext) {
 	Box2DSpace2D *space = static_cast<Box2DSpace2D *>(userContext);
 
-	int32_t task_count = CLAMP(itemCount / minRange, 1, space->get_max_tasks());
+	int32_t task_count = Math::clamp(itemCount / minRange, 1, space->get_max_tasks());
 
 	Box2DTaskData *task_data = new Box2DTaskData{ 0, taskContext, task, itemCount, task_count };
 
-	task_data->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, task_data, task_count, task_count, true);
+	static const String task_name("Box2D Task");
+
+	task_data->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, task_data, task_count, task_count, true, task_name);
 
 	return task_data;
 }
@@ -56,7 +58,7 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 	float depth;
 
 	if (manifold->pointCount == 2) {
-		depth = -to_godot(MIN(manifold->points[0].separation, manifold->points[1].separation));
+		depth = -to_godot(Math::min(manifold->points[0].separation, manifold->points[1].separation));
 	} else if (manifold->pointCount == 1) {
 		depth = -to_godot(manifold->points[0].separation);
 	} else {
@@ -71,7 +73,7 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 	if (shape_a->get_one_way_collision()) {
 		Vector2 one_way_normal = -(shape_a->get_transform() * body_a->get_transform()).columns[1].normalized();
 		Vector2 velocity = body_b->get_linear_velocity();
-		float max_allowed_depth = velocity.length() * MAX(velocity.normalized().dot(one_way_normal), 0.0) + shape_a->get_one_way_collision_margin();
+		float max_allowed_depth = velocity.length() * Math::max(velocity.normalized().dot(one_way_normal), 0.0f) + shape_a->get_one_way_collision_margin();
 		if (contact_normal.dot(one_way_normal) <= 0.0 || depth > max_allowed_depth) {
 			return false;
 		}
@@ -80,7 +82,7 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 	if (shape_b->get_one_way_collision()) {
 		Vector2 one_way_normal = -(shape_b->get_transform() * body_b->get_transform()).columns[1].normalized();
 		Vector2 velocity = body_a->get_linear_velocity();
-		float max_allowed_depth = velocity.length() * MAX(velocity.normalized().dot(one_way_normal), 0.0) + shape_b->get_one_way_collision_margin();
+		float max_allowed_depth = velocity.length() * Math::max(velocity.normalized().dot(one_way_normal), 0.0f) + shape_b->get_one_way_collision_margin();
 		if (contact_normal.dot(one_way_normal) <= 0.0 || depth > max_allowed_depth) {
 			return false;
 		}
@@ -90,11 +92,11 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 }
 
 float godot_friction_callback(float frictionA, int materialA, float frictionB, int materialB) {
-	return ABS(MIN(frictionA, frictionB));
+	return Math::abs(Math::min(frictionA, frictionB));
 }
 
 float godot_restitution_callback(float restitutionA, int materialA, float restitutionB, int materialB) {
-	return CLAMP(restitutionA + restitutionB, 0.0f, 1.0f);
+	return Math::clamp(restitutionA + restitutionB, 0.0f, 1.0f);
 }
 
 Box2DSpace2D::Box2DSpace2D() {
@@ -112,7 +114,7 @@ Box2DSpace2D::Box2DSpace2D() {
 		max_tasks = (max_thread_count < hardware_thread_count) ? max_thread_count : hardware_thread_count;
 	}
 
-	max_tasks = CLAMP(max_tasks, 0, 8);
+	max_tasks = Math::clamp(max_tasks, 0, 8);
 
 	b2WorldDef world_def = b2DefaultWorldDef();
 	world_def.gravity = to_box2d(default_gravity);
@@ -121,11 +123,11 @@ Box2DSpace2D::Box2DSpace2D() {
 	world_def.jointHertz = Box2DProjectSettings::get_joint_hertz();
 	world_def.jointDampingRatio = Box2DProjectSettings::get_joint_damping_ratio();
 
-	if (Box2DProjectSettings::get_friction_mixing_rule() == MIXING_RULE_GODOT) {
+	if (Box2DProjectSettings::get_friction_mixing_rule() == Box2DMixingRule::MIXING_RULE_GODOT) {
 		world_def.frictionCallback = godot_friction_callback;
 	}
 
-	if (Box2DProjectSettings::get_restitution_mixing_rule() == MIXING_RULE_GODOT) {
+	if (Box2DProjectSettings::get_restitution_mixing_rule() == Box2DMixingRule::MIXING_RULE_GODOT) {
 		world_def.restitutionCallback = godot_restitution_callback;
 	}
 

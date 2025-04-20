@@ -1,16 +1,16 @@
 #include "box2d_physics_server_2d.h"
 
-#include "../shapes/box2d_capsule_shape_2d.h"
-#include "../shapes/box2d_circle_shape_2d.h"
-#include "../shapes/box2d_concave_polygon_shape_2d.h"
-#include "../shapes/box2d_convex_polygon_shape_2d.h"
-#include "../shapes/box2d_rectangle_shape_2d.h"
-#include "../shapes/box2d_segment_shape_2d.h"
-#include "../shapes/box2d_separation_ray_shape_2d.h"
+#include "shapes/box2d_capsule_shape_2d.h"
+#include "shapes/box2d_circle_shape_2d.h"
+#include "shapes/box2d_concave_polygon_shape_2d.h"
+#include "shapes/box2d_convex_polygon_shape_2d.h"
+#include "shapes/box2d_rectangle_shape_2d.h"
+#include "shapes/box2d_segment_shape_2d.h"
+#include "shapes/box2d_separation_ray_shape_2d.h"
 
-#include "../joints/box2d_damped_spring_joint_2d.h"
-#include "../joints/box2d_groove_joint_2d.h"
-#include "../joints/box2d_pin_joint_2d.h"
+#include "joints/box2d_damped_spring_joint_2d.h"
+#include "joints/box2d_groove_joint_2d.h"
+#include "joints/box2d_pin_joint_2d.h"
 
 namespace {
 constexpr char PHYSICS_SERVER_NAME[] = "Box2DPhysicsServer2D";
@@ -43,7 +43,7 @@ Box2DPhysicsServer2D *Box2DPhysicsServer2D::get_singleton() {
 
 // Shape API
 RID Box2DPhysicsServer2D::_world_boundary_shape_create() {
-	ERR_PRINT_ONCE("Box2D: World boundary shape is not yet supported. This feature is planned for v3.1.");
+	ERR_PRINT_ONCE("Box2D: World boundary shape is not supported yet. This feature is planned for v3.2.");
 	return RID();
 }
 
@@ -133,7 +133,7 @@ RID Box2DPhysicsServer2D::_space_create() {
 	RID rid = space_owner.make_rid(space);
 	space->set_rid(rid);
 
-	RID default_area_rid = area_create();
+	RID default_area_rid = _area_create();
 	Box2DArea2D *default_area = area_owner.get_or_null(default_area_rid);
 	ERR_FAIL_NULL_V(default_area, RID());
 	space->set_default_area(default_area);
@@ -961,6 +961,8 @@ PhysicsDirectBodyState2D *Box2DPhysicsServer2D::_body_get_direct_state(const RID
 	return body->get_direct_state();
 }
 
+static thread_local LocalVector<CharacterCollideResult> character_collide_results;
+
 bool Box2DPhysicsServer2D::_body_test_motion(
 		const RID &p_body,
 		const Transform2D &p_from,
@@ -972,14 +974,11 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 	Box2DBody2D *body = body_owner.get_or_null(p_body);
 	ERR_FAIL_NULL_V(body, false);
 
-	static thread_local LocalVector<CharacterCollideResult> collide_results;
-	static thread_local LocalVector<CharacterCastResult> cast_results;
-
 	Transform2D transform = p_from;
 
 	Vector2 recovery = Vector2();
 
-	p_margin = MAX(p_margin, 0.0001f);
+	p_margin = Math::max(p_margin, 0.0001f);
 
 	// 1) Recover from overlaps
 	const int iterations = 8;
@@ -987,7 +986,7 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 	const float min_contact_depth = 0.5f * to_godot(BOX2D_LINEAR_SLOP);
 
 	for (int i = 0; i < iterations; i++) {
-		int count = body->character_collide(transform, p_margin, collide_results);
+		int count = body->character_collide(transform, p_margin, character_collide_results);
 
 		if (count == 0) {
 			break;
@@ -995,7 +994,7 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 
 		bool any_collided = false;
 
-		for (CharacterCollideResult &collision : collide_results) {
+		for (CharacterCollideResult &collision : character_collide_results) {
 			if (collision.depth < min_contact_depth) {
 				continue;
 			}
@@ -1019,10 +1018,20 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 		p_result->travel = (p_motion * safe_fraction) + recovery;
 		p_result->remainder = p_motion * (1 - safe_fraction);
 
+		Box2DBody2D *body = cast_result.other_shape->get_collision_object()->as_body();
+		if (body) {
+			p_result->collider_velocity = body->get_velocity_at_point(cast_result.point);
+		} else {
+			p_result->collider_velocity = Vector2();
+		}
+
 		p_result->collision_point = cast_result.point;
 		p_result->collision_normal = cast_result.normal;
-		p_result->collider_velocity = Vector2(); // placeholder
-		p_result->collision_depth = 0.0f; // placeholder
+
+		// move_and_collide uses depth to correct the cast result.
+		// Since Box2D queries are more precise, this depth value isn't as important and can be defaulted to zero.
+		p_result->collision_depth = 0.0f;
+
 		p_result->collision_safe_fraction = safe_fraction;
 		p_result->collision_unsafe_fraction = cast_result.unsafe_fraction;
 		p_result->collision_local_shape = cast_result.shape->get_index();
@@ -1296,20 +1305,26 @@ PhysicsServer2D::JointType Box2DPhysicsServer2D::_joint_get_type(const RID &p_jo
 void Box2DPhysicsServer2D::_free_rid(const RID &p_rid) {
 	if (shape_owner.owns(p_rid)) {
 		Box2DShape2D *shape = shape_owner.get_or_null(p_rid);
+		ERR_FAIL_NULL(shape);
 		shape_owner.free(p_rid);
 		memdelete(shape);
 	} else if (body_owner.owns(p_rid)) {
 		Box2DBody2D *body = body_owner.get_or_null(p_rid);
-		body->set_free();
+		ERR_FAIL_NULL(body);
+		body->free();
 		body_owner.free(p_rid);
 		bodies_to_delete.push_back(body);
+		//memdelete(body);
 	} else if (area_owner.owns(p_rid)) {
 		Box2DArea2D *area = area_owner.get_or_null(p_rid);
-		area->set_free();
+		ERR_FAIL_NULL(area);
+		area->free();
 		area_owner.free(p_rid);
+		//memdelete(area);
 		areas_to_delete.push_back(area);
 	} else if (space_owner.owns(p_rid)) {
 		Box2DSpace2D *space = space_owner.get_or_null(p_rid);
+		ERR_FAIL_NULL(space);
 		Box2DArea2D *default_area = space->get_default_area();
 		if (default_area) {
 			_free_rid(default_area->get_rid());

@@ -1,7 +1,7 @@
 
 #include "box2d_physics_direct_space_state_2d.h"
 #include "../bodies/box2d_body_2d.h"
-#include "../servers/box2d_physics_server_2d.h"
+#include "../box2d_physics_server_2d.h"
 #include "box2d_query.h"
 
 #include <godot_cpp/classes/physics_shape_query_parameters2d.hpp>
@@ -46,8 +46,8 @@ int32_t Box2DDirectSpaceState2D::_intersect_point(
 	SpaceStateQueryFilter query_filter(this, box2d_filter);
 
 	overlap_results.clear();
-	OverlapQueryCollector collector(p_max_results, query_filter, overlap_results);
 	b2ShapeProxy proxy = b2MakeProxy(&transform.p, 1, 0.0);
+	OverlapQueryCollector collector(p_max_results, query_filter, overlap_results);
 	b2World_OverlapShape(space->get_world_id(), &proxy, box2d_filter, overlap_callback, &collector);
 
 	for (ShapeOverlap overlap : collector.results) {
@@ -81,9 +81,10 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 
 	if (p_hit_from_inside) {
 		overlap_results.clear();
-		OverlapQueryCollector collector(1, query_filter, overlap_results);
+
 		b2Vec2 from = to_box2d(p_from);
 		b2ShapeProxy proxy = b2MakeProxy(&from, 1, 0.0);
+		OverlapQueryCollector collector(1, query_filter, overlap_results);
 		b2World_OverlapShape(space->get_world_id(), &proxy, box2d_filter, overlap_callback, &collector);
 
 		if (collector.count > 0) {
@@ -118,8 +119,8 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 
 	PhysicsServer2DExtensionRayResult &result = *p_result;
 
-	result.position = to_godot(hit.point);
-	result.normal = to_godot_normalized(hit.normal);
+	result.position = hit.point;
+	result.normal = hit.normal;
 	result.shape = hit.shape->get_index();
 	result.rid = hit.object->get_rid();
 	result.collider_id = hit.object->get_instance_id();
@@ -130,6 +131,8 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 	return true;
 }
 
+/// A shape cast that returns overlapped shapes
+/// Includes initial overlaps I think
 int32_t Box2DDirectSpaceState2D::_intersect_shape(
 		const RID &p_shape_rid,
 		const Transform2D &p_transform,
@@ -155,12 +158,13 @@ int32_t Box2DDirectSpaceState2D::_intersect_shape(
 	query.world = space->get_world_id();
 	query.max_results = p_max_results;
 	query.filter = query_filter;
-	query.transform = p_transform;
 	query.translation = p_motion;
 	query.find_nearest = false;
+	query.margin = p_margin;
+	query.ignore_intial_overlaps = false;
 
 	cast_results.clear();
-	shape->cast(query, cast_results);
+	shape->cast(query, p_transform, cast_results);
 
 	int count = 0;
 	for (CastHit &hit : cast_results) {
@@ -180,6 +184,8 @@ int32_t Box2DDirectSpaceState2D::_intersect_shape(
 	return count;
 }
 
+/// A shape cast that checks how far a shape can move without colliding.
+/// Ignores initial overlaps.
 bool Box2DDirectSpaceState2D::_cast_motion(
 		const RID &p_shape_rid,
 		const Transform2D &p_transform,
@@ -201,12 +207,13 @@ bool Box2DDirectSpaceState2D::_cast_motion(
 	query.world = space->get_world_id();
 	query.max_results = 1;
 	query.filter = query_filter;
-	query.transform = p_transform;
 	query.translation = p_motion;
 	query.find_nearest = true;
+	query.margin = p_margin;
+	query.ignore_intial_overlaps = true;
 
 	cast_results.clear();
-	int count = shape->cast(query, cast_results);
+	int count = shape->cast(query, p_transform, cast_results);
 
 	if (count == 0) {
 		*p_closest_safe = 1.0;
@@ -226,6 +233,8 @@ bool Box2DDirectSpaceState2D::_cast_motion(
 	return true;
 }
 
+/// A shape cast that returns collision points.
+/// Ignores initial overlaps in GodotPhysics but not mentioned in docs - they are enabled here.
 bool Box2DDirectSpaceState2D::_collide_shape(
 		const RID &p_shape_rid,
 		const Transform2D &p_transform,
@@ -248,26 +257,37 @@ bool Box2DDirectSpaceState2D::_collide_shape(
 	b2QueryFilter box2d_filter = make_filter(p_collision_mask, p_collide_with_bodies, p_collide_with_areas);
 	SpaceStateQueryFilter query_filter(this, box2d_filter);
 
-	OverlapQuery query;
+	CastQuery query;
 	query.world = space->get_world_id();
-	query.max_results = 1;
+	query.max_results = p_max_results;
 	query.filter = query_filter;
-	query.transform = p_transform;
+	query.translation = p_motion;
+	query.find_nearest = false;
+	query.margin = p_margin;
+	query.ignore_intial_overlaps = false;
 
-	overlap_results.clear();
-	int count = shape->overlap(query, overlap_results);
+	cast_results.clear();
+	int count = shape->cast(query, p_transform, cast_results);
+	cast_results.sort();
 
 	if (count == 0) {
 		return false;
 	}
 
 	Vector2 *points = static_cast<Vector2 *>(p_results);
-	int max_points = p_max_results * 2;
-	int point_count = 0;
 
-	return false;
+	int index = 0;
+	for (int i = 0; i < count; i++) {
+		points[index++] = cast_results[i].point + (cast_results[i].normal * p_margin);
+		points[index++] = cast_results[i].point;
+	}
+
+	*p_result_count = index / 2;
+
+	return true;
 }
 
+/// A shape cast that checks for initial overlaps. Returns the first collision found.
 bool Box2DDirectSpaceState2D::_rest_info(
 		const RID &p_shape_rid,
 		const Transform2D &p_transform,
@@ -284,24 +304,84 @@ bool Box2DDirectSpaceState2D::_rest_info(
 	b2QueryFilter box2d_filter = make_filter(p_collision_mask, p_collide_with_bodies, p_collide_with_areas);
 	SpaceStateQueryFilter query_filter(this, box2d_filter);
 
-	OverlapQuery query;
+	OverlapQuery overlap_query;
+	overlap_query.world = space->get_world_id();
+	overlap_query.max_results = 1;
+	overlap_query.filter = query_filter;
+	overlap_query.margin = p_margin;
+
+	overlap_results.clear();
+	int overlap_count = shape->overlap(overlap_query, p_transform, overlap_results);
+
+	if (overlap_count > 0) {
+		ShapeOverlap overlap = overlap_results[0];
+
+		ShapeCollideResult result = box2d_collide_shapes(
+				overlap.source_shape,
+				b2Transform_identity,
+				overlap.shape_id,
+				b2Body_GetTransform(overlap.object->get_body_id()));
+
+		if (result.point_count == 0) {
+			return false;
+		}
+
+		// Using the point with the highest depth results in flickering on certain surfaces.
+		// Simply using the first collision point makes this more consistent with Godot Physics.
+		ShapeCollidePoint point = result.points[0];
+
+		p_rest_info->point = point.point;
+		p_rest_info->normal = result.normal;
+		p_rest_info->rid = overlap.object->get_rid();
+		p_rest_info->collider_id = overlap.object->get_instance_id();
+		p_rest_info->shape = overlap.shape->get_index();
+
+		Box2DBody2D *body = overlap.object->as_body();
+		if (body) {
+			p_rest_info->linear_velocity = body->get_velocity_at_point(p_rest_info->point);
+		} else {
+			p_rest_info->linear_velocity = Vector2();
+		}
+
+		return true;
+	}
+
+	CastQuery query;
 	query.world = space->get_world_id();
 	query.max_results = 1;
 	query.filter = query_filter;
-	query.transform = p_transform;
+	query.translation = p_motion;
+	query.find_nearest = true;
+	query.margin = p_margin;
 
-	overlap_results.clear();
-	int count = shape->overlap(query, overlap_results);
+	cast_results.clear();
+	int cast_count = shape->cast(query, p_transform, cast_results);
 
-	if (count == 0) {
-		return false;
+	if (cast_count > 0) {
+		int index = find_nearest_cast_hit(cast_results);
+		ERR_FAIL_COND_V(index == -1, 0);
+		CastHit &hit = cast_results[index];
+
+		p_rest_info->point = hit.point;
+		p_rest_info->normal = hit.normal;
+		p_rest_info->rid = hit.object->get_rid();
+		p_rest_info->collider_id = hit.object->get_instance_id();
+		p_rest_info->shape = hit.shape->get_index();
+
+		Box2DBody2D *body = hit.object->as_body();
+		if (body) {
+			p_rest_info->linear_velocity = body->get_velocity_at_point(p_rest_info->point);
+		} else {
+			p_rest_info->linear_velocity = Vector2();
+		}
+
+		return true;
 	}
-
-	// TODO: implement
 
 	return false;
 }
 
+/// Custom shape cast that returns both collisions and travel distance.
 Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParameters2D> &p_parameters) {
 	ERR_FAIL_COND_V(!space, {});
 	PhysicsShapeQueryParameters2D *params = p_parameters.ptr();
@@ -322,12 +402,12 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 	query.world = space->get_world_id();
 	query.max_results = 1;
 	query.filter = query_filter;
-	query.transform = transform;
 	query.translation = motion;
 	query.find_nearest = true;
+	query.margin = params->get_margin();
 
 	cast_results.clear();
-	int count = shape->cast(query, cast_results);
+	int count = shape->cast(query, transform, cast_results);
 
 	if (count == 0) {
 		return {};
@@ -340,9 +420,9 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 	ERR_FAIL_COND_V(hit.shape->get_index() < 0, {});
 
 	Dictionary result;
-	result["point"] = to_godot(hit.point);
+	result["point"] = hit.point;
 	result["destination"] = transform.get_origin() + (hit.fraction * motion);
-	result["normal"] = to_godot_normalized(hit.normal);
+	result["normal"] = hit.normal;
 	result["shape"] = hit.shape->get_index();
 	result["rid"] = hit.object->get_rid();
 	ObjectID id = hit.object->get_instance_id();
@@ -354,6 +434,7 @@ Dictionary Box2DDirectSpaceState2D::cast_shape(const Ref<PhysicsShapeQueryParame
 	return result;
 }
 
+/// Custom shape cast that returns both collisions and travel distance for multiple shapes.
 TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 		const Ref<PhysicsShapeQueryParameters2D> &p_parameters,
 		int32_t p_max_results) {
@@ -380,12 +461,13 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 	query.world = space->get_world_id();
 	query.max_results = p_max_results;
 	query.filter = query_filter;
-	query.transform = transform;
 	query.translation = motion;
 	query.find_nearest = false;
+	query.margin = params->get_margin();
 
 	cast_results.clear();
-	int count = shape->cast(query, cast_results);
+	int count = shape->cast(query, transform, cast_results);
+	cast_results.sort();
 
 	if (count == 0) {
 		return {};
@@ -395,9 +477,9 @@ TypedArray<Dictionary> Box2DDirectSpaceState2D::cast_shape_all(
 
 	for (CastHit &hit : cast_results) {
 		Dictionary result;
-		result["point"] = to_godot(hit.point);
+		result["point"] = hit.point;
 		result["destination"] = transform.get_origin() + (hit.fraction * motion);
-		result["normal"] = to_godot_normalized(hit.normal);
+		result["normal"] = hit.normal;
 		result["shape"] = hit.shape->get_index();
 		result["rid"] = hit.object->get_rid();
 		ObjectID id = hit.object->get_instance_id();

@@ -72,6 +72,7 @@ public:
 	void set_linear_velocity(const Vector2 &p_velocity);
 	Vector2 get_linear_velocity() const;
 	Vector2 get_velocity_at_local_point(const Vector2 &p_point) const;
+	Vector2 get_velocity_at_point(const Vector2 &p_point) const;
 	void set_angular_velocity(float p_velocity);
 	float get_angular_velocity() const;
 	void set_sleep_state(bool p_sleeping);
@@ -144,8 +145,8 @@ public:
 	AreaOverrideAccumulator area_overrides;
 
 protected:
-	void body_created() override;
-	void body_destroyed() override;
+	void on_added_to_space() override;
+	void on_remove_from_space() override;
 
 	uint64_t modify_mask_bits(uint32_t p_mask) override;
 

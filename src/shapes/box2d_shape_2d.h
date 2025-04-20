@@ -20,8 +20,8 @@ public:
 	virtual void add_to_body(Box2DShapeInstance *p_instance) const = 0;
 	virtual void remove_from_body(Box2DShapeInstance *p_instance) const;
 
-	virtual int cast(const CastQuery &p_query, LocalVector<CastHit> &p_results) const = 0;
-	virtual int overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const = 0;
+	virtual int cast(const CastQuery &p_query, const Transform2D &p_transform, LocalVector<CastHit> &p_results) const = 0;
+	virtual int overlap(const OverlapQuery &p_query, const Transform2D &p_transform, LocalVector<ShapeOverlap> &p_results) const = 0;
 
 	virtual PhysicsServer2D::ShapeType get_type() const = 0;
 

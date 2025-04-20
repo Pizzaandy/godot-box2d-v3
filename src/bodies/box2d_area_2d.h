@@ -57,6 +57,7 @@ public:
 	};
 
 	Box2DArea2D();
+	~Box2DArea2D();
 
 	void apply_overrides();
 
@@ -124,8 +125,8 @@ public:
 	void shapes_changed() override;
 
 protected:
-	void body_created() override;
-	void body_destroyed() override;
+	void on_added_to_space() override;
+	void on_remove_from_space() override;
 
 	// `overlaps` is a HashMap to account for redundant sensor events from compound shapes.
 	// value = number of simultaneous overlap events between two shape instances

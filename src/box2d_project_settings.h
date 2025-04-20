@@ -4,7 +4,7 @@
 
 using namespace godot;
 
-enum MixingRule : int32_t {
+enum Box2DMixingRule : int32_t {
 	MIXING_RULE_GODOT,
 	MIXING_RULE_BOX2D,
 	MIXING_RULE_MAX,
@@ -28,9 +28,9 @@ public:
 
 	static float get_joint_damping_ratio();
 
-	static MixingRule get_friction_mixing_rule();
+	static Box2DMixingRule get_friction_mixing_rule();
 
-	static MixingRule get_restitution_mixing_rule();
+	static Box2DMixingRule get_restitution_mixing_rule();
 
 	static bool get_presolve_enabled();
 };

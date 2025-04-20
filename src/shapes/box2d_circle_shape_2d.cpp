@@ -11,27 +11,20 @@ void Box2DCircleShape2D::add_to_body(Box2DShapeInstance *p_instance) const {
 	p_instance->add_shape_id(id);
 }
 
-int Box2DCircleShape2D::cast(const CastQuery &p_query, LocalVector<CastHit> &p_results) const {
+int Box2DCircleShape2D::cast(const CastQuery &p_query, const Transform2D &p_transform, LocalVector<CastHit> &p_results) const {
 	b2Circle shape;
-	if (!make_circle(p_query.transform, data, shape)) {
+	if (!make_circle(p_transform, data, shape)) {
 		return 0;
 	}
-	CastQueryCollector collector(p_query, p_results);
-
-	b2ShapeProxy proxy = Box2DShapePrimitive(shape).get_proxy();
-	b2World_CastShape(p_query.world, &proxy, to_box2d(p_query.translation), p_query.filter.filter, cast_callback, &collector);
-	return collector.count;
+	return box2d_cast_shape(shape, p_query, p_results);
 }
 
-int Box2DCircleShape2D::overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const {
+int Box2DCircleShape2D::overlap(const OverlapQuery &p_query, const Transform2D &p_transform, LocalVector<ShapeOverlap> &p_results) const {
 	b2Circle shape;
-	if (!make_circle(p_query.transform, data, shape)) {
+	if (!make_circle(p_transform, data, shape)) {
 		return 0;
 	}
-	OverlapQueryCollector collector(p_query, p_results);
-	b2ShapeProxy proxy = Box2DShapePrimitive(shape).get_proxy();
-	b2World_OverlapShape(p_query.world, &proxy, p_query.filter.filter, overlap_callback, &collector);
-	return collector.count;
+	return box2d_overlap_shape(shape, p_query, p_results);
 }
 
 bool Box2DCircleShape2D::make_circle(const Transform2D &p_transform, const Variant &p_data, b2Circle &p_circle) {

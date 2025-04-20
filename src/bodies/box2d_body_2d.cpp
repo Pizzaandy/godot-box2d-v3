@@ -215,6 +215,11 @@ Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
 	return to_godot(b2Body_GetLocalPointVelocity(body_id, to_box2d(p_point)));
 }
 
+Vector2 Box2DBody2D::get_velocity_at_point(const Vector2 &p_point) const {
+	ERR_FAIL_COND_V(!in_space(), Vector2());
+	return to_godot(b2Body_GetWorldPointVelocity(body_id, to_box2d(p_point)));
+}
+
 void Box2DBody2D::set_angular_velocity(float p_velocity) {
 	if (!in_space()) {
 		initial_angular_velocity = p_velocity;
@@ -251,20 +256,22 @@ void Box2DBody2D::set_sleep_enabled(bool p_can_sleep) {
 	b2Body_EnableSleep(body_id, p_can_sleep);
 }
 
+static void set_rotation_and_position(Transform2D &p_transform, float p_rot, Vector2 p_pos) {
+	TracyZoneScoped("Box2DBody2D::sync_state::set_rotation_and_position");
+	p_transform = Transform2D(p_rot, p_transform.get_scale(), p_transform.get_skew(), p_pos);
+}
+
 void Box2DBody2D::sync_state(const b2Transform &p_transform, bool p_fell_asleep) {
+	TracyZoneScoped("Box2DBody2D::sync_state");
+
 	if (!in_space()) {
 		return;
 	}
 
 	queried_contacts = false;
-
 	sleeping = p_fell_asleep;
 
-	current_transform = Transform2D(
-			b2Rot_GetAngle(p_transform.q),
-			current_transform.get_scale(),
-			current_transform.get_skew(),
-			to_godot(p_transform.p));
+	set_rotation_and_position(current_transform, b2Rot_GetAngle(p_transform.q), to_godot(p_transform.p));
 
 	if (body_state_callback.is_valid()) {
 		TracyZoneScoped("Body State Callback");
@@ -629,7 +636,7 @@ void Box2DBody2D::shapes_changed() {
 	update_mass();
 }
 
-void Box2DBody2D::body_created() {
+void Box2DBody2D::on_added_to_space() {
 	// Bodies start asleep if their state is set with body_set_state before adding them to a space.
 	// After creation, reset the sleep state to the default.
 	body_def.isAwake = true;
@@ -651,7 +658,7 @@ void Box2DBody2D::body_created() {
 	update_angular_damping();
 }
 
-void Box2DBody2D::body_destroyed() {
+void Box2DBody2D::on_remove_from_space() {
 	if (in_constant_forces_list) {
 		space->remove_constant_force_body(this);
 		in_constant_forces_list = false;

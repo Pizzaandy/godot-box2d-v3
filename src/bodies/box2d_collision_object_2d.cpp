@@ -9,19 +9,9 @@ Box2DCollisionObject2D::Box2DCollisionObject2D(Type p_type) :
 	shape_def.enableSensorEvents = true;
 }
 
-void Box2DCollisionObject2D::set_free() {
+void Box2DCollisionObject2D::free() {
 	_is_freed = true;
 	set_space(nullptr);
-}
-
-void Box2DCollisionObject2D::destroy_body() {
-	if (b2Body_IsValid(body_id)) {
-		b2DestroyBody(body_id);
-		body_destroyed();
-	}
-
-	space = nullptr;
-	body_id = b2_nullBodyId;
 }
 
 void Box2DCollisionObject2D::set_space(Box2DSpace2D *p_space) {
@@ -29,10 +19,16 @@ void Box2DCollisionObject2D::set_space(Box2DSpace2D *p_space) {
 		return;
 	}
 
-	destroy_body();
+	if (b2Body_IsValid(body_id)) {
+		b2DestroyBody(body_id);
+	}
+	body_id = b2_nullBodyId;
+
+	if (space) {
+		on_remove_from_space();
+	}
 
 	space = p_space;
-
 	if (!space) {
 		return;
 	}
@@ -44,11 +40,12 @@ void Box2DCollisionObject2D::set_space(Box2DSpace2D *p_space) {
 	body_def.rotation = b2MakeRot(current_transform.get_rotation());
 
 	body_def.userData = this;
+
 	body_id = b2CreateBody(space->get_world_id(), &body_def);
 
 	rebuild_all_shapes();
 
-	body_created();
+	on_added_to_space();
 }
 
 void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
@@ -244,7 +241,6 @@ void Box2DCollisionObject2D::shape_updated(Box2DShape2D *p_shape) {
 void Box2DCollisionObject2D::remove_shape(int p_index) {
 	ERR_FAIL_INDEX(p_index, shapes.size());
 
-	on_shape_destroy(shapes[p_index]);
 	shapes.remove_at(p_index);
 
 	reindex_all_shapes();
@@ -257,7 +253,6 @@ void Box2DCollisionObject2D::remove_shape(Box2DShape2D *p_shape) {
 
 	for (int i = 0; i < shapes.size(); i++) {
 		if (shapes[i].get_shape() == p_shape) {
-			on_shape_destroy(shapes[i]);
 			shapes.remove_at(i);
 			i--;
 		}
@@ -317,7 +312,7 @@ bool character_overlap_callback(b2ShapeId shapeId, void *context) {
 	float depth = 0.0f;
 
 	if (result.point_count == 2) {
-		depth = MAX(result.points[0].depth, result.points[1].depth);
+		depth = Math::max(result.points[0].depth, result.points[1].depth);
 	} else if (result.point_count == 1) {
 		depth = result.points[0].depth;
 	} else {

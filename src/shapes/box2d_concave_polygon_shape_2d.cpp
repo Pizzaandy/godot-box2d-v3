@@ -21,7 +21,7 @@ void Box2DConcavePolygonShape2D::add_to_body(Box2DShapeInstance *p_instance) con
 	}
 }
 
-int Box2DConcavePolygonShape2D::overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const {
+int Box2DConcavePolygonShape2D::overlap(const OverlapQuery &p_query, const Transform2D &p_transform, LocalVector<ShapeOverlap> &p_results) const {
 	Variant::Type type = data.get_type();
 	ERR_FAIL_COND_V(type != Variant::PACKED_VECTOR2_ARRAY, 0);
 	PackedVector2Array arr = data;
@@ -30,7 +30,7 @@ int Box2DConcavePolygonShape2D::overlap(const OverlapQuery &p_query, LocalVector
 	OverlapQuery query = p_query;
 	LocalVector<ShapeOverlap> results;
 
-	Transform2D shape_transform = p_query.transform;
+	Transform2D shape_transform = p_transform;
 	b2Capsule capsule;
 	capsule.radius = 0.0;
 
@@ -38,10 +38,8 @@ int Box2DConcavePolygonShape2D::overlap(const OverlapQuery &p_query, LocalVector
 		capsule.center1 = to_box2d(shape_transform.xform(arr[i]));
 		capsule.center2 = to_box2d(shape_transform.xform(arr[i + 1]));
 
-		OverlapQueryCollector collector(query, results);
-		b2ShapeProxy proxy = Box2DShapePrimitive(capsule).get_proxy();
-		b2World_OverlapShape(p_query.world, &proxy, p_query.filter.filter, overlap_callback, &collector);
-		query.max_results -= collector.count;
+		int count = box2d_overlap_shape(capsule, query, results);
+		query.max_results -= count;
 		if (query.max_results <= 0) {
 			break;
 		}

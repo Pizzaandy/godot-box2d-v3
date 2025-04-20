@@ -14,24 +14,23 @@ Box2DArea2D::Box2DArea2D() :
 	set_collision_mask(default_bitmask);
 }
 
-void Box2DArea2D::body_created() {
+Box2DArea2D::~Box2DArea2D() {
+	if (is_default_area()) {
+		get_space()->set_default_area(nullptr);
+	}
+}
+
+void Box2DArea2D::on_added_to_space() {
 	update_area_step_list();
 }
 
-void Box2DArea2D::body_destroyed() {
+void Box2DArea2D::on_remove_from_space() {
 	if (in_area_step_list) {
 		space->remove_active_area(this);
 		in_area_step_list = false;
 	}
 
 	// Areas do not emit events when they are freed - consistent with Godot Physics
-
-	// const auto overlaps_copy = overlaps;
-	// for (const auto &[shape_pair, data] : overlaps_copy) {
-	// 	for (int i = 0; i < data.count; i++) {
-	// 		remove_overlap(shape_pair.other_shape, shape_pair.self_shape);
-	// 	}
-	// }
 }
 
 void Box2DArea2D::shapes_changed() {

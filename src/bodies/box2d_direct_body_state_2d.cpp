@@ -1,5 +1,5 @@
 #include "box2d_direct_body_state_2d.h"
-#include "../servers/box2d_physics_server_2d.h"
+#include "../box2d_physics_server_2d.h"
 #include "../spaces/box2d_physics_direct_space_state_2d.h"
 #include "../spaces/box2d_query.h"
 

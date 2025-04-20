@@ -11,15 +11,12 @@ void Box2DSegmentShape2D::add_to_body(Box2DShapeInstance *p_instance) const {
 	p_instance->add_shape_id(id);
 }
 
-int Box2DSegmentShape2D::overlap(const OverlapQuery &p_query, LocalVector<ShapeOverlap> &p_results) const {
+int Box2DSegmentShape2D::overlap(const OverlapQuery &p_query, const Transform2D &p_transform, LocalVector<ShapeOverlap> &p_results) const {
 	b2Capsule shape;
-	if (!make_capsule_segment(p_query.transform, data, shape)) {
+	if (!make_capsule_segment(p_transform, data, shape)) {
 		return 0;
 	}
-	OverlapQueryCollector collector(p_query, p_results);
-	b2ShapeProxy proxy = Box2DShapePrimitive(shape).get_proxy();
-	b2World_OverlapShape(p_query.world, &proxy, p_query.filter.filter, overlap_callback, &collector);
-	return collector.count;
+	return box2d_overlap_shape(shape, p_query, p_results);
 }
 
 bool Box2DSegmentShape2D::make_segment(const Transform2D &p_transform, const Variant &p_data, b2Segment &p_segment) {

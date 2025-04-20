@@ -32,10 +32,8 @@ public:
 	const Box2DArea2D *as_area() const { return is_area() ? reinterpret_cast<const Box2DArea2D *>(this) : nullptr; }
 	const Box2DBody2D *as_body() const { return is_body() ? reinterpret_cast<const Box2DBody2D *>(this) : nullptr; }
 
-	void set_free();
+	void free();
 	bool is_freed() const { return _is_freed; }
-
-	void destroy_body();
 
 	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }
@@ -109,10 +107,10 @@ protected:
 	virtual uint64_t modify_mask_bits(uint32_t p_mask) { return p_mask; }
 	virtual uint64_t modify_layer_bits(uint32_t p_layer) { return p_layer; }
 
-	virtual void body_created() {};
-	virtual void body_destroyed() {};
-	virtual void on_shape_destroy(Box2DShapeInstance &p_shape) {};
+	virtual void on_added_to_space() {};
+	virtual void on_remove_from_space() {};
 
+	Type type = Type::RIGIDBODY;
 	Variant user_data = Variant();
 
 	Box2DSpace2D *space = nullptr;
@@ -127,6 +125,7 @@ protected:
 	b2ShapeDef shape_def = b2DefaultShapeDef();
 	b2BodyId body_id = b2_nullBodyId;
 
+	uint16_t generation = 0;
+
 	bool _is_freed = false;
-	Type type = Type::RIGIDBODY;
 };

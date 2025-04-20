@@ -5,13 +5,13 @@
 #include <godot_cpp/templates/hash_set.hpp>
 #include <godot_cpp/templates/rid_owner.hpp>
 
-#include "../bodies/box2d_area_2d.h"
-#include "../bodies/box2d_body_2d.h"
-#include "../joints/box2d_joint_2d.h"
-#include "../spaces/box2d_space_2d.h"
+#include "bodies/box2d_area_2d.h"
+#include "bodies/box2d_body_2d.h"
+#include "joints/box2d_joint_2d.h"
+#include "spaces/box2d_space_2d.h"
 
-#include "../box2d_globals.h"
-#include "../box2d_project_settings.h"
+#include "box2d_globals.h"
+#include "box2d_project_settings.h"
 
 using namespace godot;
 
