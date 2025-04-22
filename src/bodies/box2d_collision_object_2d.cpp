@@ -309,15 +309,11 @@ bool character_overlap_callback(b2ShapeId shapeId, void *context) {
 
 	ShapeCollideResult result = box2d_collide_shapes(ctx->shape, ctx->transform, shapeId, b2Body_GetTransform(other_body_id));
 
-	float depth = 0.0f;
-
-	if (result.point_count == 2) {
-		depth = Math::max(result.points[0].depth, result.points[1].depth);
-	} else if (result.point_count == 1) {
-		depth = result.points[0].depth;
-	} else {
+	if (result.point_count == 0) {
 		return true;
 	}
+
+	float depth = result.get_deepest_point().depth;
 
 	ctx->results.push_back(CharacterCollideResult{ result.normal, depth, ctx->shape_id, this_shape, shapeId, other_shape });
 
@@ -371,13 +367,28 @@ static float character_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 nor
 		return -1.0f;
 	}
 
-	if (ctx->motion.dot(to_godot_normalized(normal)) > -2.0f * CMP_EPSILON) {
+	Vector2 godot_normal = to_godot_normalized(normal);
+
+	// ignore non-blocking hits
+	if (ctx->motion.dot(godot_normal) > -2.0f * CMP_EPSILON) {
 		return -1.0f;
+	}
+
+	if (other_shape->get_one_way_collision()) {
+		b2Transform xfa = ctx->transform;
+		xfa.p += fraction * to_box2d(ctx->motion);
+		ShapeCollideResult collision = box2d_collide_shapes(ctx->shape_id, xfa, shapeId, b2Body_GetTransform(other_body_id));
+		if (collision.point_count == 0) {
+			return -1.0f;
+		}
+		if (other_shape->should_filter_one_way_collision(ctx->motion, collision.normal, collision.get_deepest_point().depth)) {
+			return -1.0f;
+		}
 	}
 
 	ctx->result.hit = true;
 	ctx->result.point = to_godot(point);
-	ctx->result.normal = to_godot_normalized(normal);
+	ctx->result.normal = godot_normal;
 	ctx->result.unsafe_fraction = fraction;
 	ctx->result.shape_id = ctx->shape_id;
 	ctx->result.shape = this_shape;

@@ -56,3 +56,20 @@ b2ShapeDef Box2DShapeInstance::get_shape_def() {
 	shape_def.userData = this;
 	return shape_def;
 }
+
+bool Box2DShapeInstance::should_filter_one_way_collision(const Vector2 &p_motion, const Vector2 &p_normal, float p_depth) const {
+	ERR_FAIL_COND_V(!shape, false);
+	ERR_FAIL_COND_V(!object, false);
+
+	if (!get_one_way_collision()) {
+		return false;
+	}
+
+	Vector2 one_way_normal = -(get_transform() * get_collision_object()->get_transform()).columns[1].normalized();
+	float max_allowed_depth = p_motion.length() * Math::max(p_motion.normalized().dot(one_way_normal), real_t(0.0f)) + get_one_way_collision_margin();
+	if (p_normal.dot(one_way_normal) <= 0.0f || p_depth > max_allowed_depth) {
+		return true;
+	}
+
+	return false;
+}

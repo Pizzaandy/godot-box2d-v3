@@ -36,6 +36,8 @@ public:
 	void set_one_way_collision_margin(float p_margin) { one_way_collision_margin = p_margin; }
 	float get_one_way_collision_margin() const { return one_way_collision_margin; }
 
+	bool should_filter_one_way_collision(const Vector2 &p_motion, const Vector2 &p_normal, float p_depth) const;
+
 	Transform2D get_global_transform() const;
 	Transform2D get_global_transform_with_parent_transform(const Transform2D &p_parent_transform) const;
 	b2ShapeDef get_shape_def();

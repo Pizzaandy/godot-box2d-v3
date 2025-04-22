@@ -326,7 +326,7 @@ bool Box2DDirectSpaceState2D::_rest_info(
 			return false;
 		}
 
-		// Using the point with the highest depth results in flickering on certain surfaces.
+		// Using the point with the highest depth results in flickering on some surfaces.
 		// Simply using the first collision point makes this more consistent with Godot Physics.
 		ShapeCollidePoint point = result.points[0];
 

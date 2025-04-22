@@ -998,6 +998,12 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 			if (collision.depth < min_contact_depth) {
 				continue;
 			}
+
+			Box2DShapeInstance *shape = collision.other_shape;
+			if (shape->should_filter_one_way_collision(p_motion, collision.normal, collision.depth)) {
+				continue;
+			}
+
 			any_collided = true;
 			Vector2 recover_step = collision.normal * (collision.depth * recover_ratio);
 			recovery += recover_step;
