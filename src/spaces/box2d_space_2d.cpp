@@ -55,7 +55,7 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 		return false;
 	}
 
-	float depth;
+	float depth = 0.0f;
 
 	if (manifold->pointCount == 2) {
 		depth = -to_godot(Math::min(manifold->points[0].separation, manifold->points[1].separation));
@@ -70,11 +70,8 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 
 	Vector2 contact_normal = to_godot_normalized(manifold->normal);
 
-	if (shape_a->should_filter_one_way_collision(body_b->get_linear_velocity(), contact_normal, depth)) {
-		return false;
-	}
-
-	if (shape_b->should_filter_one_way_collision(body_a->get_linear_velocity(), contact_normal, depth)) {
+	if (shape_a->should_filter_one_way_collision(body_b->get_linear_velocity(), contact_normal, depth) ||
+			shape_b->should_filter_one_way_collision(body_a->get_linear_velocity(), contact_normal, depth)) {
 		return false;
 	}
 
