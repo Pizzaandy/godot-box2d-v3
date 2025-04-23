@@ -7,12 +7,19 @@ Godot Box2D v3 is a high-performance physics extension for Godot 4.3+ that imple
 ## Features
 
 - Improved stability and performance, especially for large piles of bodies
-- Faster, more accurate shape cast queries and character movement (e.g. `move_and_collide`, `move_and_slide`)
+- Faster, more accurate queries and character movement (e.g. `move_and_collide`, `move_and_slide`)
 - Continuous collision detection (CCD) enabled by default for dynamic vs static collisions
-- [Cross-platform determinism](https://box2d.org/posts/2024/08/determinism/) (needs testing)
 - Additional APIs to make the physics server easier and faster to use (docs coming soon)
 
-## Unsupported Features
-All Physics APIs are implemented, but the following features do not have feature parity with Godot Physics:
-- `WorldBoundaryShape2D` (planned for a future version of Box2D)
-- `SeparationRayShape2D`
+## Unsupported Features / Limitations
+Most of the Physics API has been implemented, but the following features do not have parity with Godot Physics:
+- `WorldBoundaryShape2D` unsupported (planned for a future version of Box2D)
+- `SeparationRayShape2D` unsupported
+- Space parameters (`space_set_param`) unsupported because Box2D v3 uses a different solver
+- "Cast Ray" CCD mode (`CCDMode::CCD_MODE_CAST_RAY`) unsupported
+- Contacts are not visible when `Visible Collision Shapes` is enabled
+- Convex polygons currently cannot have more than 8 vertices (does not affect `CollisionPolygon2D`)
+
+## Planned Features
+- [Cross-platform determinism](https://box2d.org/posts/2024/08/determinism/)
+- Serialization + Rollback
