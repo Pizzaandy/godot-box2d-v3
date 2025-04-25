@@ -18,7 +18,8 @@ Most of the Physics API has been implemented, but the following features do not 
 - Space parameters (`space_set_param`) unsupported because Box2D v3 uses a different solver
 - "Cast Ray" CCD mode (`CCDMode::CCD_MODE_CAST_RAY`) unsupported
 - Contacts are not visible when `Visible Collision Shapes` is enabled
-- Convex polygons currently cannot have more than 8 vertices (does not affect `CollisionPolygon2D`)
+- Convex polygons cannot have more than 8 vertices (does not affect `CollisionPolygon2D`)
+- `constant_linear_velocity` and `constant_angular_velocity` unsupported on static bodies
 
 ## Planned Features
 - [Cross-platform determinism](https://box2d.org/posts/2024/08/determinism/)
