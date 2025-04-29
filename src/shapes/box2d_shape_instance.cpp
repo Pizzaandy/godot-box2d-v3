@@ -61,7 +61,7 @@ bool Box2DShapeInstance::should_filter_one_way_collision(const Vector2 &p_motion
 	ERR_FAIL_COND_V(!shape, false);
 	ERR_FAIL_COND_V(!object, false);
 
-	if (!get_one_way_collision()) {
+	if (!has_one_way_collision()) {
 		return false;
 	}
 

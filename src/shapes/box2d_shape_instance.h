@@ -31,7 +31,7 @@ public:
 	bool get_disabled() const { return disabled; }
 
 	void set_one_way_collision(bool p_one_way) { one_way_collision = p_one_way; }
-	_FORCE_INLINE_ bool get_one_way_collision() const { return one_way_collision; }
+	_FORCE_INLINE_ bool has_one_way_collision() const { return one_way_collision; }
 
 	void set_one_way_collision_margin(float p_margin) { one_way_collision_margin = p_margin; }
 	float get_one_way_collision_margin() const { return one_way_collision_margin; }

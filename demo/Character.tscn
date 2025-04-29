@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://d4lt8s00uk8e7"]
+[gd_scene load_steps=12 format=3 uid="uid://d4lt8s00uk8e7"]
 
 [ext_resource type="Script" path="res://scripts/override_timescale.gd" id="1_x1558"]
 [ext_resource type="Script" path="res://scripts/body_destroyer.gd" id="3_bghif"]
 [ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="4_3gho3"]
 [ext_resource type="Script" path="res://scripts/default_character_2d.gd" id="4_5ouet"]
+[ext_resource type="Script" path="res://scripts/body_animator.gd" id="5_o5wcv"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_k0kwk"]
 radius = 99.5038
@@ -20,7 +21,11 @@ a = Vector2(-100.012, -1.24411)
 b = Vector2(155.988, -2.17911)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jl1cf"]
-size = Vector2(76, 20)
+size = Vector2(103, 67)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hdxr1"]
+radius = 12.0
+height = 164.0
 
 [node name="Areas" type="Node2D"]
 script = ExtResource("1_x1558")
@@ -86,8 +91,16 @@ shape = SubResource("SegmentShape2D_ttn6k")
 one_way_collision = true
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
-position = Vector2(813, 201)
+position = Vector2(644, 113)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
-position = Vector2(-29, -3)
+position = Vector2(-42.5, 14.5)
 shape = SubResource("RectangleShape2D_jl1cf")
+
+[node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
+position = Vector2(516, 238)
+script = ExtResource("5_o5wcv")
+period_seconds = 8.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
+shape = SubResource("CapsuleShape2D_hdxr1")

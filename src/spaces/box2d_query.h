@@ -80,6 +80,7 @@ struct ShapeOverlap {
 };
 
 struct CharacterCollideResult {
+	Vector2 point = Vector2();
 	Vector2 normal = Vector2();
 	float depth = 0.0f;
 	b2ShapeId shape_id = b2_nullShapeId;

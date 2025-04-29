@@ -63,6 +63,7 @@ public:
 	void update_angular_damping();
 
 	void apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position);
+	void apply_impulse_global_point(const Vector2 &p_impulse, const Vector2 &p_position);
 	void apply_impulse_center(const Vector2 &p_impulse);
 	void apply_torque(float p_torque);
 	void apply_torque_impulse(float p_impulse);
@@ -75,6 +76,16 @@ public:
 	Vector2 get_velocity_at_point(const Vector2 &p_point) const;
 	void set_angular_velocity(float p_velocity);
 	float get_angular_velocity() const;
+
+	_FORCE_INLINE_ bool has_static_velocity() const {
+		return mode == PhysicsServer2D::BodyMode::BODY_MODE_STATIC && use_static_velocities;
+	}
+
+	Vector2 get_static_linear_velocity() const { return static_linear_velocity; }
+	float get_static_angular_velocity() const { return static_angular_velocity; }
+
+	void update_static_velocities();
+
 	void set_sleep_state(bool p_sleeping);
 	bool is_sleeping() { return sleeping; }
 	void set_sleep_enabled(bool p_can_sleep);
@@ -102,7 +113,7 @@ public:
 	void add_collision_exception(RID p_rid);
 	void remove_collision_exception(RID p_rid);
 	TypedArray<RID> get_collision_exceptions() const;
-	bool is_collision_exception(RID p_rid) const { return exceptions.has(p_rid); }
+	_FORCE_INLINE_ bool is_collision_exception(RID p_rid) const { return exceptions.has(p_rid); }
 
 	float get_character_collision_priority() const { return character_collision_priority; }
 	void set_character_collision_priority(float p_priority) { character_collision_priority = p_priority; }
@@ -112,7 +123,7 @@ public:
 
 	Box2DDirectBodyState2D *get_direct_state();
 
-	void set_state_sync_callback(const Callable &p_callable) { body_state_callback = p_callable; }
+	void set_state_sync_callback(const Callable &p_callable);
 	void set_force_integration_callback(const Callable &p_callable, const Variant &p_user_data);
 
 	void set_linear_damp_mode(PhysicsServer2D::BodyDampMode p_mode);
@@ -166,6 +177,11 @@ protected:
 	Vector2 initial_linear_velocity = Vector2();
 	float initial_angular_velocity = 0.0f;
 
+	bool use_static_velocities = false;
+	Vector2 static_linear_velocity = Vector2();
+	float static_angular_velocity = 0.0f;
+
+	bool body_state_callback_is_valid = false;
 	Callable body_state_callback;
 	Callable force_integration_callback;
 	Variant force_integration_user_data;

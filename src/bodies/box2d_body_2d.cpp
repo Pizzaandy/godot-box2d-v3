@@ -3,7 +3,9 @@
 #include "../joints/box2d_joint_2d.h"
 #include "../spaces/box2d_space_2d.h"
 #include "box2d_area_2d.h"
+#include <godot_cpp/classes/animatable_body2d.hpp>
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/rigid_body2d.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 Box2DBody2D::Box2DBody2D() :
@@ -171,6 +173,11 @@ void Box2DBody2D::apply_impulse(const Vector2 &p_impulse, const Vector2 &p_posit
 	b2Body_ApplyLinearImpulse(body_id, to_box2d(p_impulse), to_box2d(point), true);
 }
 
+void Box2DBody2D::apply_impulse_global_point(const Vector2 &p_impulse, const Vector2 &p_position) {
+	ERR_FAIL_COND(!in_space());
+	b2Body_ApplyLinearImpulse(body_id, to_box2d(p_impulse), to_box2d(p_position), true);
+}
+
 void Box2DBody2D::apply_impulse_center(const Vector2 &p_impulse) {
 	ERR_FAIL_COND(!in_space());
 	b2Body_ApplyLinearImpulseToCenter(body_id, to_box2d(p_impulse), true);
@@ -198,6 +205,11 @@ void Box2DBody2D::apply_central_force(const Vector2 &p_force) {
 }
 
 void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
+	if (mode == PhysicsServer2D::BodyMode::BODY_MODE_STATIC) {
+		static_linear_velocity = p_velocity;
+		update_static_velocities();
+		return;
+	}
 	if (!in_space()) {
 		initial_linear_velocity = p_velocity;
 		return;
@@ -234,6 +246,10 @@ float Box2DBody2D::get_angular_velocity() const {
 	return angular_velocity;
 }
 
+void Box2DBody2D::update_static_velocities() {
+	use_static_velocities = !static_linear_velocity.is_zero_approx() || !Math::is_zero_approx(static_angular_velocity);
+}
+
 void Box2DBody2D::set_sleep_state(bool p_sleeping) {
 	sleeping = p_sleeping;
 
@@ -256,9 +272,30 @@ void Box2DBody2D::set_sleep_enabled(bool p_can_sleep) {
 	b2Body_EnableSleep(body_id, p_can_sleep);
 }
 
-static void set_rotation_and_position(Transform2D &p_transform, float p_rot, Vector2 p_pos) {
+/// Optimized function for updating rotation and position while preserving scale and skew.
+/// The tradeoff is that values for scale and skew are subject to slight precision loss.
+static void set_rotation_and_position(Transform2D &p_xf, b2Rot p_rot, Vector2 p_pos) {
+	TracyZoneScoped("Box2DBody2D::sync_state::set_rotation_and_position (fast)");
+
+	b2Rot b = p_rot;
+	b2Rot a = { p_xf.columns[0].x, p_xf.columns[0].y };
+
+	float delta_angle = b2RelativeAngle(b, a);
+
+	p_xf.columns[0] = p_xf.columns[0].rotated(delta_angle);
+	p_xf.columns[1] = p_xf.columns[1].rotated(delta_angle);
+	p_xf.columns[2] = p_pos;
+}
+
+/// Slower function that closely matches results for Godot Physics
+static void set_rotation_and_position(Transform2D &p_xf, float p_rot, Vector2 p_pos) {
 	TracyZoneScoped("Box2DBody2D::sync_state::set_rotation_and_position");
-	p_transform = Transform2D(p_rot, p_transform.get_scale(), p_transform.get_skew(), p_pos);
+
+	real_t det_sign = Math::sign(p_xf.basis_determinant());
+	Vector2 scale = Vector2(p_xf.columns[0].length(), det_sign * p_xf.columns[1].length());
+	real_t skew = Math::acos(p_xf.columns[0].normalized().dot(det_sign * p_xf.columns[1].normalized())) - (real_t)Math_PI * 0.5f;
+
+	p_xf = Transform2D(p_rot, scale, skew, p_pos);
 }
 
 void Box2DBody2D::sync_state(const b2Transform &p_transform, bool p_fell_asleep) {
@@ -273,7 +310,7 @@ void Box2DBody2D::sync_state(const b2Transform &p_transform, bool p_fell_asleep)
 
 	set_rotation_and_position(current_transform, b2Rot_GetAngle(p_transform.q), to_godot(p_transform.p));
 
-	if (body_state_callback.is_valid()) {
+	if (body_state_callback_is_valid || body_state_callback.is_valid()) {
 		TracyZoneScoped("Body State Callback");
 
 		static thread_local Array arguments = []() {
@@ -458,7 +495,7 @@ void Box2DBody2D::set_shape_one_way_collision(int p_index, bool p_one_way, float
 bool Box2DBody2D::get_shape_one_way_collision(int p_index) {
 	ERR_FAIL_INDEX_V(p_index, shapes.size(), false);
 	Box2DShapeInstance &shape = shapes[p_index];
-	return shape.get_one_way_collision();
+	return shape.has_one_way_collision();
 }
 
 void Box2DBody2D::update_mass() {
@@ -499,6 +536,18 @@ Box2DDirectBodyState2D *Box2DBody2D::get_direct_state() {
 		direct_state = memnew(Box2DDirectBodyState2D(this));
 	}
 	return direct_state;
+}
+
+void Box2DBody2D::set_state_sync_callback(const Callable &p_callable) {
+	body_state_callback = p_callable;
+	Object *object = p_callable.get_object();
+
+	RigidBody2D *rigidbody = Object::cast_to<RigidBody2D>(object);
+	body_state_callback_is_valid = rigidbody && rigidbody->get_rid() == get_rid() && p_callable.is_custom();
+
+	// HACK: always use kinematic movement when the state sync callback is bound to an AnimatableBody2D
+	AnimatableBody2D *animatable_body = Object::cast_to<AnimatableBody2D>(object);
+	is_animatable_body = animatable_body && animatable_body->get_rid() == get_rid();
 }
 
 void Box2DBody2D::set_force_integration_callback(const Callable &p_callable, const Variant &p_user_data) {

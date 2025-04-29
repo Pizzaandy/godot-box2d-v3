@@ -36,8 +36,8 @@ Run the following command to download godot-cpp:
     git submodule update --init --recursive""")
     sys.exit(1)
 
-if not (os.path.isdir("box2d") and os.listdir("box2d")):
-    print_error("""box2d is not available within this folder, as Git submodules haven't been initialized.
+if not (os.path.isdir("thirdparty/box2d") and os.listdir("thirdparty/box2d")):
+    print_error("""thirdparty/box2d is not available within this folder, as Git submodules haven't been initialized.
 Run the following command to download box2d:
 
     git submodule update --init --recursive""")
@@ -66,8 +66,8 @@ if env["CC"].endswith("gcc") or env["CC"].endswith("clang"):
 if env["CC"] == "emcc":
     env.Append(CFLAGS=["-msimd128", "-msse2"])
 
-env.Append(CPPPATH=["box2d/include/"])
-box2d_lib = env.StaticLibrary("box2d", Glob("box2d/src/*.c"))
+env.Append(CPPPATH=["thirdparty/box2d/include/"])
+box2d_lib = env.StaticLibrary("box2d", Glob("thirdparty/box2d/src/*.c"))
 env.Append(LIBS=[box2d_lib])
 
 
@@ -75,7 +75,7 @@ if env["target"] in ["editor", "template_debug"]:
     # Tracy
     if env["tracy_enabled"]:
         env.Append(CPPDEFINES=["TRACY_ENABLE", "TRACY_ON_DEMAND", "TRACY_DELAYED_INIT", "TRACY_MANUAL_LIFETIME"])
-        sources.append("tracy/public/TracyClient.cpp")
+        sources.append("thirdparty/tracy/public/TracyClient.cpp")
 
     try:
         doc_data = env.GodotCPPDocData("src/gen/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))

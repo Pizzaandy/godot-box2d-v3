@@ -23,3 +23,13 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 
 	move_and_slide()
+	queue_redraw()
+
+func _draw() -> void:
+	draw_set_transform_matrix(global_transform.affine_inverse())
+
+	var last_collision = get_last_slide_collision()
+	if not last_collision:
+		return
+	var point := last_collision.get_position()
+	draw_circle(point, 5.0, Color.ORANGE)

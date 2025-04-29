@@ -6,7 +6,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #ifdef TRACY_ENABLE
-#include "../tracy/public/tracy/Tracy.hpp"
+#include "../thirdparty/tracy/public/tracy/Tracy.hpp"
 #define TracyZoneScoped(name) ZoneScopedN(name)
 #else
 #define TracyZoneScoped(name)
@@ -342,8 +342,7 @@ struct Box2DShapePrimitive {
 				capsule.center1 = segment.point1;
 				capsule.center2 = segment.point2;
 				capsule.radius = p_radius;
-				result = Box2DShapePrimitive(capsule);
-				return result;
+				return Box2DShapePrimitive(capsule);
 			}
 			case b2ShapeType::b2_chainSegmentShape: {
 				ERR_FAIL_V_MSG(Box2DShapePrimitive(chain_segment), "Chain segments cannot have a radius");

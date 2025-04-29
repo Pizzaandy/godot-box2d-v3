@@ -1,6 +1,7 @@
 #include "box2d_collision_object_2d.h"
 
 #include "../spaces/box2d_space_2d.h"
+#include <godot_cpp/classes/character_body2d.hpp>
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -33,7 +34,7 @@ void Box2DCollisionObject2D::set_space(Box2DSpace2D *p_space) {
 		return;
 	}
 
-	ERR_FAIL_COND(space->locked);
+	ERR_FAIL_COND(space->is_locked());
 
 	// Create body
 	body_def.position = to_box2d(current_transform.get_origin());
@@ -136,23 +137,23 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 	float rotation = p_transform.get_rotation();
 	float last_step = space->get_last_step();
 
-	if (p_move_kinematic && mode == PhysicsServer2D::BODY_MODE_KINEMATIC) {
+	if (mode == PhysicsServer2D::BODY_MODE_KINEMATIC && (p_move_kinematic || is_animatable_body)) {
 		if (last_step < 0.0) {
 			current_transform = p_transform;
 			return;
 		}
 
-		//b2Body_SetKinematicTarget(body_id, to_box2d(p_transform), last_step);
+		b2Body_SetTargetTransform(body_id, to_box2d(p_transform), last_step);
 
-		Vector2 current_position = current_transform.get_origin();
-		Vector2 linear = (position - current_position) / last_step;
+		// Vector2 current_position = current_transform.get_origin();
+		// Vector2 linear = (position - current_position) / last_step;
 
-		b2Rot target_rotation = b2MakeRot(rotation);
-		b2Rot current_rotation = b2MakeRot(current_transform.get_rotation());
-		float angular = b2RelativeAngle(target_rotation, current_rotation) / last_step;
+		// b2Rot target_rotation = b2MakeRot(rotation);
+		// b2Rot current_rotation = b2MakeRot(current_transform.get_rotation());
+		// float angular = b2RelativeAngle(target_rotation, current_rotation) / last_step;
 
-		b2Body_SetLinearVelocity(body_id, to_box2d(linear));
-		b2Body_SetAngularVelocity(body_id, (float)angular);
+		// b2Body_SetLinearVelocity(body_id, to_box2d(linear));
+		// b2Body_SetAngularVelocity(body_id, (float)angular);
 	} else {
 		b2Body_SetTransform(body_id, to_box2d(position), b2MakeRot(rotation));
 	}
@@ -194,7 +195,7 @@ void Box2DCollisionObject2D::build_shape(Box2DShapeInstance &p_shape, bool p_sha
 		return;
 	}
 
-	ERR_FAIL_COND(space->locked);
+	ERR_FAIL_COND(space->is_locked());
 
 	p_shape.build();
 
@@ -313,9 +314,12 @@ bool character_overlap_callback(b2ShapeId shapeId, void *context) {
 		return true;
 	}
 
-	float depth = result.get_deepest_point().depth;
+	ShapeCollidePoint deepest = result.get_deepest_point();
 
-	ctx->results.push_back(CharacterCollideResult{ result.normal, depth, ctx->shape_id, this_shape, shapeId, other_shape });
+	Vector2 point = deepest.point;
+	float depth = deepest.depth;
+
+	ctx->results.push_back(CharacterCollideResult{ point, result.normal, depth, ctx->shape_id, this_shape, shapeId, other_shape });
 
 	return true;
 }
@@ -350,7 +354,6 @@ int Box2DCollisionObject2D::character_collide(
 }
 
 static float character_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *context) {
-	// TODO: handle one-way collisions
 	auto *ctx = static_cast<Box2DCollisionObject2D::CharacterCastContext *>(context);
 
 	Box2DShapeInstance *this_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(ctx->shape_id));
@@ -360,7 +363,7 @@ static float character_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 nor
 	b2BodyId other_body_id = b2Shape_GetBody(shapeId);
 
 	if (B2_ID_EQUALS(this_body_id, other_body_id)) {
-		return true;
+		return -1.0f;
 	}
 
 	if (fraction >= ctx->result.unsafe_fraction) {
@@ -370,11 +373,11 @@ static float character_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 nor
 	Vector2 godot_normal = to_godot_normalized(normal);
 
 	// ignore non-blocking hits
-	if (ctx->motion.dot(godot_normal) > -2.0f * CMP_EPSILON) {
+	if (ctx->motion.length_squared() > 0.0f && ctx->motion.normalized().dot(godot_normal) >= -CMP_EPSILON) {
 		return -1.0f;
 	}
 
-	if (other_shape->get_one_way_collision()) {
+	if (other_shape->has_one_way_collision()) {
 		b2Transform xfa = ctx->transform;
 		xfa.p += fraction * to_box2d(ctx->motion);
 		ShapeCollideResult collision = box2d_collide_shapes(ctx->shape_id, xfa, shapeId, b2Body_GetTransform(other_body_id));

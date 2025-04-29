@@ -40,7 +40,7 @@ public:
 
 	void set_space(Box2DSpace2D *p_space);
 	Box2DSpace2D *get_space() const { return space; }
-	bool in_space() const { return space; }
+	_FORCE_INLINE_ bool in_space() const { return space; }
 
 	void set_mode(PhysicsServer2D::BodyMode p_mode);
 	PhysicsServer2D::BodyMode get_mode() const { return mode; }
@@ -112,6 +112,7 @@ protected:
 
 	Type type = Type::RIGIDBODY;
 	Variant user_data = Variant();
+	bool is_animatable_body = false;
 
 	Box2DSpace2D *space = nullptr;
 	RID rid;

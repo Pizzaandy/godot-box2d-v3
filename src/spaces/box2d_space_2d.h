@@ -29,6 +29,8 @@ public:
 
 	void step(float p_step);
 
+	bool is_locked() const { return locked; }
+
 	int get_max_tasks() const { return max_tasks; }
 
 	void sync_state();
@@ -89,8 +91,6 @@ public:
 		bodies_with_overrides.insert(p_body);
 	}
 
-	bool locked = false;
-
 private:
 	LocalVector<Box2DBody2D *> constant_force_list;
 	LocalVector<Box2DBody2D *> force_integration_list;
@@ -112,4 +112,6 @@ private:
 
 	bool linear_damp_changed = false;
 	bool angular_damp_changed = false;
+
+	bool locked = false;
 };

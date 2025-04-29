@@ -43,8 +43,8 @@ void finish_task_callback(void *taskPtr, void *userContext) {
 }
 
 bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *manifold, void *context) {
-	const Box2DBody2D *body_a = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)))->as_body();
-	const Box2DBody2D *body_b = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)))->as_body();
+	Box2DBody2D *body_a = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)))->as_body();
+	Box2DBody2D *body_b = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)))->as_body();
 
 	if (!body_a || !body_b) {
 		return true;
@@ -54,6 +54,8 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 			body_b->is_collision_exception(body_a->get_rid())) {
 		return false;
 	}
+
+	Vector2 normal = to_godot_normalized(manifold->normal);
 
 	float depth = 0.0f;
 
@@ -65,14 +67,14 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 		return false;
 	}
 
-	Box2DShapeInstance *shape_a = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdA));
-	Box2DShapeInstance *shape_b = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdB));
+	const Box2DShapeInstance *shape_a = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdA));
+	const Box2DShapeInstance *shape_b = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdB));
 
-	Vector2 contact_normal = to_godot_normalized(manifold->normal);
-
-	if (shape_a->should_filter_one_way_collision(body_b->get_linear_velocity(), contact_normal, depth) ||
-			shape_b->should_filter_one_way_collision(body_a->get_linear_velocity(), contact_normal, depth)) {
-		return false;
+	if (shape_a->has_one_way_collision() || shape_b->has_one_way_collision()) {
+		if (shape_a->should_filter_one_way_collision(body_b->get_linear_velocity(), normal, depth) ||
+				shape_b->should_filter_one_way_collision(body_a->get_linear_velocity(), normal, depth)) {
+			return false;
+		}
 	}
 
 	return true;
@@ -126,7 +128,7 @@ Box2DSpace2D::Box2DSpace2D() {
 	world_id = b2CreateWorld(&world_def);
 
 	if (Box2DProjectSettings::get_presolve_enabled()) {
-		b2World_SetPreSolveCallback(world_id, box2d_godot_presolve, nullptr);
+		b2World_SetPreSolveCallback(world_id, box2d_godot_presolve, this);
 	}
 }
 
@@ -167,6 +169,7 @@ void Box2DSpace2D::step(float p_step) {
 	bodies_with_overrides.clear();
 
 	b2World_Step(world_id, p_step, substeps);
+
 	locked = false;
 	last_step = p_step;
 }

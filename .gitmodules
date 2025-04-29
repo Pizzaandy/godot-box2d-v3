@@ -3,10 +3,10 @@
 	url = https://github.com/godotengine/godot-cpp.git
 	branch = 4.3
 [submodule "box2d"]
-	path = box2d
+	path = thirdparty/box2d
 	url = https://github.com/erincatto/box2d
 	ignore = dirty
 [submodule "tracy"]
-	path = tracy
+	path = thirdparty/tracy
 	url = https://github.com/wolfpld/tracy
 	ignore = dirty
