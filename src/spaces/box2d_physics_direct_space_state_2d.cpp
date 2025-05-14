@@ -287,7 +287,7 @@ bool Box2DDirectSpaceState2D::_collide_shape(
 	return true;
 }
 
-/// A shape cast that checks for initial overlaps. Returns the first collision found.
+/// An overlap query that does not account for motion. Returns the first collision found.
 bool Box2DDirectSpaceState2D::_rest_info(
 		const RID &p_shape_rid,
 		const Transform2D &p_transform,
@@ -326,9 +326,7 @@ bool Box2DDirectSpaceState2D::_rest_info(
 			return false;
 		}
 
-		// Using the point with the highest depth results in flickering on some surfaces.
-		// Simply using the first collision point makes this more consistent with Godot Physics.
-		ShapeCollidePoint point = result.points[0];
+		ShapeCollidePoint point = result.get_deepest_point();
 
 		p_rest_info->point = point.point;
 		p_rest_info->normal = result.normal;

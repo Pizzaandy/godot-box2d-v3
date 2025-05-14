@@ -57,3 +57,5 @@ move_right={
 [physics]
 
 2d/physics_engine="Box2D"
+box_2d/solver/contact_hertz=30.0
+box_2d/solver/contact_damping_ratio=10.0

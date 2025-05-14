@@ -95,10 +95,13 @@ void Box2DProjectSettings::register_settings() {
 	register_setting_ranged(SUBSTEPS, 4, U"1,8,or_greater");
 	register_setting_ranged(PIXELS_PER_METER, 100, U"1,500,or_greater,suffix:px / m", true);
 
+	// Slightly different from Box2D defaults to match Godot Physics
 	register_setting_plain(CONTACT_HERTZ, 30.0);
 	register_setting_plain(CONTACT_DAMPING_RATIO, 10.0);
+
 	register_setting_plain(JOINT_HERTZ, 60.0);
 	register_setting_plain(JOINT_DAMPING_RATIO, 2.0);
+
 	register_setting_enum(FRICTION_MIXING_RULE, MIXING_RULE_GODOT, "Minimum (Godot),Geometric Mean (Box2D)");
 	register_setting_enum(RESTITUTION_MIXING_RULE, MIXING_RULE_GODOT, "Additive (Godot),Maximum (Box2D)");
 

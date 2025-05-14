@@ -4,14 +4,21 @@ float BOX2D_PIXELS_PER_METER = 1;
 float BOX2D_LINEAR_SLOP = 0.005f;
 
 // TODO: revisit, consider implementing Godot-style cast function
-float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distance) {
+float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distance, float p_amount) {
+	if (p_amount <= 0.0f) {
+		p_amount = 2.0f * to_godot(BOX2D_LINEAR_SLOP);
+	}
+
 	if (p_total_distance <= 0.0f) {
 		return 0.0f;
 	}
 
+	if (p_unsafe_fraction >= 1.0f) {
+		return 1.0f;
+	}
+
 	float distance = p_unsafe_fraction * p_total_distance;
-	const float adjustment = 2.0f * to_godot(BOX2D_LINEAR_SLOP);
-	float adjusted_distance = Math::max(0.0f, distance - adjustment);
+	float adjusted_distance = Math::max(0.0f, distance - p_amount);
 
 	return adjusted_distance / p_total_distance;
 }
@@ -167,7 +174,7 @@ ShapeCollideResult box2d_collide_shapes(
 
 	for (int i = 0; i < manifold.pointCount; i++) {
 		result.points[i].depth = -to_godot(manifold.points[i].separation);
-		result.points[i].point = to_godot(manifold.points[i].point);
+		result.points[i].point = to_godot(manifold.points[i].point) + (0.5f * result.points[i].depth * result.normal);
 	}
 
 	return result;

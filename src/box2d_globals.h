@@ -354,7 +354,7 @@ struct Box2DShapePrimitive {
 	}
 };
 
-float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distance);
+float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distance, float p_amount = -1);
 
 ShapeCollideResult box2d_collide_shapes(
 		const Box2DShapePrimitive &p_shape_a,

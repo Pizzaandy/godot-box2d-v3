@@ -73,6 +73,11 @@ text = "cast_motion
 layout_mode = 2
 text = "collide_shape"
 
+[node name="RestInfo" type="Button" parent="_Settings/HBoxContainer/Query"]
+layout_mode = 2
+text = "get_rest_info
+"
+
 [node name="QueryTester" type="Node2D" parent="."]
 position = Vector2(172.175, -179.065)
 script = ExtResource("3_scqh4")
@@ -192,3 +197,4 @@ shape = SubResource("RectangleShape2D_72i8i")
 [connection signal="pressed" from="_Settings/HBoxContainer/Query/IntersectRay" to="QueryTester" method="_on_intersect_ray_pressed"]
 [connection signal="pressed" from="_Settings/HBoxContainer/Query/CastMotion" to="QueryTester" method="_on_cast_motion_pressed"]
 [connection signal="pressed" from="_Settings/HBoxContainer/Query/CollideShape" to="QueryTester" method="_on_collide_shape_pressed"]
+[connection signal="pressed" from="_Settings/HBoxContainer/Query/RestInfo" to="QueryTester" method="_on_rest_info_pressed"]

@@ -25,7 +25,7 @@ size = Vector2(103, 67)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hdxr1"]
 radius = 12.0
-height = 164.0
+height = 218.1
 
 [node name="Areas" type="Node2D"]
 script = ExtResource("1_x1558")
@@ -55,7 +55,7 @@ position = Vector2(967, 500)
 zoom = Vector2(1, 1)
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="."]
-position = Vector2(977, 237)
+position = Vector2(1051, 262)
 rotation = 0.00260896
 floor_constant_speed = true
 floor_max_angle = 0.872665
@@ -91,16 +91,18 @@ shape = SubResource("SegmentShape2D_ttn6k")
 one_way_collision = true
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
-position = Vector2(644, 113)
+position = Vector2(688, 111)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D"]
 position = Vector2(-42.5, 14.5)
 shape = SubResource("RectangleShape2D_jl1cf")
 
 [node name="AnimatableBody2D" type="AnimatableBody2D" parent="."]
-position = Vector2(516, 238)
+position = Vector2(518, 238)
+rotation = 1.57989
 script = ExtResource("5_o5wcv")
-period_seconds = 8.0
+motion_type = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AnimatableBody2D"]
+rotation = 0.00240106
 shape = SubResource("CapsuleShape2D_hdxr1")

@@ -105,7 +105,6 @@ Box2DSpace2D::Box2DSpace2D() {
 
 	max_tasks = Math::clamp(max_tasks, 0, 8);
 
-	b2WorldDef world_def = b2DefaultWorldDef();
 	world_def.gravity = to_box2d(default_gravity);
 	world_def.contactHertz = Box2DProjectSettings::get_contact_hertz();
 	world_def.contactDampingRatio = Box2DProjectSettings::get_contact_damping_ratio();

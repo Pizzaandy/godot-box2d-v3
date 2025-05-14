@@ -32,4 +32,6 @@ func _draw() -> void:
 	if not last_collision:
 		return
 	var point := last_collision.get_position()
-	draw_circle(point, 5.0, Color.ORANGE)
+	var normal := last_collision.get_normal()
+	draw_circle(point, 3.0, Color.BLACK)
+	draw_line(point, point + normal * 25, Color.BLACK, 3)

@@ -92,6 +92,7 @@ public:
 	}
 
 private:
+	b2WorldDef world_def = b2DefaultWorldDef();
 	LocalVector<Box2DBody2D *> constant_force_list;
 	LocalVector<Box2DBody2D *> force_integration_list;
 	LocalVector<Box2DArea2D *> areas_to_step;

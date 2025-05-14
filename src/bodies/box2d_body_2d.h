@@ -9,6 +9,8 @@ class Box2DDirectBodyState2D;
 class Box2DBody2D final : public Box2DCollisionObject2D {
 public:
 	struct Contact {
+		Box2DBody2D *body;
+		float normal_impulse;
 		Vector2 local_position;
 		Vector2 local_normal;
 		float depth = 0.0;
@@ -46,8 +48,16 @@ public:
 	void set_friction(float p_friction);
 	void reset_mass();
 	float get_mass() const { return mass_data.mass; }
+	float get_inverse_mass() const {
+		float mass = get_mass();
+		return mass > 0.0 ? 1.0 / mass : 0.0;
+	}
+	float get_inverse_inertia() const {
+		float intertia = get_inertia();
+		return intertia > 0.0 ? 1.0 / intertia : 0.0;
+	}
 	void set_mass(float p_mass);
-	float get_inertia() const { return mass_data.rotationalInertia; }
+	float get_inertia() const { return to_godot(to_godot(mass_data.rotationalInertia)); }
 	void set_inertia(float p_inertia);
 	Vector2 get_center_of_mass() const { return to_godot(mass_data.center); }
 	Vector2 get_center_of_mass_global() const;
@@ -77,14 +87,8 @@ public:
 	void set_angular_velocity(float p_velocity);
 	float get_angular_velocity() const;
 
-	_FORCE_INLINE_ bool has_static_velocity() const {
-		return mode == PhysicsServer2D::BodyMode::BODY_MODE_STATIC && use_static_velocities;
-	}
-
 	Vector2 get_static_linear_velocity() const { return static_linear_velocity; }
 	float get_static_angular_velocity() const { return static_angular_velocity; }
-
-	void update_static_velocities();
 
 	void set_sleep_state(bool p_sleeping);
 	bool is_sleeping() { return sleeping; }
@@ -94,6 +98,8 @@ public:
 	void sync_state(const b2Transform &p_transform, bool p_fell_asleep);
 
 	void update_contacts();
+	void get_contacts(int p_max_count = -1);
+
 	int32_t get_contact_count();
 	void set_max_contacts_reported(int32_t p_max_count) { max_contact_count = p_max_count; }
 	int32_t get_max_contacts_reported() const { return max_contact_count; }
@@ -143,6 +149,13 @@ public:
 
 	void update_constant_forces_list();
 	void apply_constant_forces();
+
+	bool has_constant_forces() const {
+		return !Math::is_zero_approx(constant_torque) || !constant_force.is_zero_approx();
+	}
+	bool has_static_velocity() const {
+		return !Math::is_zero_approx(static_angular_velocity) || !static_linear_velocity.is_zero_approx();
+	}
 
 	void update_force_integration_list();
 	void call_force_integration_callback();

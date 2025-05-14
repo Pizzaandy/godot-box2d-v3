@@ -33,7 +33,6 @@ public:
 	const Box2DBody2D *as_body() const { return is_body() ? reinterpret_cast<const Box2DBody2D *>(this) : nullptr; }
 
 	void free();
-	bool is_freed() const { return _is_freed; }
 
 	RID get_rid() const { return rid; }
 	void set_rid(const RID &p_rid) { rid = p_rid; }
@@ -45,6 +44,7 @@ public:
 	void set_mode(PhysicsServer2D::BodyMode p_mode);
 	PhysicsServer2D::BodyMode get_mode() const { return mode; }
 	bool is_dynamic() const { return mode > PhysicsServer2D::BODY_MODE_KINEMATIC; }
+	bool is_static() const { return mode == PhysicsServer2D::BODY_MODE_STATIC; }
 
 	void set_collision_layer(uint32_t p_layer);
 	uint32_t get_collision_layer() { return shape_def.filter.categoryBits; }
@@ -95,6 +95,7 @@ public:
 		Box2DShapePrimitive shape;
 		CharacterCastResult &result;
 		Vector2 motion;
+		float margin;
 	};
 
 	int character_collide(const Transform2D &p_from, float p_margin, LocalVector<CharacterCollideResult> &p_results);

@@ -205,9 +205,9 @@ void Box2DBody2D::apply_central_force(const Vector2 &p_force) {
 }
 
 void Box2DBody2D::set_linear_velocity(const Vector2 &p_velocity) {
-	if (mode == PhysicsServer2D::BodyMode::BODY_MODE_STATIC) {
+	if (is_static()) {
 		static_linear_velocity = p_velocity;
-		update_static_velocities();
+		update_constant_forces_list();
 		return;
 	}
 	if (!in_space()) {
@@ -224,7 +224,7 @@ Vector2 Box2DBody2D::get_linear_velocity() const {
 
 Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
 	ERR_FAIL_COND_V(!in_space(), Vector2());
-	return to_godot(b2Body_GetLocalPointVelocity(body_id, to_box2d(p_point)));
+	return get_velocity_at_point(current_transform.get_origin() + p_point);
 }
 
 Vector2 Box2DBody2D::get_velocity_at_point(const Vector2 &p_point) const {
@@ -233,6 +233,11 @@ Vector2 Box2DBody2D::get_velocity_at_point(const Vector2 &p_point) const {
 }
 
 void Box2DBody2D::set_angular_velocity(float p_velocity) {
+	if (is_static()) {
+		static_angular_velocity = p_velocity;
+		update_constant_forces_list();
+		return;
+	}
 	if (!in_space()) {
 		initial_angular_velocity = p_velocity;
 		return;
@@ -244,10 +249,6 @@ float Box2DBody2D::get_angular_velocity() const {
 	ERR_FAIL_COND_V(!in_space(), 0.0);
 	float angular_velocity = b2Body_GetAngularVelocity(body_id);
 	return angular_velocity;
-}
-
-void Box2DBody2D::update_static_velocities() {
-	use_static_velocities = !static_linear_velocity.is_zero_approx() || !Math::is_zero_approx(static_angular_velocity);
 }
 
 void Box2DBody2D::set_sleep_state(bool p_sleeping) {
@@ -274,7 +275,7 @@ void Box2DBody2D::set_sleep_enabled(bool p_can_sleep) {
 
 /// Optimized function for updating rotation and position while preserving scale and skew.
 /// The tradeoff is that values for scale and skew are subject to slight precision loss.
-static void set_rotation_and_position(Transform2D &p_xf, b2Rot p_rot, Vector2 p_pos) {
+static void set_rotation_and_position_fast(Transform2D &p_xf, b2Rot p_rot, Vector2 p_pos) {
 	TracyZoneScoped("Box2DBody2D::sync_state::set_rotation_and_position (fast)");
 
 	b2Rot b = p_rot;
@@ -287,7 +288,7 @@ static void set_rotation_and_position(Transform2D &p_xf, b2Rot p_rot, Vector2 p_
 	p_xf.columns[2] = p_pos;
 }
 
-/// Slower function that closely matches results for Godot Physics
+/// Slower function for updating rotation and position. Consistent with Godot Physics.
 static void set_rotation_and_position(Transform2D &p_xf, float p_rot, Vector2 p_pos) {
 	TracyZoneScoped("Box2DBody2D::sync_state::set_rotation_and_position");
 
@@ -331,21 +332,43 @@ void Box2DBody2D::update_contacts() {
 		return;
 	}
 
-	contacts.clear();
-
 	if (max_contact_count <= 0) {
 		return;
 	}
 
-	b2ContactData *data = memnew_arr(b2ContactData, max_contact_count);
-	int contact_count = b2Body_GetContactData(body_id, data, max_contact_count);
+	get_contacts(max_contact_count);
+
+	queried_contacts = true;
+}
+
+void Box2DBody2D::get_contacts(int p_max_count) {
+	ERR_FAIL_COND(!in_space());
+
+	contacts.clear();
+
+	int manifold_count = b2Body_GetContactCapacity(body_id);
+
+	if (p_max_count < 0) {
+		p_max_count = manifold_count * 2;
+	} else {
+		p_max_count = Math::min(p_max_count, manifold_count * 2);
+	}
+
+	static LocalVector<b2ContactData> data;
+	data.resize(manifold_count);
+	int contact_count = b2Body_GetContactData(body_id, data.ptr(), manifold_count);
 
 	for (int i = 0; i < contact_count; i++) {
 		b2ContactData box2d_contact = data[i];
 
-		Box2DShapeInstance *local_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(box2d_contact.shapeIdA));
-		Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(box2d_contact.shapeIdB));
-		Box2DBody2D *other_body = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(box2d_contact.shapeIdB)))->as_body();
+		Box2DShapeInstance *shape_a = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(box2d_contact.shapeIdA));
+		Box2DShapeInstance *shape_b = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(box2d_contact.shapeIdB));
+
+		bool owns_shape_a = shape_a->get_collision_object() == this;
+		Box2DShapeInstance *local_shape = owns_shape_a ? shape_a : shape_b;
+		Box2DShapeInstance *other_shape = owns_shape_a ? shape_b : shape_a;
+
+		Box2DBody2D *other_body = other_shape->get_collision_object()->as_body();
 
 		ERR_FAIL_NULL(other_body);
 
@@ -364,6 +387,8 @@ void Box2DBody2D::update_contacts() {
 			}
 
 			Contact contact;
+			contact.body = other_body;
+			contact.normal_impulse = to_godot(point.normalImpulse);
 			contact.local_position = to_godot(point.point);
 			contact.local_normal = to_godot_normalized(box2d_contact.manifold.normal);
 			contact.depth = depth;
@@ -380,19 +405,15 @@ void Box2DBody2D::update_contacts() {
 
 			contacts.push_back(contact);
 
-			if (contacts.size() >= max_contact_count) {
-				break;
+			if (contacts.size() >= p_max_count) {
+				return;
 			}
 		}
 
-		if (contacts.size() >= max_contact_count) {
-			break;
+		if (contacts.size() >= p_max_count) {
+			return;
 		}
 	}
-
-	memdelete_arr(data);
-
-	queried_contacts = true;
 }
 
 int32_t Box2DBody2D::get_contact_count() {
@@ -542,6 +563,7 @@ void Box2DBody2D::set_state_sync_callback(const Callable &p_callable) {
 	body_state_callback = p_callable;
 	Object *object = p_callable.get_object();
 
+	// Questionable optimization: skip is_valid check when the state sync callback is bound to a RigidBody2D node
 	RigidBody2D *rigidbody = Object::cast_to<RigidBody2D>(object);
 	body_state_callback_is_valid = rigidbody && rigidbody->get_rid() == get_rid() && p_callable.is_custom();
 
@@ -601,9 +623,7 @@ void Box2DBody2D::update_constant_forces_list() {
 
 	ERR_FAIL_NULL(space);
 
-	bool has_constant_forces = !Math::is_zero_approx(constant_torque) || !constant_force.is_zero_approx();
-
-	if (has_constant_forces) {
+	if (has_constant_forces() || has_static_velocity()) {
 		if (!in_constant_forces_list) {
 			space->add_constant_force_body(this);
 			in_constant_forces_list = true;
@@ -625,6 +645,53 @@ void Box2DBody2D::apply_constant_forces() {
 
 	if (!constant_force.is_zero_approx()) {
 		apply_central_force(constant_force);
+	}
+
+	if (has_static_velocity()) {
+		get_contacts();
+
+		for (Contact &contact : contacts) {
+			Box2DBody2D *other = contact.body;
+			if (!other->is_dynamic()) {
+				continue;
+			}
+
+			Vector2 normal = contact.local_normal;
+			Vector2 tangent = Vector2(-normal.y, normal.x);
+
+			Vector2 r_a = contact.local_position - get_transform().get_origin();
+			Vector2 r_b = contact.local_position - other->get_center_of_mass_global();
+
+			Vector2 vel_other = other->get_velocity_at_point(contact.local_position);
+			Vector2 vel_this = static_linear_velocity + Vector2(-r_a.y, r_a.x) * static_angular_velocity;
+			Vector2 relative_velocity = vel_other - vel_this;
+
+			float vrel_n = relative_velocity.dot(normal);
+			float vrel_t = relative_velocity.dot(tangent);
+
+			float desired_vrel_n = 0.0f;
+			float desired_vrel_t = 0.0f;
+
+			float delta_vn = desired_vrel_n - vrel_n;
+			float delta_vt = desired_vrel_t - vrel_t;
+
+			float inv_mass = other->get_inverse_mass();
+			float inv_inertia = other->get_inverse_inertia();
+
+			// Normal impulse
+			float rn = r_b.cross(normal);
+			float k_n = inv_mass + rn * rn * inv_inertia;
+			float normal_impulse = (k_n > 0.0f) ? delta_vn / k_n : 0.0f;
+
+			// Tangent impulse
+			float rt = r_b.cross(tangent);
+			float k_t = inv_mass + rt * rt * inv_inertia;
+			float tangent_impulse = (k_t > 0.0f) ? delta_vt / k_t : 0.0f;
+
+			// Apply total impulse
+			Vector2 total_impulse = normal * normal_impulse + tangent * tangent_impulse;
+			other->apply_impulse_global_point(total_impulse, contact.local_position);
+		}
 	}
 }
 

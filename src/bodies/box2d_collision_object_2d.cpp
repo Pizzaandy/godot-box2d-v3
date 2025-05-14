@@ -143,17 +143,15 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 			return;
 		}
 
-		b2Body_SetTargetTransform(body_id, to_box2d(p_transform), last_step);
+		Vector2 current_position = current_transform.get_origin();
+		Vector2 linear = (position - current_position) / last_step;
 
-		// Vector2 current_position = current_transform.get_origin();
-		// Vector2 linear = (position - current_position) / last_step;
+		b2Rot target_rotation = b2MakeRot(rotation);
+		b2Rot current_rotation = b2MakeRot(current_transform.get_rotation());
+		float angular = b2RelativeAngle(target_rotation, current_rotation) / last_step;
 
-		// b2Rot target_rotation = b2MakeRot(rotation);
-		// b2Rot current_rotation = b2MakeRot(current_transform.get_rotation());
-		// float angular = b2RelativeAngle(target_rotation, current_rotation) / last_step;
-
-		// b2Body_SetLinearVelocity(body_id, to_box2d(linear));
-		// b2Body_SetAngularVelocity(body_id, (float)angular);
+		b2Body_SetLinearVelocity(body_id, to_box2d(linear));
+		b2Body_SetAngularVelocity(body_id, (float)angular);
 	} else {
 		b2Body_SetTransform(body_id, to_box2d(position), b2MakeRot(rotation));
 	}
@@ -377,10 +375,22 @@ static float character_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 nor
 		return -1.0f;
 	}
 
+	// ignore initial overlaps if they can be resolved by moving all the way
+	if (fraction == 0.0f) {
+		b2Transform xfa = ctx->transform;
+		xfa.p += to_box2d(ctx->motion);
+
+		ShapeCollideResult collision = box2d_collide_shapes(ctx->shape, xfa, shapeId, b2Body_GetTransform(other_body_id));
+		if (collision.point_count == 0) {
+			return -1.0f;
+		}
+	}
+
 	if (other_shape->has_one_way_collision()) {
 		b2Transform xfa = ctx->transform;
 		xfa.p += fraction * to_box2d(ctx->motion);
-		ShapeCollideResult collision = box2d_collide_shapes(ctx->shape_id, xfa, shapeId, b2Body_GetTransform(other_body_id));
+		ShapeCollideResult collision = box2d_collide_shapes(ctx->shape, xfa, shapeId, b2Body_GetTransform(other_body_id));
+
 		if (collision.point_count == 0) {
 			return -1.0f;
 		}
@@ -411,17 +421,17 @@ CharacterCastResult Box2DCollisionObject2D::character_cast(const Transform2D &p_
 	BodyShapeRange range(body_id);
 	CharacterCastResult result;
 
-	Vector2 motion = p_motion;
+	Vector2 motion = p_motion.normalized() * (p_motion.length() + p_margin);
 
 	for (b2ShapeId shape_id : range) {
 		Box2DShapePrimitive shape(shape_id);
-		shape = shape.inflated(p_margin);
+		//shape = shape.inflated(p_margin);
 
 		b2Transform xf = to_box2d(p_from);
 		b2ShapeProxy proxy = shape.get_proxy();
 		proxy = b2MakeOffsetProxy(proxy.points, proxy.count, proxy.radius, xf.p, xf.q);
 
-		CharacterCastContext context{ shape_id, xf, shape, result, motion };
+		CharacterCastContext context{ shape_id, xf, shape, result, motion, p_margin };
 		b2World_CastShape(space->get_world_id(), &proxy, to_box2d(motion), filter, character_cast_callback, &context);
 	}
 

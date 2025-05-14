@@ -87,6 +87,10 @@ struct CharacterCollideResult {
 	Box2DShapeInstance *shape = nullptr;
 	b2ShapeId other_shape_id = b2_nullShapeId;
 	Box2DShapeInstance *other_shape = nullptr;
+
+	bool operator<(const CharacterCollideResult &p_other) const {
+		return p_other.depth < p_other.depth;
+	}
 };
 
 struct CharacterCastResult {

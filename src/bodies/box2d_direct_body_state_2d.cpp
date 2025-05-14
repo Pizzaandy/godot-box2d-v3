@@ -31,13 +31,11 @@ Vector2 Box2DDirectBodyState2D::_get_center_of_mass_local() const {
 }
 
 float Box2DDirectBodyState2D::_get_inverse_mass() const {
-	float mass = body->get_mass();
-	return mass > 0.0 ? 1.0 / mass : 0.0;
+	return body->get_inverse_mass();
 }
 
 float Box2DDirectBodyState2D::_get_inverse_inertia() const {
-	float inertia = body->get_inertia();
-	return inertia > 0.0 ? 1.0 / inertia : 0.0;
+	return body->get_inverse_inertia();
 }
 
 void Box2DDirectBodyState2D::_set_linear_velocity(const Vector2 &p_velocity) {

@@ -1,6 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://dh5toih2pg8nh"]
+[gd_scene load_steps=10 format=3 uid="uid://dh5toih2pg8nh"]
 
 [ext_resource type="PackedScene" uid="uid://c36kg7gwvknh4" path="res://scenes/NavigationCamera.tscn" id="1_ua41v"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vm3h3"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fg4r7"]
 radius = 26.0
@@ -19,6 +21,9 @@ height = 304.0
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vkp8a"]
 size = Vector2(172.015, 167.265)
 
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_xe5ho"]
+friction = 0.5
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1k8ba"]
 size = Vector2(93.8495, 98.3126)
 
@@ -27,10 +32,11 @@ size = Vector2(93.8495, 98.3126)
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 position = Vector2(869, 450)
 rotation = -6.18717
-constant_linear_velocity = Vector2(40, -300)
+physics_material_override = SubResource("PhysicsMaterial_vm3h3")
+constant_linear_velocity = Vector2(100, 0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
-rotation = 1.43636
+rotation = 1.27814
 shape = SubResource("CapsuleShape2D_fg4r7")
 
 [node name="StaticBody2D" type="AnimatableBody2D" parent="."]
@@ -72,9 +78,10 @@ shape = SubResource("RectangleShape2D_vkp8a")
 [node name="RigidBody2D3" type="RigidBody2D" parent="."]
 position = Vector2(1188, 268)
 rotation = -1.06197
+physics_material_override = SubResource("PhysicsMaterial_xe5ho")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D3"]
-position = Vector2(5.23985, -2.92297)
+position = Vector2(44.9023, -264.365)
 shape = SubResource("RectangleShape2D_1k8ba")
 
 [node name="RigidBody2D4" type="RigidBody2D" parent="."]
@@ -82,5 +89,24 @@ position = Vector2(740, 241)
 rotation = -2.12394
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D4"]
-position = Vector2(5.23985, -2.92297)
+position = Vector2(63.0164, 48.3108)
+rotation = 0.504093
+shape = SubResource("RectangleShape2D_1k8ba")
+
+[node name="RigidBody2D5" type="RigidBody2D" parent="."]
+position = Vector2(878, 298)
+rotation = -2.12394
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D5"]
+position = Vector2(63.0164, 48.3108)
+rotation = 0.504093
+shape = SubResource("RectangleShape2D_1k8ba")
+
+[node name="RigidBody2D6" type="RigidBody2D" parent="."]
+position = Vector2(606, 370)
+rotation = -2.12394
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D6"]
+position = Vector2(63.0164, 48.3108)
+rotation = 0.504093
 shape = SubResource("RectangleShape2D_1k8ba")

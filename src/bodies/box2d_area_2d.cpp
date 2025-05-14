@@ -155,7 +155,7 @@ void Box2DArea2D::update_overlaps() {
 void Box2DArea2D::apply_overrides() {
 	for (const auto &[object, overlap_count] : object_overlap_count) {
 		Box2DBody2D *body = object->as_body();
-		if (!body || object->is_freed()) {
+		if (!body || !object->in_space()) {
 			continue;
 		}
 

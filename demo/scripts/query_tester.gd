@@ -30,6 +30,7 @@ enum QueryType {
 	RAYCAST,
 	CAST_MOTION,
 	COLLIDE_SHAPE,
+	REST_INFO,
 }
 
 func _ready() -> void:
@@ -78,6 +79,8 @@ func _draw() -> void:
 				var angle = i * (2 * PI / cast_count)
 				var ray = Vector2.from_angle(angle) * 300
 				collide_shape(ray, selected_shape_rid)
+		QueryType.REST_INFO:
+			rest_info(selected_shape_rid)
 
 
 func cast_ray(ray: Vector2):
@@ -123,6 +126,21 @@ func collide_shape(ray: Vector2, shape_rid: RID) -> void:
 	for i in range(0, points.size(), 2):
 		draw_circle(points[i], zoom_scale * 6.0, Color.ORANGE)
 		draw_circle(points[i + 1], zoom_scale * 3.0, Color.ROYAL_BLUE)
+
+
+func rest_info(shape_rid: RID) -> void:
+	var parameters = PhysicsShapeQueryParameters2D.new()
+	parameters.transform = global_transform
+	parameters.shape_rid = shape_rid
+	parameters.collide_with_bodies = collide_bodies
+	parameters.collide_with_areas = collide_areas
+	var result := get_world_2d().direct_space_state.get_rest_info(parameters)
+
+	draw_shape(selected_shape_rid, global_position)
+	if not result:
+		return
+	var zoom_scale = get_viewport_transform().affine_inverse().get_scale().x
+	draw_circle(result["point"], zoom_scale * 6.0, Color.ORANGE)
 
 
 func test_point():
@@ -173,3 +191,7 @@ func _on_cast_motion_pressed() -> void:
 
 func _on_collide_shape_pressed() -> void:
 	query = QueryType.COLLIDE_SHAPE
+
+
+func _on_rest_info_pressed() -> void:
+	query = QueryType.REST_INFO
