@@ -101,7 +101,7 @@ void Box2DBody2D::set_inertia(float p_inertia) {
 
 Vector2 Box2DBody2D::get_center_of_mass_global() const {
 	ERR_FAIL_COND_V(!in_space(), Vector2());
-	return to_godot(b2Body_GetWorldCenterOfMass(body_id));
+	return to_godot(b2Body_GetWorldCenter(body_id));
 }
 
 void Box2DBody2D::set_center_of_mass(const Vector2 &p_center) {
@@ -293,7 +293,7 @@ static void set_rotation_and_position_fast(Transform2D &p_xf, b2Rot p_rot, Vecto
 static void set_rotation_and_position(Transform2D &p_xf, float p_rot, Vector2 p_pos) {
 	TracyZoneScoped("Box2DBody2D::sync_state::set_rotation_and_position");
 
-	real_t det_sign = Math::sign(p_xf.basis_determinant());
+	real_t det_sign = Math::sign(p_xf.determinant());
 	Vector2 scale = Vector2(p_xf.columns[0].length(), det_sign * p_xf.columns[1].length());
 	real_t skew = Math::acos(p_xf.columns[0].normalized().dot(det_sign * p_xf.columns[1].normalized())) - (real_t)Math_PI * 0.5f;
 
@@ -390,7 +390,10 @@ void Box2DBody2D::get_contacts(int p_max_count) {
 			Contact contact;
 			contact.body = other_body;
 			contact.normal_impulse = to_godot(point.normalImpulse);
-			contact.local_position = to_godot(point.point);
+
+			b2BodyId body_id_a = owns_shape_a ? body_id : other_body->get_body_id();
+			b2Pos world_point = b2OffsetPos(b2Body_GetWorldCenter(body_id_a), point.anchorA);
+			contact.local_position = to_godot(world_point);
 			contact.local_normal = to_godot_normalized(box2d_contact.manifold.normal);
 			contact.depth = depth;
 			contact.local_shape = local_shape->get_index();

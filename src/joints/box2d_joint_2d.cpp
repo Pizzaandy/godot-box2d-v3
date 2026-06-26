@@ -13,7 +13,7 @@ void Box2DJoint2D::copy_settings_from(Box2DJoint2D *p_joint) {
 
 void Box2DJoint2D::destroy_joint() {
 	if (b2Joint_IsValid(joint_id)) {
-		b2DestroyJoint(joint_id);
+		b2DestroyJoint(joint_id, true);
 	}
 	joint_id = b2_nullJointId;
 }

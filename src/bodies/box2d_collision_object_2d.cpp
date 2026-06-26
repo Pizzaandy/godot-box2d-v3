@@ -342,10 +342,11 @@ int Box2DCollisionObject2D::character_collide(
 
 		b2Transform xf = to_box2d(p_from);
 		b2ShapeProxy proxy = shape.get_proxy();
+
 		proxy = b2MakeOffsetProxy(proxy.points, proxy.count, proxy.radius, xf.p, xf.q);
 
 		CharacterCollideContext context{ shape_id, xf, shape, p_results };
-		b2World_OverlapShape(space->get_world_id(), &proxy, filter, character_overlap_callback, &context);
+		b2World_OverlapShape(space->get_world_id(), b2Pos_zero, &proxy, filter, character_overlap_callback, &context);
 	}
 
 	return p_results.size();
@@ -426,12 +427,13 @@ CharacterCastResult Box2DCollisionObject2D::character_cast(const Transform2D &p_
 		Box2DShapePrimitive shape(shape_id);
 		shape = shape.inflated(p_margin);
 
+		b2Pos pos = to_box2d(p_from.get_origin());
 		b2Transform xf = to_box2d(p_from);
 		b2ShapeProxy proxy = shape.get_proxy();
-		proxy = b2MakeOffsetProxy(proxy.points, proxy.count, proxy.radius, xf.p, xf.q);
+		proxy = b2MakeOffsetProxy(proxy.points, proxy.count, proxy.radius, b2Vec2_zero, xf.q);
 
 		CharacterCastContext context{ shape_id, xf, shape, result, p_motion, p_margin };
-		b2World_CastShape(space->get_world_id(), &proxy, to_box2d(p_motion), filter, character_cast_callback, &context);
+		b2World_CastShape(space->get_world_id(), pos, &proxy, to_box2d(p_motion), filter, character_cast_callback, &context);
 	}
 
 	return result;

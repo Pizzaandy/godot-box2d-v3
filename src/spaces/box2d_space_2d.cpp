@@ -4,32 +4,22 @@
 #include <godot_cpp/classes/os.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-void group_task_function(void *p_userdata, uint32_t worker_index) {
+void task_function(void *p_userdata) {
 	TracyZoneScoped("Box2D Group Task");
 
 	Box2DTaskData *data = static_cast<Box2DTaskData *>(p_userdata);
 
-	int32_t items_per_task = data->item_count / data->task_count;
-
-	int32_t startIndex = worker_index * items_per_task;
-	int32_t endIndex = startIndex + items_per_task;
-	if (worker_index == data->task_count - 1) {
-		endIndex = data->item_count;
-	}
-
-	data->task(startIndex, endIndex, worker_index, data->task_context);
+	data->task(data->task_context);
 }
 
-void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t minRange, void *taskContext, void *userContext) {
+void *enqueue_task_callback(b2TaskCallback *task, void *taskContext, void *userContext) {
 	Box2DSpace2D *space = static_cast<Box2DSpace2D *>(userContext);
 
-	int32_t task_count = Math::clamp(itemCount / minRange, 1, space->get_max_tasks());
-
-	Box2DTaskData *task_data = new Box2DTaskData{ 0, taskContext, task, itemCount, task_count };
+	Box2DTaskData *task_data = new Box2DTaskData{ 0, taskContext, task };
 
 	static const String task_name("Box2D Task");
 
-	task_data->group_id = WorkerThreadPool::get_singleton()->add_native_group_task(group_task_function, task_data, task_count, task_count, true, task_name);
+	task_data->task_id = WorkerThreadPool::get_singleton()->add_native_task(task_function, task_data, true, task_name);
 
 	return task_data;
 }
@@ -37,7 +27,7 @@ void *enqueue_task_callback(b2TaskCallback *task, int32_t itemCount, int32_t min
 void finish_task_callback(void *taskPtr, void *userContext) {
 	if (taskPtr) {
 		Box2DTaskData *task_data = static_cast<Box2DTaskData *>(taskPtr);
-		WorkerThreadPool::get_singleton()->wait_for_group_task_completion(task_data->group_id);
+		WorkerThreadPool::get_singleton()->wait_for_task_completion(task_data->task_id);
 		delete task_data;
 	}
 }
@@ -81,11 +71,11 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Vec2 point, 
 	return true;
 }
 
-float godot_friction_callback(float frictionA, int materialA, float frictionB, int materialB) {
+float godot_friction_callback(float frictionA, uint64_t userMaterialIdA, float frictionB, uint64_t userMaterialIdB) {
 	return Math::abs(Math::min(frictionA, frictionB));
 }
 
-float godot_restitution_callback(float restitutionA, int materialA, float restitutionB, int materialB) {
+float godot_restitution_callback(float restitutionA, uint64_t userMaterialIdA, float restitutionB, uint64_t matuserMaterialIdBerialB) {
 	return Math::clamp(restitutionA + restitutionB, 0.0f, 1.0f);
 }
 

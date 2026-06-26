@@ -31,18 +31,19 @@ ShapeCollideResult box2d_collide_shapes(
 	b2ShapeType type_a = p_shape_a.type;
 	b2ShapeType type_b = p_shape_b.type;
 
-	b2Manifold manifold = { 0 };
+	b2LocalManifold manifold = { 0 };
+	b2Transform xform = b2InvMulWorldTransforms(xfa, xfb);
 
 	switch (type_a) {
 		case b2ShapeType::b2_capsuleShape: {
 			b2Capsule a = p_shape_a.capsule;
 			switch (type_b) {
 				case b2ShapeType::b2_capsuleShape: {
-					manifold = b2CollideCapsules(&a, xfa, &p_shape_b.capsule, xfb);
+					manifold = b2CollideCapsules(&a, &p_shape_b.capsule, xform);
 					break;
 				}
 				case b2ShapeType::b2_circleShape: {
-					manifold = b2CollideCapsuleAndCircle(&a, xfa, &p_shape_b.circle, xfb);
+					manifold = b2CollideCapsuleAndCircle(&a, &p_shape_b.circle, xform);
 					break;
 				}
 				case b2ShapeType::b2_polygonShape:
@@ -66,7 +67,7 @@ ShapeCollideResult box2d_collide_shapes(
 					return box2d_collide_shapes(p_shape_b, xfb, p_shape_a, xfa, true);
 				}
 				case b2ShapeType::b2_circleShape: {
-					manifold = b2CollideCircles(&a, xfa, &p_shape_b.circle, xfb);
+					manifold = b2CollideCircles(&a, &p_shape_b.circle, xform);
 					break;
 				}
 				default: {
@@ -79,15 +80,15 @@ ShapeCollideResult box2d_collide_shapes(
 			b2Polygon a = p_shape_a.polygon;
 			switch (type_b) {
 				case b2ShapeType::b2_capsuleShape: {
-					manifold = b2CollidePolygonAndCapsule(&a, xfa, &p_shape_b.capsule, xfb);
+					manifold = b2CollidePolygonAndCapsule(&a, &p_shape_b.capsule, xform);
 					break;
 				}
 				case b2ShapeType::b2_circleShape: {
-					manifold = b2CollidePolygonAndCircle(&a, xfa, &p_shape_b.circle, xfb);
+					manifold = b2CollidePolygonAndCircle(&a, &p_shape_b.circle, xform);
 					break;
 				}
 				case b2ShapeType::b2_polygonShape: {
-					manifold = b2CollidePolygons(&a, xfa, &p_shape_b.polygon, xfb);
+					manifold = b2CollidePolygons(&a, &p_shape_b.polygon, xform);
 					break;
 				}
 				case b2ShapeType::b2_segmentShape:
@@ -104,15 +105,15 @@ ShapeCollideResult box2d_collide_shapes(
 			b2Segment a = p_shape_a.segment;
 			switch (type_b) {
 				case b2ShapeType::b2_capsuleShape: {
-					manifold = b2CollideSegmentAndCapsule(&a, xfa, &p_shape_b.capsule, xfb);
+					manifold = b2CollideSegmentAndCapsule(&a, &p_shape_b.capsule, xform);
 					break;
 				}
 				case b2ShapeType::b2_circleShape: {
-					manifold = b2CollideSegmentAndCircle(&a, xfa, &p_shape_b.circle, xfb);
+					manifold = b2CollideSegmentAndCircle(&a, &p_shape_b.circle, xform);
 					break;
 				}
 				case b2ShapeType::b2_polygonShape: {
-					manifold = b2CollideSegmentAndPolygon(&a, xfa, &p_shape_b.polygon, xfb);
+					manifold = b2CollideSegmentAndPolygon(&a, &p_shape_b.polygon, xform);
 					break;
 				}
 				case b2ShapeType::b2_segmentShape:
@@ -130,16 +131,16 @@ ShapeCollideResult box2d_collide_shapes(
 			switch (type_b) {
 				case b2ShapeType::b2_capsuleShape: {
 					b2SimplexCache cache{ 0 };
-					manifold = b2CollideChainSegmentAndCapsule(&a, xfa, &p_shape_b.capsule, xfb, &cache);
+					manifold = b2CollideChainSegmentAndCapsule(&a, &p_shape_b.capsule, xform, &cache);
 					break;
 				}
 				case b2ShapeType::b2_circleShape: {
-					manifold = b2CollideChainSegmentAndCircle(&a, xfa, &p_shape_b.circle, xfb);
+					manifold = b2CollideChainSegmentAndCircle(&a, &p_shape_b.circle, xform);
 					break;
 				}
 				case b2ShapeType::b2_polygonShape: {
 					b2SimplexCache cache{ 0 };
-					manifold = b2CollideChainSegmentAndPolygon(&a, xfa, &p_shape_b.polygon, xfb, &cache);
+					manifold = b2CollideChainSegmentAndPolygon(&a, &p_shape_b.polygon, xform, &cache);
 					break;
 				}
 				case b2ShapeType::b2_segmentShape:
@@ -165,15 +166,17 @@ ShapeCollideResult box2d_collide_shapes(
 		return result;
 	}
 
-	result.normal = -to_godot_normalized(manifold.normal);
-
+	b2WorldTransform xform_a = b2MakeWorldTransform(xfa);
+	b2Vec2 world_normal = b2InvRotateVector(xform_a.q, manifold.normal);
+	result.normal = -to_godot_normalized(world_normal);
 	if (p_swapped) {
 		result.normal *= -1.0f;
 	}
 
 	for (int i = 0; i < manifold.pointCount; i++) {
 		result.points[i].depth = -to_godot(manifold.points[i].separation);
-		result.points[i].point = to_godot(manifold.points[i].point) + (0.5f * result.points[i].depth * result.normal);
+		b2Pos world_point_a = b2TransformWorldPoint(xform_a, manifold.points[i].point);
+		result.points[i].point = to_godot(world_point_a) + (0.5f * result.points[i].depth * result.normal);
 	}
 
 	return result;

@@ -44,6 +44,13 @@ _FORCE_INLINE_ b2Vec2 to_box2d(const Vector2 p_vec) {
 	return scale * b2Vec2{ (float)p_vec.x, (float)p_vec.y };
 }
 
+#if defined(BOX2D_DOUBLE_PRECISION)
+_FORCE_INLINE_ b2Pos to_box2d(const Vector2 p_vec) {
+	float scale = 1 / BOX2D_PIXELS_PER_METER;
+	return scale * b2Pos{ p_vec.x, p_vec.y };
+}
+#endif
+
 _FORCE_INLINE_ b2Vec2 to_box2d_normalized(const Vector2 p_vec) {
 	return b2Normalize(b2Vec2{ (float)p_vec.x, (float)p_vec.y });
 }

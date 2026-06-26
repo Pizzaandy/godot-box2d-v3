@@ -17,7 +17,7 @@ bool ArrayQueryFilter::is_excluded(const Box2DCollisionObject2D *p_object) const
 int box2d_cast_shape(const Box2DShapePrimitive &p_shape, const CastQuery p_query, LocalVector<CastHit> &p_results) {
 	CastQueryCollector collector(p_query, p_results);
 	b2ShapeProxy proxy = p_shape.inflated(p_query.margin).get_proxy();
-	b2World_CastShape(p_query.world, &proxy, to_box2d(p_query.translation), p_query.filter.box2d_filter, cast_callback, &collector);
+	b2World_CastShape(p_query.world, b2Pos_zero, &proxy, to_box2d(p_query.translation), p_query.filter.box2d_filter, cast_callback, &collector);
 	return collector.count;
 }
 
@@ -25,7 +25,7 @@ int box2d_overlap_shape(const Box2DShapePrimitive &p_shape, const OverlapQuery p
 	Box2DShapePrimitive shape = p_shape.inflated(p_query.margin);
 	b2ShapeProxy proxy = shape.get_proxy();
 	OverlapQueryCollector collector(p_query, p_results, shape);
-	b2World_OverlapShape(p_query.world, &proxy, p_query.filter.box2d_filter, overlap_callback, &collector);
+	b2World_OverlapShape(p_query.world, b2Pos_zero, &proxy, p_query.filter.box2d_filter, overlap_callback, &collector);
 	return collector.count;
 }
 

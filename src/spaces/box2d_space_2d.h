@@ -13,11 +13,9 @@
 using namespace godot;
 
 struct Box2DTaskData {
-	WorkerThreadPool::GroupID group_id;
+	WorkerThreadPool::TaskID task_id;
 	void *task_context;
 	b2TaskCallback *task;
-	int32_t item_count;
-	int32_t task_count;
 };
 
 class Box2DDirectSpaceState2D;
