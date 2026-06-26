@@ -222,9 +222,10 @@ Vector2 Box2DBody2D::get_linear_velocity() const {
 	return to_godot(b2Body_GetLinearVelocity(body_id));
 }
 
-Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_point) const {
+Vector2 Box2DBody2D::get_velocity_at_local_point(const Vector2 &p_relative_position) const {
 	ERR_FAIL_COND_V(!in_space(), Vector2());
-	return get_velocity_at_point(current_transform.get_origin() + p_point);
+	float angular_velocity = get_angular_velocity();
+	return get_linear_velocity() + Vector2(-angular_velocity * p_relative_position.y, angular_velocity * p_relative_position.x);
 }
 
 Vector2 Box2DBody2D::get_velocity_at_point(const Vector2 &p_point) const {
@@ -281,7 +282,7 @@ static void set_rotation_and_position_fast(Transform2D &p_xf, b2Rot p_rot, Vecto
 	b2Rot b = p_rot;
 	b2Rot a = { p_xf.columns[0].x, p_xf.columns[0].y };
 
-	float delta_angle = b2RelativeAngle(b, a);
+	float delta_angle = b2RelativeAngle(a, b);
 
 	p_xf.columns[0] = p_xf.columns[0].rotated(delta_angle);
 	p_xf.columns[1] = p_xf.columns[1].rotated(delta_angle);

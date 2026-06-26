@@ -132,7 +132,7 @@ bool Box2DDirectSpaceState2D::_intersect_ray(
 }
 
 /// A shape cast that returns overlapped shapes
-/// Includes initial overlaps I think
+/// Includes initial overlaps I think?
 int32_t Box2DDirectSpaceState2D::_intersect_shape(
 		const RID &p_shape_rid,
 		const Transform2D &p_transform,

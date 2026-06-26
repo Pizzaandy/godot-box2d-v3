@@ -966,6 +966,8 @@ PhysicsDirectBodyState2D *Box2DPhysicsServer2D::_body_get_direct_state(const RID
 
 static thread_local LocalVector<CharacterCollideResult> character_collide_results;
 
+/// This function is primarily designed to be compatible with `move_and_collide` and `CharacterBody2D`.
+/// For best results I should add a custom character mover later.
 bool Box2DPhysicsServer2D::_body_test_motion(
 		const RID &p_body,
 		const Transform2D &p_from,
@@ -978,20 +980,18 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 	ERR_FAIL_NULL_V(body, false);
 
 	Transform2D transform = p_from;
-
-	Vector2 recovery = Vector2();
-
-	//1.0f * to_godot(BOX2D_LINEAR_SLOP)
-	p_margin = Math::max(p_margin, 0.0001f);
+	Vector2 recovery_motion = Vector2();
 
 	// 1) Recover from overlaps
-	const int iterations = 8;
-	const float recover_ratio = 0.5f;
-	const float min_contact_depth = to_godot(BOX2D_LINEAR_SLOP);
+	const int recover_iterations = 4;
+	const float recover_ratio = 0.4f;
+	const float linear_slop = to_godot(BOX2D_LINEAR_SLOP);
+
+	p_margin = Math::max(p_margin, 2.0f * linear_slop);
 
 	bool recovered = false;
 
-	for (int i = 0; i < iterations; i++) {
+	for (int i = 0; i < recover_iterations; i++) {
 		int count = body->character_collide(transform, p_margin, character_collide_results);
 
 		if (count == 0) {
@@ -1001,10 +1001,6 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 		bool any_collided = false;
 
 		for (CharacterCollideResult &collision : character_collide_results) {
-			if (collision.depth < min_contact_depth) {
-				continue;
-			}
-
 			Box2DShapeInstance *shape = collision.other_shape;
 			if (shape->should_filter_one_way_collision(p_motion, collision.normal, collision.depth)) {
 				continue;
@@ -1013,9 +1009,8 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 			any_collided = true;
 			recovered = true;
 
-			float recover_amount = collision.depth * recover_ratio;
-			Vector2 recover_step = collision.normal * recover_amount;
-			recovery += recover_step;
+			Vector2 recover_step = collision.normal * collision.depth * recover_ratio;
+			recovery_motion += recover_step;
 			transform.set_origin(transform.get_origin() + recover_step);
 		}
 
@@ -1024,102 +1019,75 @@ bool Box2DPhysicsServer2D::_body_test_motion(
 		}
 	}
 
-	// 2) Shape cast
+	bool collided = false;
+
 	CharacterCastResult cast_result = body->character_cast(transform, p_margin, p_motion);
 
-	if (!p_result) {
-		return cast_result.hit || (recovered && p_recovery_as_collision);
+	if (cast_result.hit || (recovered && p_recovery_as_collision)) {
+		Vector2 motion = p_motion * cast_result.unsafe_fraction;
+		int count = body->character_collide(transform.translated(motion), p_margin, character_collide_results);
+		collided = count > 0;
 	}
 
-	// 3) Get rest info
-	// Change from Godot Physics: use the collision information from the shape cast if it exists.
-	if (cast_result.hit) {
-		float safe_fraction = box2d_compute_safe_fraction(cast_result.unsafe_fraction, p_motion.length());
-		Box2DCollisionObject2D *object = cast_result.other_shape->get_collision_object();
+	if (!p_result) {
+		return collided;
+	}
 
-		p_result->travel = (p_motion * safe_fraction) + recovery;
-		p_result->remainder = p_motion * (1 - safe_fraction);
-
-		p_result->collision_depth = 0.0f;
-		p_result->collision_point = cast_result.point;
-		p_result->collision_normal = cast_result.normal;
-
-		p_result->collision_safe_fraction = safe_fraction;
-		p_result->collision_unsafe_fraction = cast_result.unsafe_fraction;
-		p_result->collision_local_shape = cast_result.shape->get_index();
-
-		p_result->collider_id = object->get_instance_id();
-		p_result->collider = object->get_rid();
-		p_result->collider_shape = cast_result.other_shape->get_index();
-
-		Box2DBody2D *body = object->as_body();
-		if (body) {
-			p_result->collider_velocity = body->get_velocity_at_point(cast_result.point);
-		} else {
-			p_result->collider_velocity = Vector2();
-		}
-
-		return true;
-	} else {
-		int deepest_index = -1;
-
-		if (recovered && p_recovery_as_collision) {
-			transform.set_origin(transform.get_origin() + p_motion);
-			int count = body->character_collide(transform, p_margin, character_collide_results);
-
-			for (int i = 0; i < character_collide_results.size(); i++) {
-				CharacterCollideResult &collision = character_collide_results[i];
-				// if (p_motion.length_squared() > 0.0f && p_motion.normalized().dot(collision.normal) >= -CMP_EPSILON) {
-				// 	continue;
-				// }
-				if (deepest_index == -1) {
-					deepest_index = i;
-					continue;
-				}
-				if (character_collide_results[i].depth > character_collide_results[deepest_index].depth) {
-					deepest_index = i;
-				}
-			}
-		}
-
-		if (deepest_index < 0) {
-			p_result->travel = p_motion + recovery;
-			p_result->remainder = Vector2();
-			p_result->collision_safe_fraction = 1.0f;
-			p_result->collision_unsafe_fraction = 1.0f;
-			p_result->collision_depth = 0.0f;
-			return false;
-		}
-
-		CharacterCollideResult &rest_collision = character_collide_results[deepest_index];
-
-		p_result->travel = p_motion + recovery;
+	if (!collided) {
+		p_result->travel = recovery_motion + p_motion;
 		p_result->remainder = Vector2();
-
-		p_result->collision_point = rest_collision.point;
-		p_result->collision_normal = rest_collision.normal;
-		p_result->collision_depth = rest_collision.depth;
-
+		p_result->collision_depth = 0.0f;
 		p_result->collision_safe_fraction = 1.0f;
 		p_result->collision_unsafe_fraction = 1.0f;
-		p_result->collision_local_shape = rest_collision.shape->get_index();
+		p_result->collider_velocity = Vector2();
+		return false;
+	}
 
-		Box2DCollisionObject2D *object = rest_collision.other_shape->get_collision_object();
+	float safe_fraction = 1.0f;
+	float unsafe_fraction = 1.0f;
+
+	if (collided) {
+		unsafe_fraction = cast_result.unsafe_fraction;
+		safe_fraction = box2d_compute_safe_fraction(unsafe_fraction, p_motion.length());
+	}
+
+	p_result->travel = recovery_motion + p_motion * safe_fraction;
+	p_result->remainder = p_motion * (1 - safe_fraction);
+	p_result->collision_safe_fraction = safe_fraction;
+	p_result->collision_unsafe_fraction = unsafe_fraction;
+
+	bool overlap_found = false;
+
+	for (CharacterCollideResult &collision : character_collide_results) {
+		if (collision.other_shape->should_filter_one_way_collision(p_motion, collision.normal, collision.depth)) {
+			continue;
+		}
+		if (overlap_found && collision.depth <= p_result->collision_depth) {
+			continue;
+		}
+
+		overlap_found = true;
+
+		p_result->collision_depth = collision.depth;
+		p_result->collision_normal = collision.normal;
+		p_result->collision_point = collision.point + collision.normal * p_margin;
+
+		p_result->collision_local_shape = collision.shape->get_index();
+		Box2DCollisionObject2D *object = collision.other_shape->get_collision_object();
 		p_result->collider_id = object->get_instance_id();
 		p_result->collider = object->get_rid();
-		p_result->collider_shape = rest_collision.other_shape->get_index();
+		p_result->collider_shape = collision.other_shape->get_index();
 
 		Box2DBody2D *body = object->as_body();
 		if (body) {
-			p_result->collider_velocity = body->get_velocity_at_point(rest_collision.point);
+			Vector2 rel_vec = p_result->collision_point - (body->get_transform().get_origin() + body->get_center_of_mass());
+			p_result->collider_velocity = Vector2(-body->get_angular_velocity() * rel_vec.y, body->get_angular_velocity() * rel_vec.x) + body->get_linear_velocity();
 		} else {
 			p_result->collider_velocity = Vector2();
 		}
-
-		return true;
 	}
 
-	return false;
+	return overlap_found;
 }
 
 // Joint API
@@ -1414,6 +1382,8 @@ void Box2DPhysicsServer2D::_set_active(bool p_active) {
 }
 
 void Box2DPhysicsServer2D::_init() {
+	b2Version version = b2GetVersion();
+	UtilityFunctions::print_rich("[b]Godot Box2D v3[/b] | Using Box2D version: " + vformat("%d.%d.%d", version.major, version.minor, version.revision));
 	box2d_set_pixels_per_meter(Box2DProjectSettings::get_pixels_per_meter());
 }
 

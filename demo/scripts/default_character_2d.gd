@@ -22,8 +22,12 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 
+	#print("move and slide start")
 	move_and_slide()
+	#print("move and slide end")
 	queue_redraw()
+	#print(get_platform_velocity())
+
 
 func _draw() -> void:
 	draw_set_transform_matrix(global_transform.affine_inverse())
@@ -33,5 +37,8 @@ func _draw() -> void:
 		return
 	var point := last_collision.get_position()
 	var normal := last_collision.get_normal()
+	var depth := last_collision.get_depth()
+
 	draw_circle(point, 3.0, Color.BLACK)
-	draw_line(point, point + normal * 25, Color.BLACK, 3)
+	draw_line(point, point + normal * depth, Color.YELLOW, 3)
+	draw_line(point, point + normal * 25, Color.BLACK, 1)

@@ -97,6 +97,7 @@ struct CharacterCastResult {
 	bool hit = false;
 	Vector2 point = Vector2();
 	Vector2 normal = Vector2();
+	float safe_fraction = 1.0f;
 	float unsafe_fraction = 1.0f;
 	b2ShapeId shape_id = b2_nullShapeId;
 	Box2DShapeInstance *shape = nullptr;

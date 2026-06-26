@@ -14,18 +14,18 @@ Box2DDampedSpringJoint2D::Box2DDampedSpringJoint2D(const Vector2 &p_anchor_a, co
 	Vector2 anchor_a = p_body_a->get_transform().affine_inverse().xform(p_anchor_a);
 	Vector2 anchor_b = p_body_b->get_transform().affine_inverse().xform(p_anchor_b);
 
-	distance_def.bodyIdA = p_body_a->get_body_id();
-	distance_def.bodyIdB = p_body_b->get_body_id();
-	distance_def.localAnchorA = to_box2d(anchor_a);
-	distance_def.localAnchorB = to_box2d(anchor_b);
+	distance_def.base.bodyIdA = p_body_a->get_body_id();
+	distance_def.base.bodyIdB = p_body_b->get_body_id();
+	distance_def.base.localFrameA.p = to_box2d(anchor_a);
+	distance_def.base.localFrameB.p = to_box2d(anchor_b);
 
 	distance_def.enableSpring = true;
 	distance_def.length = to_box2d(50.0);
 	distance_def.dampingRatio = 1.0;
 	set_stiffness(20.0);
 
-	distance_def.collideConnected = !disabled_collisions_between_bodies;
-	distance_def.userData = this;
+	distance_def.base.collideConnected = !disabled_collisions_between_bodies;
+	distance_def.base.userData = this;
 
 	joint_id = b2CreateDistanceJoint(space->get_world_id(), &distance_def);
 }

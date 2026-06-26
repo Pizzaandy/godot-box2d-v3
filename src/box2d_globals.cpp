@@ -6,7 +6,7 @@ float BOX2D_LINEAR_SLOP = 0.005f;
 // TODO: revisit, consider implementing Godot-style cast function
 float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distance, float p_amount) {
 	if (p_amount <= 0.0f) {
-		p_amount = 2.0f * to_godot(BOX2D_LINEAR_SLOP);
+		p_amount = to_godot(BOX2D_LINEAR_SLOP) * 1.5f;
 	}
 
 	if (p_total_distance <= 0.0f) {
@@ -18,8 +18,7 @@ float box2d_compute_safe_fraction(float p_unsafe_fraction, float p_total_distanc
 	}
 
 	float distance = p_unsafe_fraction * p_total_distance;
-	float adjusted_distance = Math::max(0.0f, distance - p_amount);
-
+	float adjusted_distance = Math::clamp(distance - p_amount, 0.0f, p_total_distance);
 	return adjusted_distance / p_total_distance;
 }
 

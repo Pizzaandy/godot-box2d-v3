@@ -14,16 +14,16 @@ Box2DPinJoint2D::Box2DPinJoint2D(const Vector2 &p_pos, Box2DBody2D *p_body_a, Bo
 	Vector2 anchor_a = p_body_a->get_transform().affine_inverse().xform(p_pos);
 	Vector2 anchor_b = p_body_b->get_transform().affine_inverse().xform(p_pos);
 
-	revolute_def.bodyIdA = p_body_a->get_body_id();
-	revolute_def.bodyIdB = p_body_b->get_body_id();
-	revolute_def.localAnchorA = to_box2d(anchor_a);
-	revolute_def.localAnchorB = to_box2d(anchor_b);
+	revolute_def.base.bodyIdA = p_body_a->get_body_id();
+	revolute_def.base.bodyIdB = p_body_b->get_body_id();
+	revolute_def.base.localFrameA.p = to_box2d(anchor_a);
+	revolute_def.base.localFrameB.p = to_box2d(anchor_b);
 
 	// TODO: account for mass?
 	revolute_def.maxMotorTorque = 100000.0;
 
-	revolute_def.collideConnected = !disabled_collisions_between_bodies;
-	revolute_def.userData = this;
+	revolute_def.base.collideConnected = !disabled_collisions_between_bodies;
+	revolute_def.base.userData = this;
 
 	joint_id = b2CreateRevoluteJoint(space->get_world_id(), &revolute_def);
 }

@@ -42,9 +42,9 @@ void finish_task_callback(void *taskPtr, void *userContext) {
 	}
 }
 
-bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *manifold, void *context) {
-	Box2DBody2D *body_a = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)))->as_body();
-	Box2DBody2D *body_b = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)))->as_body();
+bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Vec2 point, b2Vec2 normal, void *context) {
+	const Box2DBody2D *body_a = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdA)))->as_body();
+	const Box2DBody2D *body_b = static_cast<Box2DCollisionObject2D *>(b2Body_GetUserData(b2Shape_GetBody(shapeIdB)))->as_body();
 
 	if (!body_a || !body_b) {
 		return true;
@@ -55,24 +55,25 @@ bool box2d_godot_presolve(b2ShapeId shapeIdA, b2ShapeId shapeIdB, b2Manifold *ma
 		return false;
 	}
 
-	Vector2 normal = to_godot_normalized(manifold->normal);
+	//ShapeCollideResult result = box2d_collide_shapes(shapeIdA, to_box2d(body_a->get_transform()), shapeIdB, to_box2d(body_b->get_transform()));
 
-	float depth = 0.0f;
+	// float depth = 0.0f;
+	// if (result.point_count == 2) {
+	// 	depth = -to_godot(Math::min(result.points[0].depth, result.points[1].depth));
+	// } else if (result.point_count == 1) {
+	// 	depth = -to_godot(manifold->points[0].separation);
+	// } else {
+	// 	return false;
+	// }
 
-	if (manifold->pointCount == 2) {
-		depth = -to_godot(Math::min(manifold->points[0].separation, manifold->points[1].separation));
-	} else if (manifold->pointCount == 1) {
-		depth = -to_godot(manifold->points[0].separation);
-	} else {
-		return false;
-	}
+	Vector2 collision_normal = to_godot_normalized(normal);
 
 	const Box2DShapeInstance *shape_a = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdA));
 	const Box2DShapeInstance *shape_b = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shapeIdB));
 
 	if (shape_a->has_one_way_collision() || shape_b->has_one_way_collision()) {
-		if (shape_a->should_filter_one_way_collision(body_b->get_linear_velocity(), normal, depth) ||
-				shape_b->should_filter_one_way_collision(body_a->get_linear_velocity(), normal, depth)) {
+		if (shape_a->should_filter_one_way_collision(body_b->get_linear_velocity(), collision_normal, 0.0f) ||
+				shape_b->should_filter_one_way_collision(body_a->get_linear_velocity(), -collision_normal, 0.0f)) {
 			return false;
 		}
 	}
@@ -100,7 +101,7 @@ Box2DSpace2D::Box2DSpace2D() {
 	if (max_thread_count < 1) {
 		max_tasks = hardware_thread_count;
 	} else {
-		max_tasks = (max_thread_count < hardware_thread_count) ? max_thread_count : hardware_thread_count;
+		max_tasks = Math::max(max_thread_count, hardware_thread_count);
 	}
 
 	max_tasks = Math::clamp(max_tasks, 0, 8);
@@ -108,8 +109,8 @@ Box2DSpace2D::Box2DSpace2D() {
 	world_def.gravity = to_box2d(default_gravity);
 	world_def.contactHertz = Box2DProjectSettings::get_contact_hertz();
 	world_def.contactDampingRatio = Box2DProjectSettings::get_contact_damping_ratio();
-	world_def.jointHertz = Box2DProjectSettings::get_joint_hertz();
-	world_def.jointDampingRatio = Box2DProjectSettings::get_joint_damping_ratio();
+	//world_def.jointHertz = Box2DProjectSettings::get_joint_hertz();
+	//world_def.jointDampingRatio = Box2DProjectSettings::get_joint_damping_ratio();
 
 	if (Box2DProjectSettings::get_friction_mixing_rule() == Box2DMixingRule::MIXING_RULE_GODOT) {
 		world_def.frictionCallback = godot_friction_callback;

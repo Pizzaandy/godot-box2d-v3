@@ -38,7 +38,7 @@ public:
 	void _set_transform(const Transform2D &p_transform) override;
 	Transform2D _get_transform() const override;
 
-	Vector2 _get_velocity_at_local_position(const Vector2 &p_position) const override;
+	Vector2 _get_velocity_at_local_position(const Vector2 &p_relative_position) const override;
 
 	void _apply_central_impulse(const Vector2 &p_impulse) override;
 	void _apply_impulse(const Vector2 &p_impulse, const Vector2 &p_position = Vector2()) override;

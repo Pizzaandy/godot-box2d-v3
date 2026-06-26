@@ -112,7 +112,7 @@ void Box2DArea2D::update_overlaps() {
 				shape_overlaps.resize(capacity);
 			}
 
-			int overlap_count = b2Shape_GetSensorOverlaps(shape_id, shape_overlaps.ptr(), capacity);
+			int overlap_count = b2Shape_GetSensorData(shape_id, shape_overlaps.ptr(), capacity);
 
 			for (int i = 0; i < overlap_count; i++) {
 				Box2DShapeInstance *other_shape = static_cast<Box2DShapeInstance *>(b2Shape_GetUserData(shape_overlaps[i]));

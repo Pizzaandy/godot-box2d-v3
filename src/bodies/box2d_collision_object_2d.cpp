@@ -74,21 +74,21 @@ void Box2DCollisionObject2D::set_mode(PhysicsServer2D::BodyMode p_mode) {
 			break;
 		case PhysicsServer2D::BODY_MODE_RIGID:
 			body_def.type = b2_dynamicBody;
-			body_def.fixedRotation = false;
+			body_def.motionLocks = b2MotionLocks{ false, false, false };
 			if (!in_space()) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
-			b2Body_SetFixedRotation(body_id, false);
+			b2Body_SetMotionLocks(body_id, body_def.motionLocks);
 			break;
 		case PhysicsServer2D::BODY_MODE_RIGID_LINEAR:
 			body_def.type = b2_dynamicBody;
-			body_def.fixedRotation = true;
+			body_def.motionLocks = b2MotionLocks{ false, false, true };
 			if (!in_space()) {
 				return;
 			}
 			b2Body_SetType(body_id, b2BodyType::b2_dynamicBody);
-			b2Body_SetFixedRotation(body_id, true);
+			b2Body_SetMotionLocks(body_id, body_def.motionLocks);
 			break;
 		default:
 			return;
@@ -148,7 +148,7 @@ void Box2DCollisionObject2D::set_transform(const Transform2D &p_transform, bool 
 
 		b2Rot target_rotation = b2MakeRot(rotation);
 		b2Rot current_rotation = b2MakeRot(current_transform.get_rotation());
-		float angular = b2RelativeAngle(target_rotation, current_rotation) / last_step;
+		float angular = b2RelativeAngle(current_rotation, target_rotation) / last_step;
 
 		b2Body_SetLinearVelocity(body_id, to_box2d(linear));
 		b2Body_SetAngularVelocity(body_id, (float)angular);
@@ -376,15 +376,15 @@ static float character_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 nor
 	}
 
 	// ignore initial overlaps if they can be resolved by moving all the way
-	if (fraction == 0.0f) {
-		b2Transform xfa = ctx->transform;
-		xfa.p += to_box2d(ctx->motion);
+	// if (fraction == 0.0f) {
+	// 	b2Transform xfa = ctx->transform;
+	// 	xfa.p += to_box2d(ctx->motion);
 
-		ShapeCollideResult collision = box2d_collide_shapes(ctx->shape, xfa, shapeId, b2Body_GetTransform(other_body_id));
-		if (collision.point_count == 0) {
-			return -1.0f;
-		}
-	}
+	// 	ShapeCollideResult collision = box2d_collide_shapes(ctx->shape, xfa, shapeId, b2Body_GetTransform(other_body_id));
+	// 	if (collision.point_count == 0) {
+	// 		return -1.0f;
+	// 	}
+	// }
 
 	if (other_shape->has_one_way_collision()) {
 		b2Transform xfa = ctx->transform;
@@ -402,6 +402,7 @@ static float character_cast_callback(b2ShapeId shapeId, b2Vec2 point, b2Vec2 nor
 	ctx->result.hit = true;
 	ctx->result.point = to_godot(point);
 	ctx->result.normal = godot_normal;
+	ctx->result.safe_fraction = ctx->result.unsafe_fraction;
 	ctx->result.unsafe_fraction = fraction;
 	ctx->result.shape_id = ctx->shape_id;
 	ctx->result.shape = this_shape;
@@ -421,18 +422,16 @@ CharacterCastResult Box2DCollisionObject2D::character_cast(const Transform2D &p_
 	BodyShapeRange range(body_id);
 	CharacterCastResult result;
 
-	Vector2 motion = p_motion.normalized() * (p_motion.length() + p_margin);
-
 	for (b2ShapeId shape_id : range) {
 		Box2DShapePrimitive shape(shape_id);
-		//shape = shape.inflated(p_margin);
+		shape = shape.inflated(p_margin);
 
 		b2Transform xf = to_box2d(p_from);
 		b2ShapeProxy proxy = shape.get_proxy();
 		proxy = b2MakeOffsetProxy(proxy.points, proxy.count, proxy.radius, xf.p, xf.q);
 
-		CharacterCastContext context{ shape_id, xf, shape, result, motion, p_margin };
-		b2World_CastShape(space->get_world_id(), &proxy, to_box2d(motion), filter, character_cast_callback, &context);
+		CharacterCastContext context{ shape_id, xf, shape, result, p_motion, p_margin };
+		b2World_CastShape(space->get_world_id(), &proxy, to_box2d(p_motion), filter, character_cast_callback, &context);
 	}
 
 	return result;

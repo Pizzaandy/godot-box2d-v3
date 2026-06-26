@@ -18,19 +18,19 @@ Box2DGrooveJoint2D::Box2DGrooveJoint2D(const Vector2 &p_a_groove1, const Vector2
 	Vector2 anchor_b = p_body_b->get_transform().affine_inverse().xform(p_b_anchor);
 	Vector2 axis = (point_a_2 - point_a_1).normalized();
 
-	wheel_def.bodyIdA = p_body_a->get_body_id();
-	wheel_def.bodyIdB = p_body_b->get_body_id();
-	wheel_def.localAnchorA = to_box2d(anchor_a);
-	wheel_def.localAnchorB = to_box2d(anchor_b);
+	wheel_def.base.bodyIdA = p_body_a->get_body_id();
+	wheel_def.base.bodyIdB = p_body_b->get_body_id();
+	wheel_def.base.localFrameA.p = to_box2d(anchor_a);
+	wheel_def.base.localFrameB.p = to_box2d(anchor_b);
 
 	wheel_def.enableLimit = true;
 	wheel_def.enableSpring = false;
 	wheel_def.upperTranslation = to_box2d(p_a_groove1.distance_to(p_a_groove2));
 	wheel_def.lowerTranslation = 0;
-	wheel_def.localAxisA = b2Vec2{ (float)axis.x, (float)axis.y };
+	wheel_def.base.localFrameA.q = b2MakeRot(axis.angle());
 
-	wheel_def.collideConnected = !disabled_collisions_between_bodies;
-	wheel_def.userData = this;
+	wheel_def.base.collideConnected = !disabled_collisions_between_bodies;
+	wheel_def.base.userData = this;
 
 	joint_id = b2CreateWheelJoint(space->get_world_id(), &wheel_def);
 }
