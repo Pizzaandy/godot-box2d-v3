@@ -1,3 +1,6 @@
+## Warning - Unmaintained
+I no longer have time to develop this plugin. It has some issues with unit conversion and memory safety in its current state and I do not recommend using it. Sorry!
+
 <p align="center">
   <img src="https://github.com/Pizzaandy/godot-box2d-v3/blob/main/logo.png?raw=true" />
 </p>
